@@ -2944,7 +2944,7 @@ void CGProxy :: ExtractLocalPackets( )
 
 								if( Flag == 16 || Flag == 32 ) // Chat message
 								{
-									if( !gGProxy->m_GameStarted )
+									if( Flag == 16 )
 									{
 										CONSOLE_Print( "[LOBBY]["+gGProxy->m_Username+"] "+MessageString );
 									}
@@ -3397,7 +3397,7 @@ void CGProxy :: ProcessRemotePackets( )
 					else 
 						playerName = playerNames[FromPID];
 
-					if( !gGProxy->m_GameStarted )
+					if( Flag == 16 )
 					{
 						CONSOLE_Print( "[LOBBY]["+playerName+"] "+MessageString );
 					}
