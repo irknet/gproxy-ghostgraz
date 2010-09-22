@@ -225,6 +225,7 @@ public:
 	string m_HostName;
 	string m_GameName; // manu
 	int m_ChannelWidth; // manu
+	bool m_PlaySound; // manu
 	
 	string cfgpublic;//phy public
 	string cfgfilter;//phy filter

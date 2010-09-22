@@ -38,6 +38,7 @@
 #include <Wininet.h>//phy !games
 #pragma comment(lib,"wininet")//phy !games
 #include <direct.h>//same
+#include <MMSystem.h>
 #pragma comment(lib,"winmm.lib")
 //#include <stdlib.h>//same
 #include <sstream>
@@ -1020,20 +1021,20 @@ void AddGamesFromTextFile(string filename)
 }
 void AddGamesFromTextFile(string filename, string gamemode)
 {
-	// Was throwing errors in DEBUG mode
-	/*char tempstr[30] = "FGames/";  //create the path of the textfile | works
+	// Is throwing errors in DEBUG mode
+	char tempstr[30] = "FGames/";  //create the path of the textfile | works
 	unsigned int i;
 	for (i=7; i<=filename.size()+7&&i<26;i++)
 		tempstr[i]=filename[i-7];
 	tempstr[filename.size()+7]="."[0];//add teh .txt
 	tempstr[filename.size()+8]="t"[0];
 	tempstr[filename.size()+9]="x"[0];
-	tempstr[filename.size()+10]="t"[0];*/
-	// Shorter and without errors:
-	string filepath = string("FGames/").append(filename).append(".txt");
+	tempstr[filename.size()+10]="t"[0];
+	// Shorter and without errors - disabled (maybe buggy)
+	/*string filepath = string("FGames/").append(filename).append(".txt");
 	char *tempstr = new char[filepath.size()+1];
 	tempstr[filepath.size()]=0;
-	memcpy(tempstr,filepath.c_str(),filepath.size());
+	memcpy(tempstr,filepath.c_str(),filepath.size());*/
 
 	//CONSOLE_Print(gamemode);
 	if (gamemode=="no gamemode")
@@ -1542,6 +1543,14 @@ int main( int argc, char **argv )
 			cfilter=CFG.GetString("filter", string());
 		
 			CONSOLE_Print("[Phyton] Filter ["+CFG.GetString("filter", string())+"] loaded from config.");
+		}
+
+		if( CFG.Exists("sound") )
+		{
+			if( CFG.GetString( "sound", string() ) == "off" || CFG.GetString( "sound", string() ) == "false")
+			{
+				gGProxy->m_PlaySound = false;
+			}
 		}
 
 		Username = CFG.GetString( "username", string( ) );
@@ -2408,12 +2417,10 @@ CGProxy :: CGProxy( bool nTFT, string nWar3Path, string nCDKeyROC, string nCDKey
 	m_listing_current_games=listing_current_games;
 	testvar = false;
 	m_ChannelWidth = channelWidth; // manu
-	help_gproxy=m_BNET->m_GProxy;//phy
+	help_gproxy = m_BNET->m_GProxy;//phy
+	m_PlaySound = true; // manu
 	
 	CONSOLE_Print( "[GPROXY] GProxy++ Version " + m_Version );
-	mciSendString(TEXT("open Sounds/whisper.mp3"), NULL, 0, NULL);
-	mciSendString(TEXT("open Sounds/Player leaves.wav"), NULL, 0, NULL);
-	mciSendString(TEXT("open Sounds/Game countdown started.wav"), NULL, 0, NULL);
 }
 
 CGProxy :: ~CGProxy( )
@@ -2426,9 +2433,6 @@ CGProxy :: ~CGProxy( )
 	delete m_RemoteSocket;
 	delete m_UDPSocket;
 	delete m_BNET;
-	mciSendString(TEXT("close Sounds/whisper.mp3"), NULL, 0, NULL);
-	mciSendString(TEXT("close Sounds/Player leaves.wav"), NULL, 0, NULL);
-	mciSendString(TEXT("close Sounds/Game countdown started.wav"), NULL, 0, NULL);
 
 	for( vector<CIncomingGameHost *> :: iterator i = m_Games.begin( ); i != m_Games.end( ); i++ )
 		delete *i;
@@ -3445,7 +3449,13 @@ void CGProxy :: ProcessRemotePackets( )
 				}*/
 
 				if( gGProxy->m_GameStarted )
+				{
+					if( gGProxy->m_PlaySound )
+					{
+						sndPlaySound(L"Sounds\\Player leaves.wav",SND_ASYNC | SND_FILENAME);
+					}
 					CONSOLE_Print( "[ALL] "+playerNames[((int) Data[4])]+" has left the game." );
+				}
 				else
 					CONSOLE_Print( "[LOBBY] "+playerNames[((int) Data[4])]+" has left the game." );
 
@@ -3622,10 +3632,6 @@ void CGProxy :: ProcessRemotePackets( )
 			}
 			else if( Packet->GetID( ) == CGameProtocol :: W3GS_GAMELOADED_OTHERS )
 			{
-				mciSendString(TEXT("close Sounds/Game countdown started.wav"), NULL, 0, NULL);
-				mciSendString(TEXT("open Sounds/Game countdown started.wav"), NULL, 0, NULL);
-				mciSendString(TEXT("play Sounds/Game countdown started.wav"), NULL, 0, NULL);
-
 				uint32_t loadingTime = GetTicks() - countdownEndTime;
 				uint32_t sec = loadingTime / 1000;
 				uint32_t dsec = (loadingTime / 100)%10;
@@ -3656,7 +3662,13 @@ void CGProxy :: ProcessRemotePackets( )
 				finishedLoadingCounter++;
 
 				if( slotsWithPlayer == finishedLoadingCounter )
+				{
 					gameLoaded = true;
+					if( gGProxy->m_PlaySound )
+					{
+						sndPlaySound(L"Sounds\\Game countdown started.wav",SND_ASYNC | SND_FILENAME);
+					}
+				}
 				
 				gChannelWindowChanged = true;
 				CONSOLE_Draw();
@@ -3687,6 +3699,28 @@ void CGProxy :: ProcessRemotePackets( )
 						it = slots.erase(it);
 						continue;
 					}
+				}
+			}
+			else if( Packet->GetID( ) == CGameProtocol :: W3GS_REJECTJOIN )
+			{
+				BYTEARRAY Data = Packet->GetData();
+
+				if( Data.size() < 5 )
+					return;
+
+				uint32_t reason = UTIL_ByteArrayToUInt32( Data, false, 4 );
+
+				switch(reason)
+				{
+					case 0x09:
+						CONSOLE_Print("[GPROXY] gamelobby is full");
+						break;
+					case 0x10:
+						CONSOLE_Print("[GPROXY] game has been started");
+						break;
+					case 0x27:
+						CONSOLE_Print("[GPROXY] wrong password");
+						break;
 				}
 			}
 			else if( Packet->GetID( ) == CGameProtocol :: W3GS_INCOMING_ACTION )

@@ -32,6 +32,7 @@
 #include <Wininet.h>//phy !games
 #pragma comment(lib,"wininet")//phy !games
 #include <direct.h>//same
+#include <MMSystem.h>
 #pragma comment(lib,"winmm.lib")
 //
 //#include <boost/thread.hpp>
@@ -92,8 +93,6 @@ CBNET :: CBNET( CGProxy *nGProxy, string nServer, string nBNLSServer, uint16_t n
 		nBNLSPort = 0;
 		nBNLSWardenCookie = 0;
 	}
-
-	//	mciSendString(TEXT("open Sounds/whisper.mp3"), NULL, 0, NULL);//whiper beep
 
 	m_BNLSServer = nBNLSServer;
 	m_BNLSPort = nBNLSPort;
@@ -165,7 +164,6 @@ CBNET :: ~CBNET( )
 	}
 
 	delete m_BNCSUtil;
-	//mciSendString(TEXT("close Sounds/whisper.mp3"), NULL, 0, NULL);//whisper beep
 }
 
 
@@ -800,11 +798,13 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
 		if( m_GProxy->m_LocalSocket )
 			m_GProxy->SendLocalChat( User + " whispers: " + Message );
-		//mciSendString(TEXT("open Sounds/whisper.mp3"), NULL, 0, NULL);
-		 
-		mciSendString(TEXT("close Sounds/whisper.mp3"), NULL, 0, NULL); 
-		mciSendString(TEXT("open Sounds/whisper.mp3"), NULL, 0, NULL); 
-		mciSendString(TEXT("play Sounds/whisper.mp3"), NULL, 0, NULL); // wait
+
+		if( m_GProxy->m_PlaySound )
+		{
+			sndPlaySound(L"Sounds\\Whisper Sound.wav",SND_ASYNC | SND_FILENAME);
+		}
+		
+		// wait
 		//m_LastWhisper= GetTicks();
 		
 		//MessageBeep (1);
