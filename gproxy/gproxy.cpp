@@ -937,7 +937,7 @@ void downloadfile(string url,string filename) //downloadfile("http://assets.thro
 	wurl = url.c_str();
 #endif
 
-		LPCWSTR wfilepath;
+	LPCWSTR wfilepath;
 #ifdef UNICODE
 		std::wstring wfilepath_temp = s2ws(string("FGames/").append(filename));
 	wfilepath = wfilepath_temp.c_str();
@@ -945,6 +945,8 @@ void downloadfile(string url,string filename) //downloadfile("http://assets.thro
 	wfilepath = string("FGames/").append(filename).c_str();
 #endif
 
+	remove(string(string("FGames/").append(filename)).c_str());		//delete the old file
+	DeleteUrlCacheEntry(wurl);
 	HRESULT hResult = URLDownloadToFile(NULL, wurl, wfilepath, 0, NULL);
 	CoUninitialize();
 }
@@ -1022,19 +1024,19 @@ void AddGamesFromTextFile(string filename)
 void AddGamesFromTextFile(string filename, string gamemode)
 {
 	// Is throwing errors in DEBUG mode
-	char tempstr[30] = "FGames/";  //create the path of the textfile | works
+	/*char tempstr[30] = "FGames/";  //create the path of the textfile | works
 	unsigned int i;
-	for (i=7; i<=filename.size()+7&&i<26;i++)
+	for (i=7; i<filename.size()+7&&i<26;i++)
 		tempstr[i]=filename[i-7];
 	tempstr[filename.size()+7]="."[0];//add teh .txt
 	tempstr[filename.size()+8]="t"[0];
 	tempstr[filename.size()+9]="x"[0];
-	tempstr[filename.size()+10]="t"[0];
-	// Shorter and without errors - disabled (maybe buggy)
-	/*string filepath = string("FGames/").append(filename).append(".txt");
+	tempstr[filename.size()+10]="t"[0];*/
+	// Shorter and without errors
+	string filepath = string("FGames/").append(filename).append(".txt");
 	char *tempstr = new char[filepath.size()+1];
 	tempstr[filepath.size()]=0;
-	memcpy(tempstr,filepath.c_str(),filepath.size());*/
+	memcpy(tempstr,filepath.c_str(),filepath.size());
 
 	//CONSOLE_Print(gamemode);
 	if (gamemode=="no gamemode")
@@ -2228,6 +2230,9 @@ int main( int argc, char **argv )
 					CONSOLE_Print( string("[GPROXY] ")+char(6)+char(7)+"This mod is by "
 						+char(6)+char(2)+" Phyton"+char(6)+char(7)+","+char(6)+char(13)+" Pr0gm4n"+char(6)+char(7)
 						+" and "+char(6)+char(14)+"Manufactoring"+char(6)+char(7)+"." );
+				}
+				else if(Command == "/test")
+				{
 				}
 				else if( gGProxy->m_BNET->GetInGame() )
 				{
