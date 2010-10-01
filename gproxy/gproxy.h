@@ -130,8 +130,8 @@ public:
 // output
 
 void LOG_Print( string message );
-void CONSOLE_Print( string message, bool log = true , int vcol = 7);
-void CONSOLE_PrintNoCRLF( string message, bool log = true, int vcol = 7);
+void CONSOLE_Print( string message, bool log = true, int vcol = 7 );
+void CONSOLE_PrintNoCRLF( string message, bool log = true, int vcol = 7 );
 void CONSOLE_ChangeChannel( string channel );
 void CONSOLE_AddChannelUser( string name );
 void CONSOLE_RemoveChannelUser( string name );

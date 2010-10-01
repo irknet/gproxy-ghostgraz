@@ -114,21 +114,22 @@ CGProxy *help_gproxy;
 string cchatcommand;
 //uint32_t PingPhy;//phy
 
-// Manufactorings work
-vector<CIncomingFriendList *> friendList;
-string channelList[100];
-vector<CIncomingSlots *> slots;
-string playerNames[12];
-bool DotAmap;
-bool playerLoadingComplete[12];
-int slotsWithPlayer;
-int finishedLoadingCounter;
-int teamNumber;
-int teams;
-bool gameLoaded = false;
-uint32_t countdownEndTime;
-vector<string> commandHistory;
-int commandHistoryIndex = 0;
+/* Manufactorings work */
+vector<CIncomingFriendList *> friendList;	// List of friends
+string channelList[100];					// Text in channel at linenumber
+vector<CIncomingSlots *> slots;				// List of slots
+string playerNames[12];						// Player name at playerID
+bool DotAmap;								// If the map being played is DotA
+bool playerLoadingComplete[12];				// Player (playerID) has finished loading
+int slotsWithPlayer;						// Total slots owning a player
+int finishedLoadingCounter;					// Number of people who finished map loading
+int teamNumber;								// User team number
+int teams;									// Number of total teams in game
+uint32_t countdownEndTime;					// When the game starts loading (Used for loading times)
+vector<string> commandHistory;				// List of used commands
+int commandHistoryIndex = 0;				// Index corresponding to the command history
+int chatHistoryIndex = 0;					// Index corresponding to the chat/message history
+bool endOfChat = true;						// 
 
 void addgame(string gamename)
 {
@@ -362,7 +363,7 @@ void CONSOLE_FriendsReceived(vector<CIncomingFriendList *> Friends)
 	CONSOLE_Draw();
 }
 
-void CONSOLE_PrintNoCRLF( string message, bool log , int vcol )
+void CONSOLE_PrintNoCRLF( string message, bool log, int vcol )
 {
 	string s = message;
 	
@@ -419,9 +420,20 @@ void CONSOLE_PrintNoCRLF( string message, bool log , int vcol )
 
 	if (message.substr(0,16)!="["+user+"] /emote "&&message!="["+user+"] /emote")
 	{
+		// Incoming message
 		gMainBuffer.push_back((char)6 + ((char)vcol + get_time()+" "+ message ));
 
-		if( gMainBuffer.size( ) > 100 )
+		if( gMainBuffer.size() > (LINES -3) )
+		{
+			// If the scroll pointer is on the bottom: autoscroll
+			if( chatHistoryIndex + 1 >= gMainBuffer.size() - (LINES -3) )
+			{
+				chatHistoryIndex = gMainBuffer.size() - (LINES - 3);
+			}
+		}
+
+		// Set the maximum number of storable messages to save memory.
+		if( gMainBuffer.size( ) > 200 )
 			gMainBuffer.erase( gMainBuffer.begin( ) );
 
 		gMainWindowChanged = true;
@@ -520,11 +532,13 @@ void CONSOLE_Draw()
 	{
 		wclear( gMainWindow );
 		wmove( gMainWindow, 0, 0 );
+		int counter = 0;
 
-		for( vector<string> :: iterator i = gMainBuffer.begin( ); i != gMainBuffer.end( ); i++ )
+		for( vector<string> :: iterator i = gMainBuffer.begin( ) + chatHistoryIndex;
+			i != gMainBuffer.end( ); i++ )
 		{
 			//SetAttribute( data, name, flag, B_TAB, false );
-//wattr_on( gMainWindow, COLOR_PAIR((int)((*i)[0])), 0 );
+			//wattr_on( gMainWindow, COLOR_PAIR((int)((*i)[0])), 0 );
 
 			for( string :: iterator j = (*i).begin( ); j != (*i).end( ); j++ )
 			{
@@ -559,13 +573,18 @@ void CONSOLE_Draw()
 					ss<<int(out);
 					ss>>s;
 
-					for( int i = 0; i < s.size(); i++)
+					for( unsigned int i = 0; i < s.size(); i++)
 						waddch( gMainWindow, s[i] );
 				}
 			}
 
+			if( counter == LINES - 4 )
+				break;
+
 			if( i != gMainBuffer.end( ) - 1 )
 				waddch( gMainWindow, '\n' );
+
+			counter++;
 		}
 		wattr_on( gMainWindow, COLOR_PAIR(7), 0 );
 
@@ -748,7 +767,7 @@ void CONSOLE_Draw()
 						}
 						else if ( drawTeam )
 						{
-							if( teamNumber != 0 )
+							if( i != 0 )
 								y++;
 
 							ostringstream team;
@@ -808,7 +827,7 @@ void CONSOLE_Draw()
 						else
 						{
 							if( gGProxy->m_GameStarted )
-								if( playerLoadingComplete[ (*it)->GetPID() ] && !gameLoaded )
+								if( playerLoadingComplete[ (*it)->GetPID() ] )
 									wattr_on( gChannelWindow, COLOR_PAIR(14), 0 );
 								else
 									wattr_on( gChannelWindow, COLOR_PAIR(7), 0 );
@@ -946,6 +965,8 @@ void downloadfile(string url,string filename) //downloadfile("http://assets.thro
 #endif
 
 	remove(string(string("FGames/").append(filename)).c_str());		//delete the old file
+	if ( FAILED( CoInitialize(NULL) ) ) 
+		CONSOLE_Print("[Phyton] Error with dl");
 	DeleteUrlCacheEntry(wurl);
 	HRESULT hResult = URLDownloadToFile(NULL, wurl, wfilepath, 0, NULL);
 	CoUninitialize();
@@ -1271,7 +1292,7 @@ int main( int argc, char **argv )
 
 	wchar_t wc[40];
 	for (int i = 0; i < 40; i++)
-		wc[i]="Customized GProxy++ - GhostGraz v0.5+"[i];
+		wc[i]="Customized GProxy++ - GhostGraz v0.6+"[i];
 
 	SetConsoleTitle(wc); //wcahr---
 /*
@@ -1625,7 +1646,8 @@ int main( int argc, char **argv )
 
 	// Manufactoring
 	MEVENT pos;
-    mousemask( BUTTON1_CLICKED | BUTTON1_RELEASED | BUTTON3_CLICKED | BUTTON3_RELEASED, NULL);
+    mousemask( BUTTON1_CLICKED | BUTTON1_RELEASED | BUTTON3_CLICKED | BUTTON3_RELEASED
+		| MOUSE_WHEEL_SCROLL, NULL);
 
 	// initialize gproxy
 
@@ -1639,10 +1661,47 @@ int main( int argc, char **argv )
 		bool Quit = false;
 
 		int c = wgetch( gInputWindow );
+		request_mouse_pos( );
+
 		while( c != ERR )
 		{
 			if( c == KEY_MOUSE ) // Manufactoring (mouse hook)
 			{
+				if( Mouse_status.changes == MOUSE_WHEEL_UP )
+				{
+					chatHistoryIndex--;
+					if( chatHistoryIndex < 0 )
+					{
+						chatHistoryIndex = 0;
+					}
+					else // dont update if you are already on top
+					{
+						gMainWindowChanged = true;
+						CONSOLE_Draw();
+					}
+				}
+				else if( Mouse_status.changes == MOUSE_WHEEL_DOWN )
+				{
+					chatHistoryIndex++;
+
+					if( gMainBuffer.size() > (LINES -3) )
+					{
+						if( chatHistoryIndex > gMainBuffer.size() - (LINES -3) )
+						{
+							chatHistoryIndex = gMainBuffer.size() - (LINES - 3);
+						}
+						else // only update if you didnt scroll above the limit
+						{
+							gMainWindowChanged = true;
+							CONSOLE_Draw();
+						}
+					}
+					else // dont update if the max text is less than the displayable lines
+					{
+						chatHistoryIndex = 0;
+					}
+				}
+
 				if( nc_getmouse(&pos) != ERR )
 				{
 					int x = pos.x;
@@ -1737,6 +1796,40 @@ int main( int argc, char **argv )
 			else if( c == 9 )
 			{
 				// tab
+			}
+			else if( c == KEY_NPAGE )
+			{
+				chatHistoryIndex++;
+
+				if( gMainBuffer.size() > (LINES -3) )
+				{
+					if( chatHistoryIndex > gMainBuffer.size() - (LINES -3) )
+					{
+						chatHistoryIndex = gMainBuffer.size() - (LINES - 3);
+					}
+					else // only update if you didnt scroll above the limit
+					{
+						gMainWindowChanged = true;
+						CONSOLE_Draw();
+					}
+				}
+				else // dont update if the max text is less than the displayable lines
+				{
+					chatHistoryIndex = 0;
+				}
+			}
+			else if( c == KEY_PPAGE )
+			{
+				chatHistoryIndex--;
+				if( chatHistoryIndex < 0 )
+				{
+					chatHistoryIndex = 0;
+				}
+				else // dont update if you are already on top
+				{
+					gMainWindowChanged = true;
+					CONSOLE_Draw();
+				}
 			}
 #ifdef WIN32
 			else if( c == 10 || c == 13 || c == PADENTER )
@@ -3592,6 +3685,10 @@ void CGProxy :: ProcessRemotePackets( )
 							(*it)->SetComputerType( ((int) Data[i+7]) );
 							(*it)->SetHandicap( ((int) Data[i+8]) );
 							(*it)->SetName( playerNames[((int) Data[i])] );
+
+							if( ((int) Data[i]) == m_ChatPID )
+								teamNumber = (int) Data[i+4];
+
 							break;
 						}
 					}
@@ -3692,7 +3789,11 @@ void CGProxy :: ProcessRemotePackets( )
 
 				if( slotsWithPlayer == finishedLoadingCounter )
 				{
-					gameLoaded = true;
+					for(int i = 0; i < 12; i++)
+						playerLoadingComplete[i] = false;
+
+					finishedLoadingCounter = 0;
+
 					if( gGProxy->m_PlaySound )
 					{
 						sndPlaySound(L"Sounds\\Game countdown started.wav",SND_ASYNC | SND_FILENAME);
@@ -4060,10 +4161,10 @@ void CGProxy :: SendAllMessage( string message )
 		return;
 	}
 
-	if( gGProxy->m_GameStarted && !gameLoaded )
+	/*if( false && gGProxy->m_GameStarted && !gameLoaded ) // deactivated
 	{
 		CONSOLE_Print( "[Manufactoring][ERROR] Cannot send \"AllMessage\". Game is loading." );
-	}
+	}*/
 	else if( !gGProxy->m_GameStarted )
 	{
 		CONSOLE_Print( "[Manufactoring][ERROR] Cannot send \"AllMessage\". You are currently in the lobby." );
@@ -4077,7 +4178,7 @@ void CGProxy :: SendAllMessage( string message )
 
 		for( vector<CIncomingSlots *> :: iterator it = slots.begin(); it != slots.end(); it++ )
 		{
-			if( (*it)->GetSlotStatus() == 2 && (*it)->GetComputerStatus() == 0 )
+			//if( (*it)->GetSlotStatus() == 2 && (*it)->GetComputerStatus() == 0 )
 				toPIDs.push_back( (*it)->GetPID() );
 		}
 
@@ -4105,17 +4206,17 @@ void CGProxy :: SendAllyMessage( string message )
 
 	if( !gGProxy->m_BNET->GetInGame() )
 	{
-		CONSOLE_Print( "[Manufactoring][ERROR] Cannot send \"AllMessage\". You need to be ingame." );
+		CONSOLE_Print( "[Manufactoring][ERROR] Cannot send \"AllyMessage\". You need to be ingame." );
 		return;
 	}
 
-	if(false && gGProxy->m_GameStarted && !gameLoaded )//phy deactivated
+	/*if(false && gGProxy->m_GameStarted && !gameLoaded )//phy deactivated
 	{
-		CONSOLE_Print( "[Manufactoring][ERROR] Cannot send \"AllMessage\". Game is loading." );
-	}
+		CONSOLE_Print( "[Manufactoring][ERROR] Cannot send \"AllyMessage\". Game is loading." );
+	}*/
 	else if( !gGProxy->m_GameStarted )
 	{
-		CONSOLE_Print( "[Manufactoring][ERROR] Cannot send \"AllMessage\". You are currently in the lobby." );
+		CONSOLE_Print( "[Manufactoring][ERROR] Cannot send \"AllyMessage\". You are currently in the lobby." );
 	}
 	else
 	{
@@ -4126,7 +4227,7 @@ void CGProxy :: SendAllyMessage( string message )
 
 		for( vector<CIncomingSlots *> :: iterator it = slots.begin(); it != slots.end(); it++ )
 		{
-			if( (*it)->GetSlotStatus() == 2 && (*it)->GetComputerStatus() == 0 && (*it)->GetTeam() == teamNumber )
+			if( /*(*it)->GetSlotStatus() == 2 && (*it)->GetComputerStatus() == 0 && */(*it)->GetTeam() == teamNumber )
 				toPIDs.push_back( (*it)->GetPID() );
 		}
 
@@ -4171,7 +4272,7 @@ void CGProxy :: SendLobbyMessage( string message )
 
 		for( vector<CIncomingSlots *> :: iterator it = slots.begin(); it != slots.end(); it++ )
 		{
-			if( (*it)->GetSlotStatus() == 2 && (*it)->GetComputerStatus() == 0 )
+			//if( (*it)->GetSlotStatus() == 2 && (*it)->GetComputerStatus() == 0 )
 				toPIDs.push_back( (*it)->GetPID() );
 		}
 

@@ -43,7 +43,7 @@ void dl()
 
 	while (help_bnet) 
 	{
-		if(!help_bnet->m_GProxy->m_LocalSocket){
+		if(!help_bnet->GetInGame()){
 			if(help_bnet->GetServer()=="europe.battle.net")
 			{
 				downloadfile("http://forum.ghostgraz.com/feeds/currentgames.txt","graz.txt");
