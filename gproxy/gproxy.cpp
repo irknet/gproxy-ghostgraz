@@ -3167,9 +3167,6 @@ bool CGProxy :: CheckForwarding( string MessageString )
 							{
 								
 								Sleep(50);
-							
-					
-								
 							}
 						}
 						else 
@@ -3256,18 +3253,123 @@ bool CGProxy :: CheckForwarding( string MessageString )
 		{
 			if( m_BNET->GetLoggedIn( ) )
 			{
-				string Message;
-				string Target;
-				string Prefix;
-				int Messagebegins;
-				Messagebegins = MessageString.find_first_of(" ",4);
+				int Messagebegins = Command.find_first_of(" ",4);
 				
-
-				m_BNET->QueueChatCommand( MessageString );
-				SendLocalChat( "Whisper to "+MessageString.substr(3,Messagebegins-3)+": "+MessageString.substr(Messagebegins));
+				if(Messagebegins != -1)
+				{
+					m_BNET->QueueChatCommand( MessageString );
+					SendLocalChat( "Whisper to "+MessageString.substr(3,Messagebegins-3)+": "+MessageString.substr(Messagebegins));
+				}
 			}
 			else
 				SendLocalChat( "You are not connected to battle.net." );
+		}
+		else if(Command.size() >= 2 && Command.substr( 0, 2 ) == "/s" && Command.substr( 0, 3) != "/sd" )
+		{
+			string message;
+
+			if(Command.size() == 2)
+				message = "!stats";
+			else
+				message = string("!stats").append(Command.substr(2));
+
+			if( !gGProxy->m_BNET->GetInGame() )
+			{
+				gGProxy->m_BNET->QueueChatCommand( message );
+			}
+			else
+			{
+				if( !gGProxy->m_GameStarted )
+				{
+					SendLobbyMessage( message );
+				}
+				else
+				{
+					SendAllyMessage( message );
+				}
+			}
+		}
+		else if(Command.size() >= 3 && Command.substr( 0, 3 ) == "/sd" )
+		{
+			string message;
+
+			if(Command.size() == 3)
+				message = "!statsdota";
+			else
+				message = string("!statsdota").append(Command.substr(3));
+
+			if( !gGProxy->m_BNET->GetInGame() )
+			{
+				gGProxy->m_BNET->QueueChatCommand( message );
+			}
+			else
+			{
+				if( !gGProxy->m_GameStarted )
+				{
+					SendLobbyMessage( message );
+				}
+				else
+				{
+					SendAllyMessage( message );
+				}
+			}
+		}
+	}
+	else if( Command.size( ) >= 1 && Command.substr( 0, 1 ) == "!" )
+	{
+		if( Command.substr(0,6) == "!stats" || Command.substr(0,10) == "!statsdota" )
+		{
+			return true;
+		}
+		else if(Command.size() >= 2 && Command.substr( 0, 2 ) == "!s" && Command.substr(0,3) != "!sd" )
+		{
+			string message;
+
+			if( Command == "!s" )
+				message = "!stats";
+			else if( Command.substr( 2, 1 ) == " " )
+				message = string("!stats").append(Command.substr(2));
+
+			if( !gGProxy->m_BNET->GetInGame() )
+			{
+				gGProxy->m_BNET->QueueChatCommand( message );
+			}
+			else
+			{
+				if( !gGProxy->m_GameStarted )
+				{
+					SendLobbyMessage( message );
+				}
+				else
+				{
+					SendAllyMessage( message );
+				}
+			}
+		}
+		else if(Command.size() >= 3 && Command.substr( 0, 3 ) == "!sd" )
+		{
+			string message;
+
+			if( Command == "!sd" )
+				message = "!statsdota";
+			else if( Command.substr( 3, 1 ) == " " )
+				message = string("!statsdota").append(Command.substr(3));
+
+			if( !gGProxy->m_BNET->GetInGame() )
+			{
+				gGProxy->m_BNET->QueueChatCommand( message );
+			}
+			else
+			{
+				if( !gGProxy->m_GameStarted )
+				{
+					SendLobbyMessage( message );
+				}
+				else
+				{
+					SendAllyMessage( message );
+				}
+			}
 		}
 	}
 
