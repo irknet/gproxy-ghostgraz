@@ -26,17 +26,21 @@
 #include "bnetprotocol.h"
 #include "bnet.h"
 #include "gameprotocol.h"
+
 #include <algorithm>
-#include <mmsystem.h>//test
+#include <mmsystem.h>
 #include <cctype>
-#include <Wininet.h>//phy !games
-#pragma comment(lib,"wininet")//phy !games
-#include <direct.h>//same
+#include <Wininet.h>
+#include <direct.h>
 #include <MMSystem.h>
+
+#pragma comment(lib,"wininet")
 #pragma comment(lib,"winmm.lib")
-//
-//#include <boost/thread.hpp>
+
+
 CBNET *help_bnet;
+uint32_t lastgames = GetTime() - 7;
+
 void dl()
 {
 	//string server=help_bnet->GetServer();
@@ -46,7 +50,7 @@ void dl()
 		if(!help_bnet->GetInGame()){
 			if(help_bnet->GetServer()=="europe.battle.net")
 			{
-				downloadfile("http://forum.ghostgraz.com/feeds/currentgames.txt","graz.txt");
+				downloadfile("http://0.static.ghostgraz.com/currentgames.txt","graz.txt");
 				AddGamesFromTextFile("graz","no gamemode");
 			}
 			else if(help_bnet->GetServer()=="uswest.battle.net"||help_bnet->GetServer()=="useast.battle.net")
@@ -65,8 +69,6 @@ int lower_case ( int c )
 {
 	return tolower ( c );
 }
-
-uint32_t lastgames=GetTime()-7;
 
 
 //
@@ -165,8 +167,6 @@ CBNET :: ~CBNET( )
 
 	delete m_BNCSUtil;
 }
-
-
 
 BYTEARRAY CBNET :: GetUniqueName( )
 {
@@ -829,15 +829,15 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 		}
 		if(flisting_current_games() && Message == "!games" && lastgames + 15 < GetTime())
 		{
-			downloadfile("http://forum.ghostgraz.com/feeds/currentgames.txt","gra8.txt");
+			downloadfile("http://0.static.ghostgraz.com/currentgames.txt","gra8.txt");
 			/*
 			_mkdir("FGames");
 			remove("FGames/gra8.txt");
 			if ( FAILED( CoInitialize(NULL) ) ) 
 				CONSOLE_Print("[Phyton]error with dl"); 
-			DeleteUrlCacheEntry(  TEXT("http://forum.ghostgraz.com/feeds/currentgames.txt"));
+			DeleteUrlCacheEntry(  TEXT("http://0.static.ghostgraz.com/currentgames.txt"));
 
-			HRESULT hResult = URLDownloadToFile(NULL,TEXT("http://forum.ghostgraz.com/feeds/currentgames.txt"),	TEXT("FGames/gra8.txt"),0,NULL);			
+			HRESULT hResult = URLDownloadToFile(NULL,TEXT("http://0.static.ghostgraz.com/currentgames.txt"),	TEXT("FGames/gra8.txt"),0,NULL);			
 					
 			CoUninitialize();
 			if ( FAILED(hResult) ) 

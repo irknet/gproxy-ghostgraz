@@ -127,6 +127,23 @@ public:
 	void SetName			( string nname )		{ name =			nname; }
 };
 
+class CPlayer
+{
+private:
+	string name;
+	unsigned int stayPercent;
+
+public:
+	CPlayer( ) { }
+	CPlayer( string nname ) { name = nname; }
+	~CPlayer( ) { }
+
+	string GetName( ) { return name; }
+	unsigned int GetStayPercent( ) { return stayPercent; }
+	void SetName( string nname ) { name = nname; }
+	void SetStayPercent( unsigned int nstayPercent ) { stayPercent = nstayPercent; }
+};
+
 // output
 
 void LOG_Print( string message );
@@ -223,9 +240,12 @@ public:
 	uint32_t m_LastActionTime;
 	string m_JoinedName;
 	string m_HostName;
-	string m_GameName; // manu
-	int m_ChannelWidth; // manu
-	bool m_PlaySound; // manu
+
+	// Manu start
+	string m_GameName;
+	int m_ChannelWidth;
+	bool m_PlaySound;
+	// Manu end
 	
 	string cfgpublic;//phy public
 	string cfgfilter;//phy filter
@@ -259,8 +279,6 @@ public:
 	void SendChangeTeam( unsigned char team );		// Manufactoring
 	void SendEmptyAction( );
 };
-
-
 
 
 #endif

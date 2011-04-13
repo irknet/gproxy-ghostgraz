@@ -19,6 +19,8 @@
 #include "gproxy.h"
 #include "util.h"
 #include "bnetprotocol.h"
+
+
 uint32_t CIncomingChatEvent::GetPingPhy()
 {
 	return m_Ping;	
