@@ -1,0 +1,13 @@
+INPUT(
+./build/Debug/Qt_MinGW-Windows/decodekey.o
+./build/Debug/Qt_MinGW-Windows/cdkeydecoder.o
+./build/Debug/Qt_MinGW-Windows/checkrevision.o
+./build/Debug/Qt_MinGW-Windows/pe.o
+./build/Debug/Qt_MinGW-Windows/nls.o
+./build/Debug/Qt_MinGW-Windows/bsha1.o
+./build/Debug/Qt_MinGW-Windows/file.o
+./build/Debug/Qt_MinGW-Windows/stack.o
+./build/Debug/Qt_MinGW-Windows/oldauth.o
+./build/Debug/Qt_MinGW-Windows/sha1.o
+./build/Debug/Qt_MinGW-Windows/libinfo.o
+);

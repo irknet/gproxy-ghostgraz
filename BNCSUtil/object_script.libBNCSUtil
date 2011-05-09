@@ -1,0 +1,13 @@
+CREATE dist/Release/Qt_MinGW-Windows/libBNCSUtil.a
+ADDMOD build/Release/Qt_MinGW-Windows/decodekey.o
+ADDMOD build/Release/Qt_MinGW-Windows/cdkeydecoder.o
+ADDMOD build/Release/Qt_MinGW-Windows/checkrevision.o
+ADDMOD build/Release/Qt_MinGW-Windows/pe.o
+ADDMOD build/Release/Qt_MinGW-Windows/nls.o
+ADDMOD build/Release/Qt_MinGW-Windows/bsha1.o
+ADDMOD build/Release/Qt_MinGW-Windows/file.o
+ADDMOD build/Release/Qt_MinGW-Windows/stack.o
+ADDMOD build/Release/Qt_MinGW-Windows/oldauth.o
+ADDMOD build/Release/Qt_MinGW-Windows/sha1.o
+ADDMOD build/Release/Qt_MinGW-Windows/libinfo.o
+SAVE
