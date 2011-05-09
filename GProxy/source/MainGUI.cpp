@@ -46,7 +46,7 @@ void MainGUI::init ()
     int appWidth = config->getInt("width");
     int appHeight = config->getInt("height");
 
-    if(appWidth < 10 || appHeight < 10)
+    if (appWidth < 500 || appHeight < 200)
     {
         this->move((screenWidth - this->width()) / 2,
                 (screenHeight - this->height()) / 2 - 50);
@@ -118,8 +118,6 @@ void MainGUI::initSlots ()
             this, SLOT(actionConfigClicked()));
 }
 
-
-
 void MainGUI::resizeEvent (QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
@@ -133,13 +131,12 @@ void MainGUI::inputFieldTextChanged ()
     {
         QString input = widget.inputField->toPlainText();
         input.replace("\n", "");
-        input = input.toLower();
 
         widget.inputField->setPlainText("");
 
         processInput(input);
     }
-    else if (widget.inputField->toPlainText() == "/r "
+    else if (widget.inputField->toPlainText().toLower() == "/r "
             && !gproxy->m_BNET->GetReplyTarget().empty())
     {
         widget.inputField->setPlainText("/w "
@@ -171,7 +168,7 @@ void MainGUI::showChannelContextMenu (const QPoint& pos)
 
     QMenu menu;
     menu.addAction("Whisper");
-    if(gproxy->m_BNET->GetInGame())
+    if (gproxy->m_BNET->GetInGame())
     {
         menu.addAction("!stats");
         menu.addAction("!statsdota");
@@ -227,7 +224,7 @@ void MainGUI::showFriendsContextMenu (const QPoint& pos)
     }
 }
 
-void MainGUI::actionConfigClicked()
+void MainGUI::actionConfigClicked ()
 {
     ConfigGUI *config = new ConfigGUI(gproxy->getConfig());
     config->show();
@@ -235,7 +232,9 @@ void MainGUI::actionConfigClicked()
 
 void MainGUI::processInput (const QString& input)
 {
-    if (input == "/commands")
+    QString command = input.toLower();
+
+    if (command == "/commands")
     {
         addOutputText(">>> /commands");
         addOutputText("");
@@ -271,168 +270,176 @@ void MainGUI::processInput (const QString& input)
         addOutputText("   /w <user> <message> : whispers <message> to <user>");
         addOutputText("");
     }
-    else if (input == "/exit" || input == "/quit")
+    else if (command == "/exit" || command == "/quit")
     {
         close();
         return;
     }
-    else if (input.mid(0, 9) == "/friends " || input.mid(0, 3) == "/f ")
+    else if (command.startsWith("/friends ") || command.startsWith("/f "))
     {
         gproxy->m_BNET->QueueChatCommand(input.toStdString());
         gproxy->m_BNET->UpdateFriendList();
     }
-    else if (input.size() >= 9 && input.mid(0, 8) == "/filter ")
-    {
-        string filter = input.mid(8).toStdString();
-
-        if (!filter.empty() && filter.size() <= 31)
-        {
-            gproxy->m_BNET->SetPublicGameFilter(filter);
-            addOutputText("[BNET] started filtering public game names for \"" + filter + "\"");
-        }
-    }
-    else if (input == "/filteroff")
+    else if (command == "/filteroff" || command == "/filter off")
     {
         gproxy->m_BNET->SetPublicGameFilter(string());
         addOutputText("[BNET] stopped filtering public game names");
     }
-    else if (input.mid(0, 6) == "/priv " && input.size() >= 7 && gproxy->GetPrivategamename() != "")
+    else if (command.length() >= 9 && command.startsWith("/filter "))
+    {
+        QString filter = input.mid(8);
+
+        if (!filter.isEmpty())
+        {
+            filter = filter.left(31);
+            gproxy->m_BNET->SetPublicGameFilter(filter.toStdString());
+            addMessage("[BNET] started filtering public game names for \"" + filter + "\"");
+        }
+    }
+    else if (command.startsWith("/priv ") && command.length() >= 7 && gproxy->GetPrivategamename() != "")
     {
         string BotName = input.mid(6).toStdString();
         if (!BotName.empty() && BotName.size() <= 15)
         {
             string pgn = gproxy->GetPrivategamename();
             if (BotName.size() > 2)
+            {
                 gproxy->m_BNET->QueueChatCommand("/w " + BotName + " !priv " + pgn);
+            }
             else
+            {
                 gproxy->m_BNET->QueueChatCommand("/w " + gproxy->GetBotprefix() + BotName + " !priv " + pgn);
+            }
             gproxy->m_BNET->SetSearchGameName(pgn);
             autosearch(true);
             addOutputText("[BNET] try to create a private game named [" + pgn + "] at Bot [" + BotName + "].");
         }
     }
-    else if (input.mid(0, 11) == "/autosearch")
+    else if (command.startsWith("/autosearch") || command.startsWith("/as"))
     {
-        if (input == "/autosearch")
+        if (command == "/autosearch" || command == "/as")
+        {
             if (gproxy->autosearch)
+            {
                 addOutputText("[Pr0gm4n] 'autosearch' is on.");
+            }
             else
+            {
                 addOutputText("[Pr0gm4n] 'autosearch' is off.");
-        else if (input == "/autodetect on")
+            }
+        }
+        else if (command == "/autosearch on" || command == "/as on")
         {
             autosearch(true);
-            addOutputText("[Pr0gm4n] Set 'autosearch' to [on]");
+            addOutputText("[Pr0gm4n] Autosearch enabled.");
         }
-        else if (input == "/autodetect off")
+        else if (command == "/autosearch off" || command == "/as off")
         {
             autosearch(false);
-            addOutputText("[Pr0gm4n] Set 'autosearch' to [off]");
+            addOutputText("[Pr0gm4n] Autosearch disabled.");
         }
         else
-            addOutputText("[Pr0gm4n] invalid autosearch input.");
-    }
-    else if (input.mid(0, 3) == "/as")
-    {
-        if (input == "/as")
-            if (gproxy->autosearch)
-                addOutputText("[Pr0gm4n] 'autosearch' is on.");
-            else
-                addOutputText("[Pr0gm4n] 'autosearch' is off.");
-        else if (input == "/as on")
         {
-            autosearch(true);
-            addOutputText("[Pr0gm4n] Set 'autosearch' to [on]");
+            addOutputText("[Pr0gm4n] Invalid input.");
         }
-        else if (input == "/as off")
+    }
+    else if (command == "/privategamename" || command == "/pgn")
+    {
+        addOutputText("[Phyton] The value of 'privategamename' is: ["
+                + gproxy->GetPrivategamename() + "]. Change it with the input "
+                "'/privategamename <value>' alias '/pgn <value>'.");
+    }
+    else if (command.startsWith("/privategamename ") || command.startsWith("/pgn "))
+    {
+        if (command.startsWith("/privategamename "))
         {
-            autosearch(false);
-            addOutputText("[Pr0gm4n] Set 'autosearch' to [off]");
+            gproxy->SetPrivategamename(input.mid(17, (input.length() - 17)).toStdString());
         }
         else
-            addOutputText("[Pr0gm4n] invalid autosearch input.");
-    }
-    else if (input == "/privategamename" || input == "/pgn")
-        addOutputText("[Phyton] The value of 'privategamename' is: [" + gproxy->GetPrivategamename() + "]. Change it with the input '/privategamename <value>' alias '/pgn <value>'.");
-    else if (input.mid(0, 17) == "/privategamename ")// Phyton
-    {
-        gproxy->SetPrivategamename(input.mid(17, (input.size() - 17)).toStdString());
-        addOutputText("[Phyton] Change value of 'privategamename' to [" + gproxy->GetPrivategamename() + "].");
+        {
+            gproxy->SetPrivategamename(input.mid(5, (input.size() - 5)).toStdString());
+        }
+
+        addOutputText("[Phyton] Change value of 'privategamename' to ["
+                + gproxy->GetPrivategamename() + "].");
 
     }
-    else if (input.mid(0, 5) == "/pgn ")// Phyton same again
+    else if (command == "/botprefix")
     {
-        gproxy->SetPrivategamename(input.mid(5, (input.size() - 5)).toStdString());
-        addOutputText("[Phyton] Change value of 'privategamename' to [" + gproxy->GetPrivategamename() + "].");
+        addOutputText("[Phyton] Value of 'botprefix' is [" + gproxy->GetBotprefix()
+                + "]. You can change it with '/botprefix <value>'.");
     }
-    else if (input == "/botprefix")
-        addOutputText("[Phyton] Value of 'botprefix' is [" + gproxy->GetBotprefix() + "]. You can change it with '/botprefix <value>'.");
-    else if (input.mid(0, 11) == "/botprefix ")// Phyton
+    else if (command.startsWith("/botprefix "))
     {
         gproxy->SetBotprefix(input.mid(11, input.size() - 11).toStdString());
-        addOutputText("[Phyton] Change value of 'botprefix' to [" + gproxy->GetBotprefix() + "].");
+        addOutputText("[Phyton] Change value of 'botprefix' to ["
+                + gproxy->GetBotprefix() + "].");
     }
-    else if (input.mid(0, 3) == "/wg")
+    else if (command.startsWith("/wg"))
     {
-        if (input == "/wg")
+        if (command == "/wg")
         {
             gproxy->SetVShallCreateQuiet(false);
             gproxy->SetVShallCreate(true);
-            addOutputText("[Phyton] waiting for a bot and then trying to create a game and say [gn: " + gproxy->GetPrivategamename() + "].");
-            gproxy->m_BNET->QueueChatCommand("[GProxy++][Phyton] Waiting for a bot and create a game with the name [" + gproxy->GetPrivategamename() + "].");
+            addOutputText("[Phyton] waiting for a bot and then trying to create a game "
+                    "and say [gn: " + gproxy->GetPrivategamename() + "].");
+            gproxy->m_BNET->QueueChatCommand("[GProxy++][Phyton] Waiting for a bot "
+                    "and create a game with the name [" + gproxy->GetPrivategamename() + "].");
         }
-        else if (input == "/wg off")
+        else if (command == "/wg off")
         {
             addOutputText("[Phyton] stopped waiting for a bot to create a game.");
             gproxy->SetVShallCreate(false);
         }
-        else if (input == "/wg quiet" || input == "/wg q")
+        else if (command == "/wg quiet" || command == "/wg q")
         {
             gproxy->SetVShallCreate(true);
             gproxy->SetVShallCreateQuiet(true);
             addOutputText("[Phyton] waiting for a bot and then trying to create a game [quiet].");
         }
     }
-    else if (input.mid(0, 9) == "/waitgame" && gproxy->GetBotprefix() != "")// Phyton waitgame
+    else if (command.startsWith("/waitgame") && gproxy->GetBotprefix() != "")
     {
-        if (input == "/waitgame")
+        if (command == "/waitgame")
         {
             gproxy->SetVShallCreateQuiet(false);
             gproxy->SetVShallCreate(true);
-            addOutputText("[Phyton] waiting for a bot and then trying to create a game and say [gn: " + gproxy->GetPrivategamename() + "].");
-            gproxy->m_BNET->QueueChatCommand("[GProxy++][Phyton] Waiting for a bot and create a game with the name [" + gproxy->GetPrivategamename() + "].");
+            addOutputText("[Phyton] waiting for a bot and then trying to create a game "
+                    "and say [gn: " + gproxy->GetPrivategamename() + "].");
+            gproxy->m_BNET->QueueChatCommand("[GProxy++][Phyton] Waiting for a bot "
+                    "and create a game with the name [" + gproxy->GetPrivategamename() + "].");
         }
-        else if (input == "/waitgame off")
+        else if (command == "/waitgame off")
         {
             addOutputText("[Phyton] stopped waiting for a bot to create a game.");
             gproxy->SetVShallCreate(false);
         }
-        else if (input == "/waitgame quiet")
+        else if (command == "/waitgame quiet")
         {
             gproxy->SetVShallCreate(true);
             gproxy->SetVShallCreateQuiet(true);
             addOutputText("[Phyton] waiting for a bot and then trying to create a game [quiet].");
         }
     }
-    else if (input.mid(0, 8) == "/parrot ")
+    else if (command.startsWith("/parrot "))
     {
-        gproxy->SetParrot(input.mid(8, input.size() - 8).toStdString());
+        gproxy->SetParrot(input.mid(8, input.length() - 8).toStdString());
         addOutputText("[Phyton] Parrot [" + gproxy->GetParrot() + "]!!!111");
     }
-    else if (input == "/parrotoff")
+    else if (command == "/parrotoff")
     {
         gproxy->SetParrot("");
         addOutputText("[Phyton] Parrot off");
     }
     else if (input == "/parrotall")
-        gproxy->SetParrot("Parrot parrot");
-    else if (input == "/parrotignore")
-        gproxy->SetParrot("Ignore ignore");
-    else if (input.mid(0, 4) == "/sa ")
     {
-        ////AddGamesFromTextFile(input.mid(4,input.size()-4),"print all");
-        //downloadfile("http://forum.ghostgraz.com/unread/", "test.html");
+        gproxy->SetParrot("Parrot parrot");
     }
-    else if (input.size() >= 7 && input.mid(0, 6) == "/game ")
+    else if (input == "/parrotignore")
+    {
+        gproxy->SetParrot("Ignore ignore");
+    }
+    else if (command.length() >= 7 && command.startsWith("/game "))
     {
         string GameName = input.mid(6).toStdString();
 
@@ -440,10 +447,11 @@ void MainGUI::processInput (const QString& input)
         {
             gproxy->m_BNET->SetSearchGameName(GameName);
             autosearch(false);
-            addOutputText("[BNET] looking for a game named \"" + GameName + "\" for up to two minutes");
+            addOutputText("[BNET] looking for a game named \"" + GameName
+                    + "\" for up to two minutes");
         }
     }
-    else if (input == "/help")
+    else if (command == "/help")
     {
         addOutputText(">>> /help");
         addOutputText("");
@@ -465,26 +473,30 @@ void MainGUI::processInput (const QString& input)
         addOutputText("  Type \"/commands\" for a full command list.");
         addOutputText("");
     }
-    else if (input == "/public" || input == "/publicon" || input == "/public on"
-            || input == "/list" || input == "/liston" || input == "/list on")
+    else if (command == "/public" || command == "/publicon" || command == "/public on"
+            || command == "/list" || command == "/liston" || command == "/list on")
     {
         gproxy->m_BNET->SetListPublicGames(true);
         addOutputText("[BNET] listing of public games enabled");
     }
-    else if (input == "/publicoff" || input == "/public off" || input == "/listoff" || input == "/list off")
+    else if (command == "/publicoff" || command == "/public off"
+            || command == "/listoff" || command == "/list off")
     {
         gproxy->m_BNET->SetListPublicGames(false);
         addOutputText("[BNET] listing of public games disabled");
     }
-    else if (input.size() >= 4 && input.mid(0, 3) == "/r ")
+    else if (command.length() >= 4 && command.startsWith("/r "))
     {
         if (!gproxy->m_BNET->GetReplyTarget().empty())
-            gproxy->m_BNET->QueueChatCommand(input.mid(3).toStdString(), gproxy->m_BNET->GetReplyTarget(), true);
+        {
+            gproxy->m_BNET->QueueChatCommand(input.mid(3).toStdString(),
+                    gproxy->m_BNET->GetReplyTarget(), true);
+        }
         else
             addOutputText("[BNET] nobody has whispered you yet");
     }
 #ifdef WIN32
-    else if (input == "/start")
+    else if (command == "/start") // TODO: Qt version of /start (terminate windows dependency)
     {
         STARTUPINFO si;
         PROCESS_INFORMATION pi;
@@ -503,7 +515,9 @@ void MainGUI::processInput (const QString& input)
                 gproxy->GetWar3Path().c_str(), LPSTARTUPINFOA(&si), &pi);
 
         if (!hProcess)
+        {
             addOutputText("[GPROXY] failed to start warcraft 3");
+        }
         else
         {
             addOutputText("[GPROXY] starting warcraft 3");
@@ -512,7 +526,7 @@ void MainGUI::processInput (const QString& input)
         }
     }
 #endif
-    else if (input == "/version")
+    else if (command == "/version")
     {
         addOutputText("[GPROXY] Customized GProxy++ Version " + gproxy->m_Version);
         addOutputText("[GPROXY] <font color=\"white\">"
@@ -520,30 +534,37 @@ void MainGUI::processInput (const QString& input)
                 "<font color=\"deeppink\">Pr0gm4n</font> and "
                 "<font color=\"gold\">Manufactoring</font>.</font>");
     }
-    else if (input == "/test")
+    else if (command == "/test")
     {
+        // Used for testing purposes.
+        // Don't delete as we software developers are very lazy =)
     }
     else if (gproxy->m_BNET->GetInGame())
     {
         if (gproxy->m_GameStarted)
         {
-            if (input.mid(0, 3) == "/a ")
+            if (command.startsWith("/a "))
             {
                 gproxy->SendAllMessage(input.mid(3).toStdString());
             }
-            else if (input.mid(0, 5) == "/all ")
+            else if (command.startsWith("/all "))
             {
                 gproxy->SendAllMessage(input.mid(5).toStdString());
             }
             else
+            {
                 gproxy->SendAllyMessage(input.toStdString());
+            }
         }
         else
+        {
             gproxy->SendLobbyMessage(input.toStdString());
+        }
     }
-
     else
+    {
         gproxy->m_BNET->QueueChatCommand(input.toStdString());
+    }
 }
 
 void MainGUI::addOutputText (const char* message)
@@ -560,12 +581,12 @@ void MainGUI::addOutputText (string message)
     widget.outputField->append(coloredMessage);
 }
 
-void MainGUI::addMessage(QString message, bool log)
+void MainGUI::addMessage (QString message, bool log)
 {
     addColor(message);
     widget.outputField->append(message);
 
-    if(log)
+    if (log)
     {
         LOG_Print(message.toStdString());
     }
@@ -762,7 +783,7 @@ void MainGUI::addChannelUser (QString username, QString clanTag)
                 addColor(newItem);
                 delete widget.channelList->takeItem(i);
                 widget.channelList->addItem(newItem);
-//                sortChannelList();
+                //                sortChannelList();
                 return;
             }
         }
@@ -776,7 +797,7 @@ void MainGUI::addChannelUser (QString username, QString clanTag)
     }
     addColor(newItem);
     widget.channelList->addItem(newItem);
-//    sortChannelList();
+    //    sortChannelList();
 }
 
 void MainGUI::removeChannelUser (QString username)
@@ -793,18 +814,18 @@ void MainGUI::removeChannelUser (QString username)
     }
 }
 
-void MainGUI::changeChannel(QString channel)
+void MainGUI::changeChannel (QString channel)
 {
     widget.channelList->clear();
     widget.channelField->setText(channel);
 }
 
-void MainGUI::clearFriendlist()
+void MainGUI::clearFriendlist ()
 {
     widget.friendList->clear();
 }
 
-void MainGUI::addFriend(QString username, bool online)
+void MainGUI::addFriend (QString username, bool online)
 {
     QListWidgetItem *newItem = new QListWidgetItem();
     newItem->setText(username);

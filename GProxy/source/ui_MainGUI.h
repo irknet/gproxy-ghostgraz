@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainGUI.ui'
 **
-** Created: Mon 9. May 19:21:01 2011
+** Created: Mon 9. May 20:28:22 2011
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -46,6 +46,7 @@ public:
         if (MainGUI->objectName().isEmpty())
             MainGUI->setObjectName(QString::fromUtf8("MainGUI"));
         MainGUI->resize(1081, 577);
+        MainGUI->setMinimumSize(QSize(500, 200));
         QIcon icon;
         icon.addFile(QString::fromUtf8(":/images/images/GProxy.gif"), QSize(), QIcon::Normal, QIcon::Off);
         MainGUI->setWindowIcon(icon);

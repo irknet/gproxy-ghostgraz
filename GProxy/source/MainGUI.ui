@@ -10,6 +10,12 @@
     <height>577</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>500</width>
+    <height>200</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>GProxy GhostGraz v2.0a</string>
   </property>
