@@ -1,0 +1,8 @@
+<RCC>
+  <qresource prefix="images">
+    <file>images/GProxy.gif</file>
+    <file>images/Cancel.png</file>
+    <file>images/Tool.png</file>
+    <file>images/Error.png</file>
+  </qresource>
+</RCC>

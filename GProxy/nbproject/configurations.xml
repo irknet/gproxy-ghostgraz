@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="79">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+      <logicalFolder name="f2" displayName="delegate" projectFiles="true">
+        <itemPath>source/delegate/ChannellistDelegate.h</itemPath>
+        <itemPath>source/delegate/GamelistDelegate.h</itemPath>
+      </logicalFolder>
+      <itemPath>source/Config.h</itemPath>
+      <itemPath>source/ConfigGUI.h</itemPath>
+      <itemPath>source/DownloadThread.h</itemPath>
+      <itemPath>source/GProxyUpdateThread.h</itemPath>
+      <itemPath>source/MainGUI.h</itemPath>
+      <itemPath>source/bncsutilinterface.h</itemPath>
+      <itemPath>source/bnet.h</itemPath>
+      <itemPath>source/bnetprotocol.h</itemPath>
+      <itemPath>source/commandpacket.h</itemPath>
+      <itemPath>source/config_.h</itemPath>
+      <itemPath>source/gameprotocol.h</itemPath>
+      <itemPath>source/gproxy.h</itemPath>
+      <itemPath>source/gpsprotocol.h</itemPath>
+      <itemPath>source/socket.h</itemPath>
+      <itemPath>source/util.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true">
+      <itemPath>source/ConfigGUI.ui</itemPath>
+      <itemPath>source/MainGUI.ui</itemPath>
+      <itemPath>source/images.qrc</itemPath>
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <logicalFolder name="f1" displayName="delegate" projectFiles="true">
+        <itemPath>source/delegate/ChannellistDelegate.cpp</itemPath>
+        <itemPath>source/delegate/GamelistDelegate.cpp</itemPath>
+      </logicalFolder>
+      <itemPath>source/Config.cpp</itemPath>
+      <itemPath>source/ConfigGUI.cpp</itemPath>
+      <itemPath>source/DownloadThread.cpp</itemPath>
+      <itemPath>source/GProxyUpdateThread.cpp</itemPath>
+      <itemPath>source/MainGUI.cpp</itemPath>
+      <itemPath>source/bncsutilinterface.cpp</itemPath>
+      <itemPath>source/bnet.cpp</itemPath>
+      <itemPath>source/bnetprotocol.cpp</itemPath>
+      <itemPath>source/commandpacket.cpp</itemPath>
+      <itemPath>source/config_.cpp</itemPath>
+      <itemPath>source/gameprotocol.cpp</itemPath>
+      <itemPath>source/gproxy.cpp</itemPath>
+      <itemPath>source/gpsprotocol.cpp</itemPath>
+      <itemPath>source/socket.cpp</itemPath>
+      <itemPath>source/util.cpp</itemPath>
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Test Files"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <sourceRootList>
+    <Elem>source</Elem>
+  </sourceRootList>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="4">
+      <toolsSet>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>Qt_MinGW|MinGW</compilerSet>
+      </toolsSet>
+      <qt>
+        <destdir>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}</destdir>
+        <version>2.0.0</version>
+        <modules>core gui network</modules>
+        <mocDir>source</mocDir>
+        <rccDir>source</rccDir>
+        <uiDir>source</uiDir>
+      </qt>
+      <compileType>
+        <ccTool>
+          <incDir>
+            <pElem>source</pElem>
+            <pElem>../BNCSUtil/src</pElem>
+          </incDir>
+        </ccTool>
+        <linkerTool>
+          <linkerAddLib>
+            <pElem>pdcurses</pElem>
+            <pElem>mysql/include</pElem>
+          </linkerAddLib>
+          <linkerLibItems>
+            <linkerLibFileItem>source/ms_sdk/version.lib</linkerLibFileItem>
+            <linkerLibFileItem>source/ms_sdk/winmm.lib</linkerLibFileItem>
+            <linkerLibFileItem>source/ms_sdk/ws2_32.lib</linkerLibFileItem>
+            <linkerLibFileItem>../BNCSUtil/dist/Debug/Qt_MinGW-Windows/BNCSUtil.dll</linkerLibFileItem>
+          </linkerLibItems>
+        </linkerTool>
+        <requiredProjects>
+          <makeArtifact PL="../BNCSUtil"
+                        CT="5"
+                        CN="Debug"
+                        AC="true"
+                        BL="false"
+                        WD="../BNCSUtil"
+                        BC="${MAKE}  -f Makefile CONF=Debug"
+                        CC="${MAKE}  -f Makefile CONF=Debug clean"
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/BNCSUtil.dll">
+          </makeArtifact>
+        </requiredProjects>
+      </compileType>
+    </conf>
+    <conf name="Release" type="4">
+      <toolsSet>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>Qt_MinGW|MinGW</compilerSet>
+      </toolsSet>
+      <qt>
+        <destdir>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}</destdir>
+        <version>2.0.0</version>
+        <buildMode>1</buildMode>
+        <modules>core gui network</modules>
+        <mocDir>source</mocDir>
+        <rccDir>source</rccDir>
+        <uiDir>source</uiDir>
+      </qt>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+          <incDir>
+            <pElem>source</pElem>
+          </incDir>
+          <warningLevel>0</warningLevel>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+          <incDir>
+            <pElem>source</pElem>
+            <pElem>../BNCSUtil/src</pElem>
+          </incDir>
+          <warningLevel>0</warningLevel>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+        <linkerTool>
+          <linkerAddLib>
+            <pElem>source/gmp/lib</pElem>
+            <pElem>source/ms_sdk</pElem>
+            <pElem>source/mysql/lib</pElem>
+            <pElem>source/pdcurses</pElem>
+          </linkerAddLib>
+          <linkerLibItems>
+            <linkerLibFileItem>source/ms_sdk/version.lib</linkerLibFileItem>
+            <linkerLibFileItem>source/ms_sdk/winmm.lib</linkerLibFileItem>
+            <linkerLibFileItem>source/ms_sdk/ws2_32.lib</linkerLibFileItem>
+            <linkerLibFileItem>../BNCSUtil/dist/Release/Qt_MinGW-Windows/BNCSUtil.dll</linkerLibFileItem>
+          </linkerLibItems>
+        </linkerTool>
+        <requiredProjects>
+          <makeArtifact PL="../BNCSUtil"
+                        CT="5"
+                        CN="Release"
+                        AC="true"
+                        BL="false"
+                        WD="../BNCSUtil"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/BNCSUtil.dll">
+          </makeArtifact>
+        </requiredProjects>
+      </compileType>
+    </conf>
+  </confs>
+</configurationDescriptor>
