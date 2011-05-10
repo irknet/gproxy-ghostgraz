@@ -26,12 +26,6 @@ public:
     virtual ~MainGUI();
     void init();
     CGProxy* getGproxy();
-    void addOutputText(const char* message);
-    void addOutputText(string message);
-    void addOutputText(QString message);
-    void addFriend(string name, bool online);
-    void addGame(QString botname, QString gamename, QString openSlots);
-    void clearGamelist();
     void setGameslots(vector<CIncomingSlots *> slotList);
 
 private:
@@ -45,16 +39,19 @@ private:
     void sortChannelList();
     void sortFriendList();
     void sortSlots(int teams);
+    void startWarcraft();
+    void showErrorMessage(QString errorMessage);
 
 private slots:
     void onClose();
-    void inputFieldTextChanged();
-    void changeFont();
-    void showChannelContextMenu(const QPoint&);
-    void showFriendsContextMenu(const QPoint&);
-    void gameListItemClicked(QListWidgetItem*);
-    void outputFieldSliderMoved();
-    void actionConfigClicked();
+    void onInputFieldTextChanged();
+    void onChannelChanged();
+    void onChannelContextMenu(const QPoint&);
+    void onFriendsContextMenu(const QPoint&);
+    void onGameListItemClicked(QListWidgetItem*);
+    void onOutputFieldSliderMoved();
+    void onMenuConfigClicked();
+    void onMenuStartWarcraftClicked();
 
 public slots:
     void addMessage(QString message, bool log = true);
@@ -63,6 +60,8 @@ public slots:
     void removeChannelUser(QString username);
     void clearFriendlist();
     void addFriend(QString username, bool online);
+    void clearGamelist();
+    void addGame(QString botname, QString gamename, QString openSlots);
 };
 
 #endif	/* _MAINGUI_H */

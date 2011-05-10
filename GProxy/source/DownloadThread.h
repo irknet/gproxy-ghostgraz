@@ -11,21 +11,25 @@
 class DownloadThread : public QThread {
     Q_OBJECT
 
+public:
+    DownloadThread(MainGUI *p_mainGUI);
+    virtual ~DownloadThread();
+    
+protected:
+    void run();
+    
 private:
     MainGUI *mainGUI;
     QUrl url;
     QNetworkAccessManager manager;
     QNetworkReply *reply;
 
-public:
-    DownloadThread(MainGUI *p_mainGUI);
-    virtual ~DownloadThread();
-
-protected:
-    void run();
-
 private slots:
     void downloadFinished();
+    
+signals:
+    void signal_clearGamelist();
+    void signal_addGame(QString, QString, QString);
 };
 
 #endif	/* DOWNLOADTHREAD_H */

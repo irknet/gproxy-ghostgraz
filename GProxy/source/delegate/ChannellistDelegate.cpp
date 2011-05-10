@@ -58,12 +58,14 @@ const
                     }
                 }
             }
+
+            rect.adjust(15, 0, 0, 0);
         }
 
 //        int colorID = index.data(ChannellistDelegate::SLOT_COLOR).toInt();
 //        QRect rFill(rect.x()+3, rect.y()-12, 8, 8);
 //        painter->fillRect(rFill, this->getBrush(colorID));
-        rect.adjust(15, 0, 0, 0);
+
         painter->drawText(rect, Qt::AlignLeft, user);
     }
     else

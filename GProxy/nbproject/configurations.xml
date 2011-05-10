@@ -85,13 +85,28 @@
         <uiDir>source</uiDir>
       </qt>
       <compileType>
+        <cTool>
+          <incDir>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
         <ccTool>
           <incDir>
             <pElem>source</pElem>
             <pElem>../BNCSUtil/src</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
           </incDir>
         </ccTool>
         <linkerTool>
+          <output>${TESTDIR}/TestFiles/f1</output>
           <linkerAddLib>
             <pElem>pdcurses</pElem>
             <pElem>mysql/include</pElem>
@@ -136,6 +151,11 @@
           <developmentMode>5</developmentMode>
           <incDir>
             <pElem>source</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
           </incDir>
           <warningLevel>0</warningLevel>
         </cTool>
@@ -144,6 +164,11 @@
           <incDir>
             <pElem>source</pElem>
             <pElem>../BNCSUtil/src</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
           </incDir>
           <warningLevel>0</warningLevel>
         </ccTool>
@@ -154,6 +179,7 @@
           <developmentMode>5</developmentMode>
         </asmTool>
         <linkerTool>
+          <output>${TESTDIR}/TestFiles/f1</output>
           <linkerAddLib>
             <pElem>source/gmp/lib</pElem>
             <pElem>source/ms_sdk</pElem>

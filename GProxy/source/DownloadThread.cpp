@@ -4,46 +4,15 @@ DownloadThread::DownloadThread (MainGUI *p_mainGUI)
 {
     mainGUI = p_mainGUI;
     url = QUrl("http://0.static.ghostgraz.com/currentgames.txt");
+    
+    QObject::connect(this, SIGNAL(signal_clearGamelist()),
+            mainGUI, SLOT(clearGamelist()));
+    
+    QObject::connect(this, SIGNAL(signal_addGame(QString, QString, QString)),
+            mainGUI, SLOT(addGame(QString, QString, QString)));
 }
 
 DownloadThread::~DownloadThread () { }
-
-void DownloadThread::downloadFinished ()
-{
-    if (reply->error())
-    {
-        return;
-    }
-
-
-
-    QStringList lines = QString(reply->readAll()).split(QRegExp("\n"));
-    if(lines.count() < 3)
-    {
-        // Game list is empty
-        return;
-    }
-
-    mainGUI->clearGamelist();
-
-    for (QStringList::Iterator it = lines.begin(); it != lines.end(); ++it)
-    {
-        if (QString(*it).startsWith("#"))
-        {
-            // comment line
-            continue;
-        }
-
-        QStringList splitted = QString(*it).split(QRegExp(","));
-        if (splitted.count() == 3)
-        {
-            QString botname = splitted.at(0);
-            QString gamename = splitted.at(1);
-            QString openSlots = splitted.at(2);
-            mainGUI->addGame(botname, gamename, openSlots);
-        }
-    }
-}
 
 void DownloadThread::run ()
 {
@@ -62,5 +31,40 @@ void DownloadThread::run ()
         loop.exec();
 
         this->sleep(5);
+    }
+}
+
+void DownloadThread::downloadFinished ()
+{
+    if (reply->error())
+    {
+        return;
+    }
+
+    QStringList lines = QString(reply->readAll()).split(QRegExp("\n"));
+    if(lines.count() < 3)
+    {
+        // Game list is empty
+        return;
+    }
+
+    emit signal_clearGamelist();
+
+    for (QStringList::Iterator it = lines.begin(); it != lines.end(); ++it)
+    {
+        if (QString(*it).startsWith("#"))
+        {
+            // comment line
+            continue;
+        }
+
+        QStringList splitted = QString(*it).split(QRegExp(","));
+        if (splitted.count() == 3)
+        {
+            QString botname = splitted.at(0);
+            QString gamename = splitted.at(1);
+            QString openSlots = splitted.at(2);
+            emit signal_addGame(botname, gamename, openSlots);
+        }
     }
 }

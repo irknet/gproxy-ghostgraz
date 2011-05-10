@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'DownloadThread.h'
 **
-** Created: Mon 9. May 20:28:44 2011
+** Created: Tue 10. May 18:51:21 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,21 +23,27 @@ static const uint qt_meta_data_DownloadThread[] = {
        5,       // revision
        0,       // classname
        0,    0, // classinfo
-       1,   14, // methods
+       3,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       0,       // signalCount
+       2,       // signalCount
+
+ // signals: signature, parameters, type, tag, flags
+      16,   15,   15,   15, 0x05,
+      42,   39,   15,   15, 0x05,
 
  // slots: signature, parameters, type, tag, flags
-      16,   15,   15,   15, 0x08,
+      82,   15,   15,   15, 0x08,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_DownloadThread[] = {
-    "DownloadThread\0\0downloadFinished()\0"
+    "DownloadThread\0\0signal_clearGamelist()\0"
+    ",,\0signal_addGame(QString,QString,QString)\0"
+    "downloadFinished()\0"
 };
 
 const QMetaObject DownloadThread::staticMetaObject = {
@@ -69,11 +75,26 @@ int DownloadThread::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
-        case 0: downloadFinished(); break;
+        case 0: signal_clearGamelist(); break;
+        case 1: signal_addGame((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2])),(*reinterpret_cast< QString(*)>(_a[3]))); break;
+        case 2: downloadFinished(); break;
         default: ;
         }
-        _id -= 1;
+        _id -= 3;
     }
     return _id;
+}
+
+// SIGNAL 0
+void DownloadThread::signal_clearGamelist()
+{
+    QMetaObject::activate(this, &staticMetaObject, 0, 0);
+}
+
+// SIGNAL 1
+void DownloadThread::signal_addGame(QString _t1, QString _t2, QString _t3)
+{
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)), const_cast<void*>(reinterpret_cast<const void*>(&_t2)), const_cast<void*>(reinterpret_cast<const void*>(&_t3)) };
+    QMetaObject::activate(this, &staticMetaObject, 1, _a);
 }
 QT_END_MOC_NAMESPACE

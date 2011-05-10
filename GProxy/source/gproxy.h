@@ -191,140 +191,140 @@ class CGProxy : public QObject
     Q_OBJECT
 
 private:
-    Config *config;
-    string privategamename;
-    string botprefix;
+    Config* config;
+    QString privategamename;
+    QString botprefix;
     bool vShallCreate;
     bool vShallCreateQuiet;
-    string parrot;
-    string war3Path;
-    string cdKeyROC;
-    string cdKeyTFT;
+    QString parrot;
+    QString war3Path;
+    QString cdKeyROC;
+    QString cdKeyTFT;
     bool dotaMap;
 
 public:
-	string m_Version;
-	CTCPServer *m_LocalServer;
-	CTCPSocket *m_LocalSocket;
-	CTCPClient *m_RemoteSocket;
-	CUDPSocket *m_UDPSocket;
-	CBNET *m_BNET;
-	vector<CIncomingGameHost *> m_Games;
-	CGameProtocol *m_GameProtocol;
-	CGPSProtocol *m_GPSProtocol;
-	queue<CCommandPacket *> m_LocalPackets;
-	queue<CCommandPacket *> m_RemotePackets;
-	queue<CCommandPacket *> m_PacketBuffer;
-	vector<unsigned char> m_Laggers;
-	uint32_t m_TotalPacketsReceivedFromLocal;
-	uint32_t m_TotalPacketsReceivedFromRemote;
-	bool m_Exiting;
-	bool m_TFT;
-	string m_War3Path;
-	string m_CDKeyROC;
-	string m_CDKeyTFT;
-	string m_Server;
-	QString username;
-	string m_Password;
-	string m_Channel;
-	uint32_t m_War3Version;
-	uint16_t m_Port;
-	uint32_t m_LastConnectionAttemptTime;
-	uint32_t m_LastRefreshTime;
-	string m_RemoteServerIP;
-	uint16_t m_RemoteServerPort;
-	bool m_GameIsReliable;
-	bool m_GameStarted;
-	bool m_LeaveGameSent;
-	bool m_ActionReceived;
-	bool m_Synchronized;
-	uint16_t m_ReconnectPort;
-	unsigned char m_PID;
-	unsigned char m_ChatPID;
-	uint32_t m_ReconnectKey;
-	unsigned char m_NumEmptyActions;
-	unsigned char m_NumEmptyActionsUsed;
-	unsigned int m_LastAckTime;
-	unsigned int m_LastActionTime;
-	string m_JoinedName;
-	string m_HostName;
+    string m_Version;
+    CTCPServer *m_LocalServer;
+    CTCPSocket *m_LocalSocket;
+    CTCPClient *m_RemoteSocket;
+    CUDPSocket *m_UDPSocket;
+    CBNET* m_BNET;
+    vector<CIncomingGameHost *> m_Games;
+    CGameProtocol* m_GameProtocol;
+    CGPSProtocol* m_GPSProtocol;
+    queue<CCommandPacket *> m_LocalPackets;
+    queue<CCommandPacket *> m_RemotePackets;
+    queue<CCommandPacket *> m_PacketBuffer;
+    vector<unsigned char> m_Laggers;
+    uint32_t m_TotalPacketsReceivedFromLocal;
+    uint32_t m_TotalPacketsReceivedFromRemote;
+    bool m_Exiting;
+    bool m_TFT;
+    string m_War3Path;
+    string m_CDKeyROC;
+    string m_CDKeyTFT;
+    string m_Server;
+    QString username;
+    string m_Password;
+    string m_Channel;
+    uint32_t m_War3Version;
+    uint16_t m_Port;
+    uint32_t m_LastConnectionAttemptTime;
+    uint32_t m_LastRefreshTime;
+    string m_RemoteServerIP;
+    uint16_t m_RemoteServerPort;
+    bool m_GameIsReliable;
+    bool m_GameStarted;
+    bool m_LeaveGameSent;
+    bool m_ActionReceived;
+    bool m_Synchronized;
+    uint16_t m_ReconnectPort;
+    unsigned char m_PID;
+    unsigned char m_ChatPID;
+    uint32_t m_ReconnectKey;
+    unsigned char m_NumEmptyActions;
+    unsigned char m_NumEmptyActionsUsed;
+    unsigned int m_LastAckTime;
+    unsigned int m_LastActionTime;
+    string m_JoinedName;
+    string m_HostName;
 
-	string m_GameName;
-	int m_ChannelWidth;
-	bool m_PlaySound;
+    string m_GameName;
+    int m_ChannelWidth;
+    bool m_PlaySound;
 
-	string cfgpublic;//phy public
-	string cfgfilter;//phy filter
-	bool cfgfilterfirst;//phy filter
-	bool testvar;//phy
-	bool autodetect;
-	bool autosearch; //pr0 autosearch
-	bool cautosearch; //pr0 cautosearch
-	bool displayautocreated;
-	bool m_listing_current_games;
+    string cfgpublic;//phy public
+    string cfgfilter;//phy filter
+    bool cfgfilterfirst;//phy filter
+    bool testvar;//phy
+    bool autodetect;
+    bool autosearch; //pr0 autosearch
+    bool cautosearch; //pr0 cautosearch
+    bool displayautocreated;
+    bool m_listing_current_games;
 
-        CGProxy();
-        ~CGProxy( );
+    CGProxy();
+    ~CGProxy( );
 
-        void init(bool nTFT, string nWar3Path, string nCDKeyROC, string nCDKeyTFT, string nServer, string nUsername, string nPassword, string nChannel, uint32_t nWar3Version, uint16_t nPort, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, string cpublic ,string cfilter,bool german_languagesupport, bool casearch, bool temp_displayautocreated, bool listing_current_games, int channelWidth);
-        void cleanup();
+    void init(string nServer, string nUsername, string nPassword, string nChannel, uint32_t nWar3Version, uint16_t nPort, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, string cpublic ,string cfilter,bool german_languagesupport, bool casearch, bool temp_displayautocreated, bool listing_current_games, int channelWidth);
+    void cleanup();
 
-	// processing functions
+    // processing functions
 
-	bool Update( long usecBlock );
+    bool Update( long usecBlock );
 
-	void ExtractLocalPackets( );
-	void ProcessLocalPackets( );
-	void ExtractRemotePackets( );
-	void ProcessRemotePackets( );
+    void ExtractLocalPackets( );
+    void ProcessLocalPackets( );
+    void ExtractRemotePackets( );
+    void ProcessRemotePackets( );
 
-	bool AddGame( CIncomingGameHost *game );
-	void SendLocalChat( string message );
-	void SendAllMessage ( string message );			// Manufactoring
-	void SendAllyMessage ( string message );		// Manufactoring
-	void SendLobbyMessage ( string message );		// Manufactoring
-	bool CheckForwarding ( string MessageString );	// Manufactoring
-	void SendChangeTeam( unsigned char team );		// Manufactoring
-	void SendEmptyAction( );
+    bool AddGame( CIncomingGameHost *game );
+    void SendLocalChat( string message );
+    void SendAllMessage ( string message );			// Manufactoring
+    void SendAllyMessage ( string message );		// Manufactoring
+    void SendLobbyMessage ( string message );		// Manufactoring
+    bool CheckForwarding ( string MessageString );	// Manufactoring
+    void SendChangeTeam( unsigned char team );		// Manufactoring
+    void SendEmptyAction( );
 
-        void SetPrivategamename(string p_privategamename) { privategamename = p_privategamename; }
-        void SetBotprefix(string p_botprefix) { botprefix = p_botprefix; }
-        void SetVShallCreate(bool p_vShallCreate) { vShallCreate = p_vShallCreate; }
-        void SetVShallCreateQuiet(bool p_vShallCreateQuiet) { vShallCreateQuiet = p_vShallCreateQuiet; }
-        void SetParrot(string p_parrot) { parrot = p_parrot; }
-        void SetWar3Path(string p_war3Path) { war3Path = p_war3Path; }
-        void SetCDKeyTFT(string p_cdKeyTFT) { cdKeyTFT = p_cdKeyTFT; }
-        void SetCDKeyROC(string p_cdKeyROC) { cdKeyROC = p_cdKeyROC; }
-        void setDotaMap(bool p_dotaMap) { dotaMap = p_dotaMap; }
-        void setConfig(Config *config) { this->config = config; }
+    void setPrivategamename(QString privategamename) { this->privategamename = privategamename; }
+    void setBotprefix(QString botprefix) { this->botprefix = botprefix; }
+    void setVShallCreate(bool vShallCreate) { this->vShallCreate = vShallCreate; }
+    void setVShallCreateQuiet(bool vShallCreateQuiet) { this->vShallCreateQuiet = vShallCreateQuiet; }
+    void setParrot(QString parrot) { this->parrot = parrot; }
+    void setWar3Path(QString war3Path) { this->war3Path = war3Path; }
+    void setCDKeyTFT(QString cdKeyTFT) { this->cdKeyTFT = cdKeyTFT; }
+    void setCDKeyROC(QString cdKeyROC) { this->cdKeyROC = cdKeyROC; }
+    void setDotaMap(bool dotaMap) { this->dotaMap = dotaMap; }
+    void setConfig(Config* config) { this->config = config; }
 
-        string GetPrivategamename() { return privategamename; }
-        string GetBotprefix() { return botprefix; }
-        bool GetVShallCreate() { return vShallCreate; }
-        bool GetVShallCreateQuiet() { return vShallCreateQuiet; }
-        string GetParrot() { return parrot; }
-        string GetWar3Path() { return war3Path; }
-        string GetCDKeyTFT() { return cdKeyTFT; }
-        string GetCDKeyROC() { return cdKeyROC; }
-        bool isDotaMap() { return dotaMap; }
-        Config* getConfig() { return config; }
-        bool checkStatus( int statusCode );
+    QString getPrivategamename() { return privategamename; }
+    QString getBotprefix() { return botprefix; }
+    bool getVShallCreate() { return vShallCreate; }
+    bool getVShallCreateQuiet() { return vShallCreateQuiet; }
+    QString getParrot() { return parrot; }
+    QString getWar3Path() { return war3Path; }
+    QString getCDKeyTFT() { return cdKeyTFT; }
+    QString getCDKeyROC() { return cdKeyROC; }
+    bool isDotaMap() { return dotaMap; }
+    Config* getConfig() { return config; }
+    bool checkStatus( int statusCode );
 
-        void addMessage(QString msg, bool log = true);
-        void changeChannel(QString channel);
-        void addChannelUser(QString username, QString clanTag);
-        void removeChannelUser(QString username);
-        void friendUpdate(vector<CIncomingFriendList *> friendList);
-        void clearFriendlist();
-        void addFriend(QString username, bool online);
+    void addMessage(QString msg, bool log = true);
+    void changeChannel(QString channel);
+    void addChannelUser(QString username, QString clanTag);
+    void removeChannelUser(QString username);
+    void friendUpdate(vector<CIncomingFriendList *> friendList);
+    void clearFriendlist();
+    void addFriend(QString username, bool online);
 
-        signals:
-        void signal_addMessage(QString, bool);
-        void signal_changeChannel(QString);
-        void signal_addChannelUser(QString, QString);
-        void signal_removeChannelUser(QString);
-        void signal_clearFriendlist();
-        void signal_addFriend(QString, bool);
+signals:
+    void signal_addMessage(QString, bool);
+    void signal_changeChannel(QString);
+    void signal_addChannelUser(QString, QString);
+    void signal_removeChannelUser(QString);
+    void signal_clearFriendlist();
+    void signal_addFriend(QString, bool);
 };
 
 

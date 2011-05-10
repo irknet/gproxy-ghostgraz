@@ -58,11 +58,8 @@ MainGUI *mainGUI;
 GProxyUpdateThread *gUpdateThread;
 DownloadThread *dt;
 string gLogFile;
-CGProxy *gGProxy = NULL;
-vector<string> gMainBuffer;
+CGProxy *gproxy = NULL;
 vector<string> gGamesBuffer;
-string gInputBuffer;
-string gChannelName;
 
 /* Phytons variables */
 int GameNamesCount = 0;
@@ -89,9 +86,9 @@ void addgame(string gamename)
 
 string parseTextline(string input)
 {
-    if (gGProxy->m_LocalSocket && (input.find("$host$") != string::npos))
+    if (gproxy->m_LocalSocket && (input.find("$host$") != string::npos))
     {
-        input.replace(input.find("$host$"), 6, gGProxy->m_HostName);
+        input.replace(input.find("$host$"), 6, gproxy->m_HostName);
     }
 
     return input;
@@ -109,11 +106,6 @@ string get_time()
 
     strftime(buffer, 80, "[%H:%M:%S]", timeinfo);
     return temp.assign(buffer);
-}
-
-const int StrToInt(const std::string& s)
-{
-    return std::atoi(s.c_str());
 }
 
 bool textEndsWith(string text, string endText)
@@ -183,24 +175,24 @@ void CheckForGame(string gamename)
 {
     if (getautosearch())
     {
-        gGProxy->m_BNET->SetSearchGameName(gamename); //old one, but it works..
+        gproxy->m_BNET->SetSearchGameName(gamename); //old one, but it works..
         CONSOLE_Print("[Phyton] Searching for [" + QString::fromStdString(gamename) + "].", true);
-        gGProxy->autosearch = false;
+        gproxy->autosearch = false;
     }
 }
 
 // Phyton autospoofcheck
 void Pspoofcheck()
 {
-    if (gGProxy->m_BNET->GetLoggedIn())
+    if (gproxy->m_BNET->GetLoggedIn())
     {
-        gGProxy->m_BNET->QueueChatCommand("spoofcheck", gGProxy->m_HostName, true);
+        gproxy->m_BNET->QueueChatCommand("spoofcheck", gproxy->m_HostName, true);
     }
 }
 
 void CONSOLE_Print(QString message, bool log)
 {
-    gGProxy->addMessage(message, log);
+    gproxy->addMessage(message, log);
 }
 
 //
@@ -211,36 +203,37 @@ int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
 
-    gGProxy = new CGProxy();
+    gproxy = new CGProxy();
 
-    mainGUI = new MainGUI(gGProxy);
+    mainGUI = new MainGUI(gproxy);
     mainGUI->show();
 
-    QObject::connect(gGProxy, SIGNAL(signal_addMessage(QString, bool)),
+    QObject::connect(gproxy, SIGNAL(signal_addMessage(QString, bool)),
             mainGUI, SLOT(addMessage(QString, bool)));
 
-    QObject::connect(gGProxy, SIGNAL(signal_changeChannel(QString)),
+    QObject::connect(gproxy, SIGNAL(signal_changeChannel(QString)),
             mainGUI, SLOT(changeChannel(QString)));
 
-    QObject::connect(gGProxy, SIGNAL(signal_addChannelUser(QString, QString)),
+    QObject::connect(gproxy, SIGNAL(signal_addChannelUser(QString, QString)),
             mainGUI, SLOT(addChannelUser(QString, QString)));
 
-    QObject::connect(gGProxy, SIGNAL(signal_removeChannelUser(QString)),
+    QObject::connect(gproxy, SIGNAL(signal_removeChannelUser(QString)),
             mainGUI, SLOT(removeChannelUser(QString)));
 
-    QObject::connect(gGProxy, SIGNAL(signal_clearFriendlist()),
+    QObject::connect(gproxy, SIGNAL(signal_clearFriendlist()),
             mainGUI, SLOT(clearFriendlist()));
 
-    QObject::connect(gGProxy, SIGNAL(signal_addFriend(QString, bool)),
+    QObject::connect(gproxy, SIGNAL(signal_addFriend(QString, bool)),
             mainGUI, SLOT(addFriend(QString, bool)));
 
     CONSOLE_Print("[GPROXY] starting up");
     CONSOLE_Print("[GPROXY] Trying to loading configuration file");
 
     Config *config = new Config("gproxy.cfg");
-    gGProxy->setConfig(config);
+    gproxy->setConfig(config);
+    
     int status = config->loadConfig();
-    if(gGProxy->checkStatus(status) == false)
+    if(gproxy->checkStatus(status) == false)
     {
         return 1;
     }
@@ -272,15 +265,15 @@ int main(int argc, char **argv)
     SetPriorityClass(GetCurrentProcess(), ABOVE_NORMAL_PRIORITY_CLASS);
 #endif
 
-    gGProxy->SetWar3Path(config->getString("war3path").toStdString());
-    gGProxy->SetCDKeyROC(config->getString("cdkeyroc").toStdString());
-    gGProxy->SetCDKeyTFT(config->getString("cdkeytft").toStdString());
+    gproxy->setWar3Path(config->getString("war3path"));
+    gproxy->setCDKeyROC(config->getString("cdkeyroc"));
+    gproxy->setCDKeyTFT(config->getString("cdkeytft"));
     string Server = config->getString("server").toStdString();
 
-    gGProxy->SetPrivategamename(config->getString("privategamename").toStdString());
-    gGProxy->SetBotprefix(config->getString("botprefix").toStdString());
+    gproxy->setPrivategamename(config->getString("privategamename"));
+    gproxy->setBotprefix(config->getString("botprefix"));
     bool casearch = config->getBoolean("autosearch");
-    gGProxy->m_PlaySound = config->getBoolean("sound");
+    gproxy->m_PlaySound = config->getBoolean("sound");
     string Username = config->getString("username").toStdString();
     string Password = config->getString("password").toStdString();
     string Channel = config->getString("channel").toStdString();
@@ -303,12 +296,12 @@ int main(int argc, char **argv)
             "<font color=\"deeppink\">Pr0gm4n</font> and "
             "<font color=\"gold\">Manufactoring</font>.");
 
-    gGProxy->init(!gGProxy->GetCDKeyTFT().empty(), gGProxy->GetWar3Path(), gGProxy->GetCDKeyROC(), gGProxy->GetCDKeyTFT(), Server, Username, Password, Channel, War3Version, Port, EXEVersion, EXEVersionHash, PasswordHashType, "", "", true, casearch, true, false, 200);
+    gproxy->init(Server, Username, Password, Channel, War3Version, Port, EXEVersion, EXEVersionHash, PasswordHashType, "", "", true, casearch, true, false, 200);
 
     dt = new DownloadThread(mainGUI);
     dt->start();
 
-    gUpdateThread = new GProxyUpdateThread(gGProxy);
+    gUpdateThread = new GProxyUpdateThread(gproxy);
     gUpdateThread->start();
 
     return app.exec();
@@ -320,7 +313,7 @@ int main(int argc, char **argv)
 
 CGProxy::CGProxy() { }
 
-void CGProxy::init(bool nTFT, string nWar3Path, string nCDKeyROC, string nCDKeyTFT, string nServer, string nUsername, string nPassword, string nChannel, uint32_t nWar3Version, uint16_t nPort, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, string cpublic ,string cfilter,bool german_languagesupport, bool casearch, bool temp_displayautocreated, bool listing_current_games, int channelWidth)
+void CGProxy::init(string nServer, string nUsername, string nPassword, string nChannel, uint32_t nWar3Version, uint16_t nPort, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, string cpublic ,string cfilter,bool german_languagesupport, bool casearch, bool temp_displayautocreated, bool listing_current_games, int channelWidth)
 {
     m_Version = mainGUI->windowTitle().remove(0, 7).toStdString();
     m_LocalServer = new CTCPServer();
@@ -334,10 +327,10 @@ void CGProxy::init(bool nTFT, string nWar3Path, string nCDKeyROC, string nCDKeyT
     m_TotalPacketsReceivedFromLocal = 0;
     m_TotalPacketsReceivedFromRemote = 0;
     m_Exiting = false;
-    m_TFT = nTFT;
-    m_War3Path = nWar3Path;
-    m_CDKeyROC = nCDKeyROC;
-    m_CDKeyTFT = nCDKeyTFT;
+    m_TFT = !(this->getCDKeyTFT().isEmpty());
+    m_War3Path = this->getWar3Path().toStdString();
+    m_CDKeyROC = this->getCDKeyROC().toStdString();
+    m_CDKeyTFT = this->getCDKeyTFT().toStdString();
     m_Server = nServer;
     username = QString::fromStdString(nUsername);
     m_Password = nPassword;
@@ -360,7 +353,7 @@ void CGProxy::init(bool nTFT, string nWar3Path, string nCDKeyROC, string nCDKeyT
     m_NumEmptyActionsUsed = 0;
     m_LastAckTime = 0;
     m_LastActionTime = 0;
-    m_BNET = new CBNET(this, mainGUI, m_Server, string(), 0, 0, gGProxy->GetCDKeyROC(), gGProxy->GetCDKeyTFT(), "USA", "United States", username.toStdString(), m_Password, m_Channel, m_War3Version, nEXEVersion, nEXEVersionHash, nPasswordHashType, 200);
+    m_BNET = new CBNET(this, mainGUI, m_Server, string(), 0, 0, "USA", "United States", username.toStdString(), m_Password, m_Channel, m_War3Version, nEXEVersion, nEXEVersionHash, nPasswordHashType, 200);
     m_LocalServer->Listen(string(), m_Port);
     cfgfilterfirst = true; // Phyton filter
     cfgfilter = cfilter; // Phyton filter
@@ -434,8 +427,8 @@ void CGProxy::cleanup()
     CONSOLE_Print("[GPROXY] shutting down");
 //    delete mainGUI;
 //    mainGUI = NULL;
-    delete gGProxy;
-    gGProxy = NULL;
+    delete gproxy;
+    gproxy = NULL;
 }
 
 void CGProxy::addMessage(QString msg, bool log)
@@ -445,40 +438,44 @@ void CGProxy::addMessage(QString msg, bool log)
 
 void CGProxy::changeChannel(QString channel)
 {
-    gChannelName = channel.toStdString();
     emit signal_changeChannel(channel);
 }
 
 void CGProxy::addChannelUser(QString username, QString clanTag)
 {
     // Phyton waitgame
-    if (gGProxy->GetVShallCreate())
+    if (gproxy->getVShallCreate())
     {
         QString tname = username.toLower();
-        QString tpre = QString::fromStdString(gGProxy->GetBotprefix()).toLower();
+        QString tpre = gproxy->getBotprefix().toLower();
 
-        if (gGProxy->GetBotprefix().size() > 0 && gGProxy->GetBotprefix()[0] != "^"[0])
-            if (gGProxy->GetPrivategamename() != "" && tpre != "" && tname.mid(0, tpre.size()) == tpre)
+        if (gproxy->getBotprefix().size() > 0 && gproxy->getBotprefix()[0] != "^"[0])
+            if (gproxy->getPrivategamename() != "" && tpre != "" && tname.mid(0, tpre.size()) == tpre)
             {
-                gGProxy->m_BNET->QueueChatCommand("/w " + username.toStdString() + " !priv " + gGProxy->GetPrivategamename());
+                gproxy->m_BNET->QueueChatCommand("/w " + username.toStdString()
+                        + " !priv " + gproxy->getPrivategamename().toStdString());
                 autosearch = true;
-                CheckForGame(gGProxy->GetPrivategamename());
-                if (!gGProxy->GetVShallCreateQuiet())
-                    gGProxy->m_BNET->QueueChatCommand("gn: " + gGProxy->GetPrivategamename());
-                //CONSOLE_Print("off");
-                gGProxy->SetVShallCreate(false);
+                CheckForGame(gproxy->getPrivategamename().toStdString());
+                if (!gproxy->getVShallCreateQuiet())
+                {
+                    gproxy->m_BNET->QueueChatCommand("gn: " + gproxy->getPrivategamename().toStdString());
+                }
+                gproxy->setVShallCreate(false);
             }
             else;
         else
         {
-            if (gGProxy->GetPrivategamename() != "" && tname == tpre.mid(1, tpre.size() - 1))
+            if (gproxy->getPrivategamename() != "" && tname == tpre.mid(1, tpre.size() - 1))
             {
                 autosearch = true;
-                gGProxy->m_BNET->QueueChatCommand("/w " + username.toStdString() + " !priv " + gGProxy->GetPrivategamename());
-                CheckForGame(gGProxy->GetPrivategamename());
-                if (!gGProxy->GetVShallCreateQuiet())
-                    gGProxy->m_BNET->QueueChatCommand("gn: " + gGProxy->GetPrivategamename());
-                gGProxy->SetVShallCreate(false);
+                gproxy->m_BNET->QueueChatCommand("/w " + username.toStdString()
+                        + " !priv " + gproxy->getPrivategamename().toStdString());
+                CheckForGame(gproxy->getPrivategamename().toStdString());
+                if (!gproxy->getVShallCreateQuiet())
+                {
+                    gproxy->m_BNET->QueueChatCommand("gn: " + gproxy->getPrivategamename().toStdString());
+                }
+                gproxy->setVShallCreate(false);
             }
         }
     }
@@ -895,7 +892,7 @@ bool CGProxy::Update(long usecBlock)
                 if (((CIncomingGameHost *) (*i))->GetMapWidth() == 1984 &&
                         ((CIncomingGameHost *) (*i))->GetMapHeight() == 1984)
                 {
-                    if (GameName == privategamename)
+                    if (GameName == gproxy->getPrivategamename().toStdString())
                     {
                         GameName = "|cFFFF0000" + GameName;
                     }
@@ -1113,15 +1110,15 @@ bool CGProxy::CheckForwarding(string MessageString)
                     string tmp = parseTextline(messageText);
                     //messageText=parseTextline(messageText);
 
-                    if (gGProxy->m_BNET->GetInGame() && (messageText[0] != "#"[0]))
+                    if (gproxy->m_BNET->GetInGame() && (messageText[0] != "#"[0]))
                     {
                         if ((messageText[0] != "%"[0]))
                         {
                             if (messageText[0] != "~"[0])
-                                if (gGProxy->m_GameStarted)
-                                    gGProxy->SendAllMessage(tmp);
+                                if (gproxy->m_GameStarted)
+                                    gproxy->SendAllMessage(tmp);
                                 else
-                                    gGProxy->SendLobbyMessage(tmp);
+                                    gproxy->SendLobbyMessage(tmp);
                             else
                             {
 //                                Sleep(50);
@@ -1131,11 +1128,11 @@ bool CGProxy::CheckForwarding(string MessageString)
                         {
                             //cchatcommand=tmp.substr(1);
                             //CreateThread( NULL, 0, LPTHREAD_START_ROUTINE(docommand), NULL, 0, NULL );
-                            gGProxy->m_BNET->QueueChatCommand(tmp.substr(1));
+                            gproxy->m_BNET->QueueChatCommand(tmp.substr(1));
                         }
                     }
                     else if (messageText[0] != "#"[0])
-                        gGProxy->m_BNET->QueueChatCommand(tmp);
+                        gproxy->m_BNET->QueueChatCommand(tmp);
                 }
                 while (!infile.eof());
                 //SendLocalChat("->>>>>>finished sending->>>>>>>>");
@@ -1232,13 +1229,13 @@ bool CGProxy::CheckForwarding(string MessageString)
             else
                 message = string("!stats").append(Command.substr(2));
 
-            if (!gGProxy->m_BNET->GetInGame())
+            if (!gproxy->m_BNET->GetInGame())
             {
-                gGProxy->m_BNET->QueueChatCommand(message);
+                gproxy->m_BNET->QueueChatCommand(message);
             }
             else
             {
-                if (!gGProxy->m_GameStarted)
+                if (!gproxy->m_GameStarted)
                 {
                     SendLobbyMessage(message);
                 }
@@ -1257,13 +1254,13 @@ bool CGProxy::CheckForwarding(string MessageString)
             else
                 message = string("!statsdota").append(Command.substr(3));
 
-            if (!gGProxy->m_BNET->GetInGame())
+            if (!gproxy->m_BNET->GetInGame())
             {
-                gGProxy->m_BNET->QueueChatCommand(message);
+                gproxy->m_BNET->QueueChatCommand(message);
             }
             else
             {
-                if (!gGProxy->m_GameStarted)
+                if (!gproxy->m_GameStarted)
                 {
                     SendLobbyMessage(message);
                 }
@@ -1289,13 +1286,13 @@ bool CGProxy::CheckForwarding(string MessageString)
             else if (Command.substr(2, 1) == " ")
                 message = string("!stats").append(Command.substr(2));
 
-            if (!gGProxy->m_BNET->GetInGame())
+            if (!gproxy->m_BNET->GetInGame())
             {
-                gGProxy->m_BNET->QueueChatCommand(message);
+                gproxy->m_BNET->QueueChatCommand(message);
             }
             else
             {
-                if (!gGProxy->m_GameStarted)
+                if (!gproxy->m_GameStarted)
                 {
                     SendLobbyMessage(message);
                 }
@@ -1310,17 +1307,21 @@ bool CGProxy::CheckForwarding(string MessageString)
             string message;
 
             if (Command == "!sd")
-                message = "!statsdota";
-            else if (Command.substr(3, 1) == " ")
-                message = string("!statsdota").append(Command.substr(3));
-
-            if (!gGProxy->m_BNET->GetInGame())
             {
-                gGProxy->m_BNET->QueueChatCommand(message);
+                message = "!statsdota";
+            }
+            else if (Command.substr(3, 1) == " ")
+            {
+                message = string("!statsdota").append(Command.substr(3));
+            }
+
+            if (!gproxy->m_BNET->GetInGame())
+            {
+                gproxy->m_BNET->QueueChatCommand(message);
             }
             else
             {
-                if (!gGProxy->m_GameStarted)
+                if (!gproxy->m_GameStarted)
                 {
                     SendLobbyMessage(message);
                 }
@@ -1352,9 +1353,6 @@ void CGProxy::ProcessLocalPackets()
             {
                 if (Data.size() >= 20)
                 {
-                    // parse
-
-                    //                    uint32_t HostCounter = UTIL_ByteArrayToUInt32(Data, false, 4);
                     uint32_t EntryKey = UTIL_ByteArrayToUInt32(Data, false, 8);
                     unsigned char Unknown = Data[12];
                     uint16_t ListenPort = UTIL_ByteArrayToUInt16(Data, false, 13);
@@ -1418,7 +1416,7 @@ void CGProxy::ProcessLocalPackets()
 
                                 // Manufactorings work
                                 m_GameName = ((CIncomingGameHost *) (*i))->GetGameName();
-                                gGProxy->changeChannel(QString::fromStdString(m_GameName));
+                                gproxy->changeChannel(QString::fromStdString(m_GameName));
 
                                 break;
                             }
@@ -1441,7 +1439,7 @@ void CGProxy::ProcessLocalPackets()
                 m_LeaveGameSent = true;
                 m_LocalSocket->Disconnect();
                 slotList.clear();
-                gGProxy->m_BNET->QueueChatCommand(string("/whois ").append(gGProxy->m_HostName));
+                gproxy->m_BNET->QueueChatCommand(string("/whois ").append(gproxy->m_HostName));
             }
             else if (Packet->GetID() == CGameProtocol::W3GS_CHAT_TO_HOST)
             {
@@ -1617,9 +1615,9 @@ void CGProxy::ProcessRemotePackets()
                         }
                 }*/
 
-                if (gGProxy->m_GameStarted)
+                if (gproxy->m_GameStarted)
                 {
-                    if (gGProxy->m_PlaySound)
+                    if (gproxy->m_PlaySound)
                     {
                         sndPlaySound(L"Sounds\\Player leaves.wav", SND_ASYNC | SND_FILENAME);
                     }
@@ -1838,7 +1836,7 @@ void CGProxy::ProcessRemotePackets()
 
                     finishedLoadingCounter = 0;
 
-                    if (gGProxy->m_PlaySound)
+                    if (gproxy->m_PlaySound)
                     {
                         sndPlaySound(L"Sounds\\Game countdown started.wav", SND_ASYNC | SND_FILENAME);
                     }
@@ -2157,7 +2155,7 @@ bool CGProxy::AddGame(CIncomingGameHost *game)
     if (!DuplicateFound)
     {
         m_Games.push_back(game);
-        gGProxy->autosearch = true; //pr0 autosearch
+        gproxy->autosearch = true; //pr0 autosearch
     }
 
     // the game list cannot hold more than 20 games (warcraft 3 doesn't handle it properly and ignores any further games)
@@ -2187,7 +2185,7 @@ void CGProxy::SendAllMessage(string message)
     if (message.empty())
         return;
 
-    if (!gGProxy->m_BNET->GetInGame())
+    if (!gproxy->m_BNET->GetInGame())
     {
         CONSOLE_Print("[Manufactoring][ERROR] Cannot send \"AllMessage\". You need to be ingame.");
         return;
@@ -2197,7 +2195,7 @@ void CGProxy::SendAllMessage(string message)
         {
                 CONSOLE_Print( "[Manufactoring][ERROR] Cannot send \"AllMessage\". Game is loading." );
         }*/
-    else if (!gGProxy->m_GameStarted)
+    else if (!gproxy->m_GameStarted)
     {
         CONSOLE_Print("[Manufactoring][ERROR] Cannot send \"AllMessage\". You are currently in the lobby.");
     }
@@ -2220,7 +2218,7 @@ void CGProxy::SendAllMessage(string message)
         extraFlags.push_back(0);
         extraFlags.push_back(0);
 
-        BYTEARRAY Packet = gGProxy->m_GameProtocol->SEND_W3GS_CHAT_TO_HOST(gGProxy->m_ChatPID, toPIDs, 32, extraFlags, message);
+        BYTEARRAY Packet = gproxy->m_GameProtocol->SEND_W3GS_CHAT_TO_HOST(gproxy->m_ChatPID, toPIDs, 32, extraFlags, message);
 
         if (CheckForwarding(message))
         {
@@ -2236,7 +2234,7 @@ void CGProxy::SendAllyMessage(string message)
     if (message.empty())
         return;
 
-    if (!gGProxy->m_BNET->GetInGame())
+    if (!gproxy->m_BNET->GetInGame())
     {
         CONSOLE_Print("[Manufactoring][ERROR] Cannot send \"AllyMessage\". You need to be ingame.");
         return;
@@ -2246,7 +2244,7 @@ void CGProxy::SendAllyMessage(string message)
         {
                 CONSOLE_Print( "[Manufactoring][ERROR] Cannot send \"AllyMessage\". Game is loading." );
         }*/
-    else if (!gGProxy->m_GameStarted)
+    else if (!gproxy->m_GameStarted)
     {
         CONSOLE_Print("[Manufactoring][ERROR] Cannot send \"AllyMessage\". You are currently in the lobby.");
     }
@@ -2269,7 +2267,7 @@ void CGProxy::SendAllyMessage(string message)
         extraFlags.push_back(0);
         extraFlags.push_back(0);
 
-        BYTEARRAY Packet = gGProxy->m_GameProtocol->SEND_W3GS_CHAT_TO_HOST(gGProxy->m_ChatPID, toPIDs, 32, extraFlags, message);
+        BYTEARRAY Packet = gproxy->m_GameProtocol->SEND_W3GS_CHAT_TO_HOST(gproxy->m_ChatPID, toPIDs, 32, extraFlags, message);
 
         if (CheckForwarding(message))
         {
@@ -2285,12 +2283,12 @@ void CGProxy::SendLobbyMessage(string message)
     if (message.empty())
         return;
 
-    if (!gGProxy->m_BNET->GetInGame())
+    if (!gproxy->m_BNET->GetInGame())
     {
         CONSOLE_Print("[Manufactoring][ERROR] Cannot send lobby message. You need to be in a lobby.");
         return;
     }
-    else if (gGProxy->m_GameStarted)
+    else if (gproxy->m_GameStarted)
     {
         CONSOLE_Print("[Manufactoring][ERROR] Cannot send lobby message. The game has already started.");
         return;
@@ -2308,7 +2306,7 @@ void CGProxy::SendLobbyMessage(string message)
             toPIDs.push_back(((CIncomingSlots *) (*it))->GetPID());
         }
 
-        BYTEARRAY Packet = gGProxy->m_GameProtocol->SEND_W3GS_CHAT_TO_HOST(gGProxy->m_ChatPID, toPIDs, 16, BYTEARRAY(), message);
+        BYTEARRAY Packet = gproxy->m_GameProtocol->SEND_W3GS_CHAT_TO_HOST(gproxy->m_ChatPID, toPIDs, 16, BYTEARRAY(), message);
 
         if (CheckForwarding(message))
         {
@@ -2329,7 +2327,7 @@ void CGProxy::SendChangeTeam(unsigned char team)
             toPIDs.push_back(((CIncomingSlots *) (*it))->GetPID());
     }
 
-    BYTEARRAY Packet = gGProxy->m_GameProtocol->SEND_W3GS_TEAMCHANGE(gGProxy->m_ChatPID, toPIDs, team);
+    BYTEARRAY Packet = gproxy->m_GameProtocol->SEND_W3GS_TEAMCHANGE(gproxy->m_ChatPID, toPIDs, team);
 
     m_PacketBuffer.push(new CCommandPacket(W3GS_HEADER_CONSTANT, Packet[1], Packet));
     m_LocalPackets.push(new CCommandPacket(W3GS_HEADER_CONSTANT, Packet[1], Packet));
@@ -2420,7 +2418,7 @@ bool CGProxy::checkStatus (int statusCode)
         }
         case 1:
         {
-            ConfigGUI *configGUI = new ConfigGUI(gGProxy->getConfig());
+            ConfigGUI *configGUI = new ConfigGUI(gproxy->getConfig());
 
             if (configGUI->exec() == QDialog::Accepted)
             {
@@ -2476,53 +2474,53 @@ bool CGProxy::checkStatus (int statusCode)
 
 bool fcfgfilterfirst()// Phyton filter
 {
-    return gGProxy->cfgfilterfirst;
+    return gproxy->cfgfilterfirst;
 
 }
 
 string fcfgfilter()// Phyton filter
 {
-    return gGProxy->cfgfilter;
+    return gproxy->cfgfilter;
 }
 
 void saychat(string message)// Phyton parrot
 {
-    gGProxy->m_BNET->QueueChatCommand(message);
+    gproxy->m_BNET->QueueChatCommand(message);
 }
 
 bool getautosearch() //pr0 autosearch
 {
-    return gGProxy->autosearch;
+    return gproxy->autosearch;
 }
 
 void autosearch(bool autosearchNew) //pr0 autosearch
 {
-    gGProxy->autosearch = autosearchNew;
+    gproxy->autosearch = autosearchNew;
 }
 
 bool cautosearch() //pr0 cautosearch
 {
-    return gGProxy->cautosearch;
+    return gproxy->cautosearch;
 }
 
 bool displayautocreated()
 {
-    return gGProxy->displayautocreated;
+    return gproxy->displayautocreated;
 }
 
 void displayautocreated(bool newone)
 {
-    gGProxy->displayautocreated = newone;
+    gproxy->displayautocreated = newone;
 }
 
 void flisting_current_games(bool newone)
 {
-    gGProxy->m_listing_current_games = newone;
+    gproxy->m_listing_current_games = newone;
 }
 
 bool flisting_current_games()
 {
-    return gGProxy->m_listing_current_games;
+    return gproxy->m_listing_current_games;
 }
 
 CIncomingSlots::CIncomingSlots(unsigned char nPID, unsigned char ndownloadStatus, unsigned char nslotStatus,

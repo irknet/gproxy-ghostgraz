@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainGUI.ui'
 **
-** Created: Mon 9. May 20:28:22 2011
+** Created: Tue 10. May 18:50:55 2011
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -39,7 +39,8 @@ public:
     QListWidget *gameList;
     QLineEdit *channelField;
     QMenuBar *menubar;
-    QMenu *menuFile;
+    QMenu *menu_File;
+    QMenu *menu_StartWarcraft;
 
     void setupUi(QMainWindow *MainGUI)
     {
@@ -92,11 +93,11 @@ public:
         font1.setBold(false);
         font1.setWeight(50);
         outputField->setFont(font1);
-        outputField->setFocusPolicy(Qt::NoFocus);
+        outputField->setFocusPolicy(Qt::ClickFocus);
         outputField->setAutoFillBackground(true);
         outputField->setReadOnly(true);
         outputField->setAcceptRichText(false);
-        outputField->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
+        outputField->setTextInteractionFlags(Qt::TextSelectableByMouse);
         inputField = new QPlainTextEdit(centralwidget);
         inputField->setObjectName(QString::fromUtf8("inputField"));
         inputField->setGeometry(QRect(0, 521, 661, 31));
@@ -148,13 +149,16 @@ public:
         menubar = new QMenuBar(MainGUI);
         menubar->setObjectName(QString::fromUtf8("menubar"));
         menubar->setGeometry(QRect(0, 0, 1081, 21));
-        menuFile = new QMenu(menubar);
-        menuFile->setObjectName(QString::fromUtf8("menuFile"));
+        menu_File = new QMenu(menubar);
+        menu_File->setObjectName(QString::fromUtf8("menu_File"));
+        menu_StartWarcraft = new QMenu(menubar);
+        menu_StartWarcraft->setObjectName(QString::fromUtf8("menu_StartWarcraft"));
         MainGUI->setMenuBar(menubar);
 
-        menubar->addAction(menuFile->menuAction());
-        menuFile->addAction(actionConfig);
-        menuFile->addAction(actionExit);
+        menubar->addAction(menu_File->menuAction());
+        menubar->addAction(menu_StartWarcraft->menuAction());
+        menu_File->addAction(actionConfig);
+        menu_File->addAction(actionExit);
 
         retranslateUi(MainGUI);
         QObject::connect(actionExit, SIGNAL(activated()), MainGUI, SLOT(close()));
@@ -164,7 +168,7 @@ public:
 
     void retranslateUi(QMainWindow *MainGUI)
     {
-        MainGUI->setWindowTitle(QApplication::translate("MainGUI", "GProxy GhostGraz v2.0a", 0, QApplication::UnicodeUTF8));
+        MainGUI->setWindowTitle(QApplication::translate("MainGUI", "GProxy GhostGraz v2.0", 0, QApplication::UnicodeUTF8));
         actionExit->setText(QApplication::translate("MainGUI", "Exit", 0, QApplication::UnicodeUTF8));
         actionConfig->setText(QApplication::translate("MainGUI", "Config", 0, QApplication::UnicodeUTF8));
         outputField->setHtml(QApplication::translate("MainGUI", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
@@ -174,7 +178,8 @@ public:
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Courier New'; font-size:12pt;\"></p></body></html>", 0, QApplication::UnicodeUTF8));
         inputField->setPlainText(QString());
         channelField->setText(QApplication::translate("MainGUI", "Channel", 0, QApplication::UnicodeUTF8));
-        menuFile->setTitle(QApplication::translate("MainGUI", "File", 0, QApplication::UnicodeUTF8));
+        menu_File->setTitle(QApplication::translate("MainGUI", "File", 0, QApplication::UnicodeUTF8));
+        menu_StartWarcraft->setTitle(QApplication::translate("MainGUI", "Start Warcraft", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };
