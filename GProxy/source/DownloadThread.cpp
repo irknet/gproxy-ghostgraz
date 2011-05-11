@@ -4,12 +4,12 @@ DownloadThread::DownloadThread (MainGUI *p_mainGUI)
 {
     mainGUI = p_mainGUI;
     url = QUrl("http://0.static.ghostgraz.com/currentgames.txt");
-    
+
     QObject::connect(this, SIGNAL(signal_clearGamelist()),
-            mainGUI, SLOT(clearGamelist()));
-    
+            mainGUI, SLOT(clearGamelist()), Qt::QueuedConnection);
+
     QObject::connect(this, SIGNAL(signal_addGame(QString, QString, QString)),
-            mainGUI, SLOT(addGame(QString, QString, QString)));
+            mainGUI, SLOT(addGame(QString, QString, QString)), Qt::QueuedConnection);
 }
 
 DownloadThread::~DownloadThread () { }

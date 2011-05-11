@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'MainGUI.h'
 **
-** Created: Tue 10. May 18:51:23 2011
+** Created: Wed 11. May 20:11:39 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_MainGUI[] = {
        5,       // revision
        0,       // classname
        0,    0, // classinfo
-      18,   14, // methods
+      19,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -49,6 +49,7 @@ static const uint qt_meta_data_MainGUI[] = {
      455,  439,    8,    8, 0x0a,
      479,    8,    8,    8, 0x0a,
      522,  495,    8,    8, 0x0a,
+     564,  555,    8,    8, 0x0a,
 
        0        // eod
 };
@@ -70,6 +71,7 @@ static const char qt_meta_stringdata_MainGUI[] = {
     "addFriend(QString,bool)\0clearGamelist()\0"
     "botname,gamename,openSlots\0"
     "addGame(QString,QString,QString)\0"
+    "slotList\0setGameslots(vector<CIncomingSlots*>)\0"
 };
 
 const QMetaObject MainGUI::staticMetaObject = {
@@ -119,9 +121,10 @@ int MainGUI::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         case 15: addFriend((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2]))); break;
         case 16: clearGamelist(); break;
         case 17: addGame((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2])),(*reinterpret_cast< QString(*)>(_a[3]))); break;
+        case 18: setGameslots((*reinterpret_cast< vector<CIncomingSlots*>(*)>(_a[1]))); break;
         default: ;
         }
-        _id -= 18;
+        _id -= 19;
     }
     return _id;
 }

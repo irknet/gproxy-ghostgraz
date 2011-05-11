@@ -26,7 +26,7 @@ public:
     virtual ~MainGUI();
     void init();
     CGProxy* getGproxy();
-    void setGameslots(vector<CIncomingSlots *> slotList);
+
 
 private:
     Ui::MainGUI widget;
@@ -62,6 +62,7 @@ public slots:
     void addFriend(QString username, bool online);
     void clearGamelist();
     void addGame(QString botname, QString gamename, QString openSlots);
+    void setGameslots(vector<CIncomingSlots *> slotList);
 };
 
 #endif	/* _MAINGUI_H */

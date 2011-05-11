@@ -325,6 +325,7 @@ signals:
     void signal_removeChannelUser(QString);
     void signal_clearFriendlist();
     void signal_addFriend(QString, bool);
+    void signal_setGameslots(vector<CIncomingSlots*>);
 };
 
 

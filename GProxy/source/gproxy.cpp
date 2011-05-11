@@ -208,30 +208,35 @@ int main(int argc, char **argv)
     mainGUI = new MainGUI(gproxy);
     mainGUI->show();
 
+    qRegisterMetaType<vector<CIncomingSlots*> >("vector<CIncomingSlots*>");
+
     QObject::connect(gproxy, SIGNAL(signal_addMessage(QString, bool)),
-            mainGUI, SLOT(addMessage(QString, bool)));
+            mainGUI, SLOT(addMessage(QString, bool)), Qt::QueuedConnection);
 
     QObject::connect(gproxy, SIGNAL(signal_changeChannel(QString)),
-            mainGUI, SLOT(changeChannel(QString)));
+            mainGUI, SLOT(changeChannel(QString)), Qt::QueuedConnection);
 
     QObject::connect(gproxy, SIGNAL(signal_addChannelUser(QString, QString)),
-            mainGUI, SLOT(addChannelUser(QString, QString)));
+            mainGUI, SLOT(addChannelUser(QString, QString)), Qt::QueuedConnection);
 
     QObject::connect(gproxy, SIGNAL(signal_removeChannelUser(QString)),
-            mainGUI, SLOT(removeChannelUser(QString)));
+            mainGUI, SLOT(removeChannelUser(QString)), Qt::QueuedConnection);
 
     QObject::connect(gproxy, SIGNAL(signal_clearFriendlist()),
-            mainGUI, SLOT(clearFriendlist()));
+            mainGUI, SLOT(clearFriendlist()), Qt::QueuedConnection);
 
     QObject::connect(gproxy, SIGNAL(signal_addFriend(QString, bool)),
-            mainGUI, SLOT(addFriend(QString, bool)));
+            mainGUI, SLOT(addFriend(QString, bool)), Qt::QueuedConnection);
+
+    QObject::connect(gproxy, SIGNAL(signal_setGameslots(vector<CIncomingSlots*>)),
+            mainGUI, SLOT(setGameslots(vector<CIncomingSlots*>)), Qt::QueuedConnection);
 
     CONSOLE_Print("[GPROXY] starting up");
     CONSOLE_Print("[GPROXY] Trying to loading configuration file");
 
     Config *config = new Config("gproxy.cfg");
     gproxy->setConfig(config);
-    
+
     int status = config->loadConfig();
     if(gproxy->checkStatus(status) == false)
     {
@@ -1694,7 +1699,7 @@ void CGProxy::ProcessRemotePackets()
                         i += 9;
                     }
 
-                    mainGUI->setGameslots(slotList);
+                    emit signal_setGameslots(slotList);
                 }
                 else
                 {
@@ -1769,7 +1774,7 @@ void CGProxy::ProcessRemotePackets()
                     }
                     i += 9;
                 }
-                mainGUI->setGameslots(slotList);
+                emit signal_setGameslots(slotList);
             }
             else if (Packet->GetID() == CGameProtocol::W3GS_PLAYERINFO)
             {
@@ -1870,7 +1875,7 @@ void CGProxy::ProcessRemotePackets()
                     }
                 }
 
-                mainGUI->setGameslots(slotList);
+                emit signal_setGameslots(slotList);
             }
             else if (Packet->GetID() == CGameProtocol::W3GS_REJECTJOIN)
             {
