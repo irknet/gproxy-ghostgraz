@@ -88,6 +88,7 @@ void Config::addValues(QString content)
         vTempValue.append(value);
     }
 
+    // Add default values
     for(int i = 0; i < vKey.count(); i++)
     {
         if(!vTempKey.contains(vKey.at(i)))
@@ -135,6 +136,7 @@ void Config::addValues(QString content)
             continue;
         }
 
+        // Load config values
         for(int j = 0; j < vTempKey.count(); j++)
         {
             if(vKey.at(i) == vTempKey.at(j))

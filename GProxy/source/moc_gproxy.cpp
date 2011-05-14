@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'gproxy.h'
 **
-** Created: Wed 11. May 20:10:17 2011
+** Created: Sat 14. May 20:50:32 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -36,8 +36,8 @@ static const uint qt_meta_data_CGProxy[] = {
       73,    9,    8,    8, 0x05,
      112,    8,    8,    8, 0x05,
      146,    8,    8,    8, 0x05,
-     171,    9,    8,    8, 0x05,
-     202,    8,    8,    8, 0x05,
+     174,  171,    8,    8, 0x05,
+     213,    8,    8,    8, 0x05,
 
        0        // eod
 };
@@ -47,8 +47,8 @@ static const char qt_meta_stringdata_CGProxy[] = {
     "signal_changeChannel(QString)\0"
     "signal_addChannelUser(QString,QString)\0"
     "signal_removeChannelUser(QString)\0"
-    "signal_clearFriendlist()\0"
-    "signal_addFriend(QString,bool)\0"
+    "signal_clearFriendlist()\0,,\0"
+    "signal_addFriend(QString,bool,QString)\0"
     "signal_setGameslots(vector<CIncomingSlots*>)\0"
 };
 
@@ -86,7 +86,7 @@ int CGProxy::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         case 2: signal_addChannelUser((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2]))); break;
         case 3: signal_removeChannelUser((*reinterpret_cast< QString(*)>(_a[1]))); break;
         case 4: signal_clearFriendlist(); break;
-        case 5: signal_addFriend((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2]))); break;
+        case 5: signal_addFriend((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2])),(*reinterpret_cast< QString(*)>(_a[3]))); break;
         case 6: signal_setGameslots((*reinterpret_cast< vector<CIncomingSlots*>(*)>(_a[1]))); break;
         default: ;
         }
@@ -130,9 +130,9 @@ void CGProxy::signal_clearFriendlist()
 }
 
 // SIGNAL 5
-void CGProxy::signal_addFriend(QString _t1, bool _t2)
+void CGProxy::signal_addFriend(QString _t1, bool _t2, QString _t3)
 {
-    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)), const_cast<void*>(reinterpret_cast<const void*>(&_t2)) };
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)), const_cast<void*>(reinterpret_cast<const void*>(&_t2)), const_cast<void*>(reinterpret_cast<const void*>(&_t3)) };
     QMetaObject::activate(this, &staticMetaObject, 5, _a);
 }
 

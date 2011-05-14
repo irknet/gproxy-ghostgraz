@@ -1,5 +1,6 @@
-<RCC>
-  <qresource prefix="images">
+<!DOCTYPE RCC>
+<RCC version="1.0">
+  <qresource>
     <file>images/GProxy.gif</file>
     <file>images/Cancel.png</file>
     <file>images/Tool.png</file>

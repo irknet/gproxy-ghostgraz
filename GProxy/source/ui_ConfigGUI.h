@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'ConfigGUI.ui'
 **
-** Created: Tue 10. May 16:14:43 2011
+** Created: Sat 14. May 20:49:49 2011
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -33,7 +33,7 @@ public:
         ConfigGUI->setWindowModality(Qt::ApplicationModal);
         ConfigGUI->resize(400, 300);
         QIcon icon;
-        icon.addFile(QString::fromUtf8(":/images/images/Tool.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon.addFile(QString::fromUtf8(":/images/Tool.png"), QSize(), QIcon::Normal, QIcon::Off);
         ConfigGUI->setWindowIcon(icon);
         buttonBox = new QDialogButtonBox(ConfigGUI);
         buttonBox->setObjectName(QString::fromUtf8("buttonBox"));

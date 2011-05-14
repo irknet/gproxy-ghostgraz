@@ -161,8 +161,8 @@ CTCPSocket :: CTCPSocket( ) : CSocket( )
 {
 	Allocate( SOCK_STREAM );
 	m_Connected = false;
-	m_LastRecv = GetTime( );
-	m_LastSend = GetTime( );
+	m_LastRecv = getElapsedSeconds();
+	m_LastSend = getElapsedSeconds();
 
 	// make socket non blocking
 
@@ -177,8 +177,8 @@ CTCPSocket :: CTCPSocket( ) : CSocket( )
 CTCPSocket :: CTCPSocket( SOCKET nSocket, struct sockaddr_in nSIN ) : CSocket( nSocket, nSIN )
 {
 	m_Connected = true;
-	m_LastRecv = GetTime( );
-	m_LastSend = GetTime( );
+	m_LastRecv = getElapsedSeconds();
+	m_LastSend = getElapsedSeconds();
 
 	// make socket non blocking
 
@@ -203,8 +203,8 @@ void CTCPSocket :: Reset( )
 	m_Connected = false;
 	m_RecvBuffer.clear( );
 	m_SendBuffer.clear( );
-	m_LastRecv = GetTime( );
-	m_LastSend = GetTime( );
+	m_LastRecv = getElapsedSeconds();
+	m_LastSend = getElapsedSeconds();
 
 	// make socket non blocking
 
@@ -284,7 +284,7 @@ void CTCPSocket :: DoRecv( fd_set *fd )
 			}
 
 			m_RecvBuffer += string( buffer, c );
-			m_LastRecv = GetTime( );
+			m_LastRecv = getElapsedSeconds();
 		}
 	}
 }
@@ -326,7 +326,7 @@ void CTCPSocket :: DoSend( fd_set *send_fd )
 			}
 
 			m_SendBuffer = m_SendBuffer.substr( s );
-			m_LastSend = GetTime( );
+			m_LastSend = getElapsedSeconds();
 		}
 	}
 }

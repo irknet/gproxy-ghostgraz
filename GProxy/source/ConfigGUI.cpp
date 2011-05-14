@@ -355,7 +355,7 @@ void ConfigGUI::accept ()
     else
     {
         QMessageBox msgBox;
-        msgBox.setWindowIcon(QIcon(":/images/images/Error.png"));
+        msgBox.setWindowIcon(QIcon(":/images/Error.png"));
         msgBox.setWindowTitle("Error");
         msgBox.setText("You need to fill in all required values to save!");
         msgBox.exec();

@@ -25,5 +25,5 @@ INPUT(
 ./build/Release/Qt_MinGW-Windows/moc_MainGUI.o
 ./build/Release/Qt_MinGW-Windows/moc_ChannellistDelegate.o
 ./build/Release/Qt_MinGW-Windows/moc_GamelistDelegate.o
-./build/Release/Qt_MinGW-Windows/qrc_images.o
+./build/Release/Qt_MinGW-Windows/qrc_resources.o
 );

@@ -42,9 +42,8 @@ using namespace std;
 typedef vector<unsigned char> BYTEARRAY;
 
 // time
-
-unsigned int GetTime( );		// seconds
-unsigned int GetTicks( );		// milliseconds
+unsigned long getElapsedSeconds();
+unsigned long getElapsedMilliseconds();
 
 #ifdef WIN32
  #define MILLISLEEP( x ) Sleep( x )
@@ -280,11 +279,9 @@ public:
 
     bool AddGame( CIncomingGameHost *game );
     void SendLocalChat( string message );
-    void SendAllMessage ( string message );			// Manufactoring
-    void SendAllyMessage ( string message );		// Manufactoring
-    void SendLobbyMessage ( string message );		// Manufactoring
-    bool CheckForwarding ( string MessageString );	// Manufactoring
-    void SendChangeTeam( unsigned char team );		// Manufactoring
+    void sendGamemessage(QString message, bool alliesOnly = false);
+    bool CheckForwarding ( string MessageString );
+    void changeTeam( unsigned char team );
     void SendEmptyAction( );
 
     void setPrivategamename(QString privategamename) { this->privategamename = privategamename; }
@@ -316,7 +313,7 @@ public:
     void removeChannelUser(QString username);
     void friendUpdate(vector<CIncomingFriendList *> friendList);
     void clearFriendlist();
-    void addFriend(QString username, bool online);
+    void addFriend(QString username, bool online, QString location);
 
 signals:
     void signal_addMessage(QString, bool);
@@ -324,7 +321,7 @@ signals:
     void signal_addChannelUser(QString, QString);
     void signal_removeChannelUser(QString);
     void signal_clearFriendlist();
-    void signal_addFriend(QString, bool);
+    void signal_addFriend(QString, bool, QString);
     void signal_setGameslots(vector<CIncomingSlots*>);
 };
 

@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainGUI.ui'
 **
-** Created: Tue 10. May 18:50:55 2011
+** Created: Sat 14. May 22:56:58 2011
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -49,22 +49,22 @@ public:
         MainGUI->resize(1081, 577);
         MainGUI->setMinimumSize(QSize(500, 200));
         QIcon icon;
-        icon.addFile(QString::fromUtf8(":/images/images/GProxy.gif"), QSize(), QIcon::Normal, QIcon::Off);
+        icon.addFile(QString::fromUtf8(":/images/GProxy.gif"), QSize(), QIcon::Normal, QIcon::Off);
         MainGUI->setWindowIcon(icon);
         actionExit = new QAction(MainGUI);
         actionExit->setObjectName(QString::fromUtf8("actionExit"));
         QIcon icon1;
-        icon1.addFile(QString::fromUtf8(":/images/images/Cancel.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon1.addFile(QString::fromUtf8(":/images/Cancel.png"), QSize(), QIcon::Normal, QIcon::Off);
         actionExit->setIcon(icon1);
         actionConfig = new QAction(MainGUI);
         actionConfig->setObjectName(QString::fromUtf8("actionConfig"));
         QIcon icon2;
-        icon2.addFile(QString::fromUtf8(":/images/images/Tool.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon2.addFile(QString::fromUtf8(":/images/Tool.png"), QSize(), QIcon::Normal, QIcon::Off);
         actionConfig->setIcon(icon2);
         centralwidget = new QWidget(MainGUI);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         QPalette palette;
-        QBrush brush(QColor(255, 255, 255, 255));
+        QBrush brush(QColor(210, 210, 210, 255));
         brush.setStyle(Qt::SolidPattern);
         palette.setBrush(QPalette::Active, QPalette::Text, brush);
         QBrush brush1(QColor(0, 0, 0, 255));
@@ -75,7 +75,9 @@ public:
         QBrush brush2(QColor(120, 120, 120, 255));
         brush2.setStyle(Qt::SolidPattern);
         palette.setBrush(QPalette::Disabled, QPalette::Text, brush2);
-        palette.setBrush(QPalette::Disabled, QPalette::Base, brush);
+        QBrush brush3(QColor(255, 255, 255, 255));
+        brush3.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Disabled, QPalette::Base, brush3);
         centralwidget->setPalette(palette);
         QFont font;
         font.setFamily(QString::fromUtf8("Courier New"));

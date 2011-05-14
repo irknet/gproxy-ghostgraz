@@ -21,6 +21,8 @@
 #include <QtGui/QApplication>
 #include <QMessageBox>
 #include <QIcon>
+#include <QSound>
+#include <QElapsedTimer>
 
 #include "gproxy.h"
 #include "util.h"
@@ -39,7 +41,6 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <direct.h>
-#include <MMSystem.h>
 #include <sstream>
 #include <windows.h>
 #include <winsock.h>
@@ -54,11 +55,13 @@
 #include <mach/mach_time.h>
 #endif
 
+CGProxy *gproxy;
 MainGUI *mainGUI;
 GProxyUpdateThread *gUpdateThread;
 DownloadThread *dt;
+QElapsedTimer timer;
+
 string gLogFile;
-CGProxy *gproxy = NULL;
 vector<string> gGamesBuffer;
 
 /* Phytons variables */
@@ -121,33 +124,43 @@ bool textEndsWith(string text, string endText)
     return false;
 }
 
-unsigned int GetTime()
+unsigned long getElapsedSeconds()
 {
-    return GetTicks() / 1000;
+    return timer.elapsed() / 1000;
 }
 
-unsigned int GetTicks()
+unsigned long getElapsedMilliseconds()
 {
-#ifdef WIN32
-    return timeGetTime();
-#elif __APPLE__
-    uint64_t current = mach_absolute_time();
-    static mach_timebase_info_data_t info = {0, 0};
-    // get timebase info
-    if (info.denom == 0)
-        mach_timebase_info(&info);
-    uint64_t elapsednano = current * (info.numer / info.denom);
-    // convert ns to ms
-    return elapsednano / 1e6;
-#else
-    uint32_t ticks;
-    struct timespec t;
-    clock_gettime(CLOCK_MONOTONIC, &t);
-    ticks = t.tv_sec * 1000;
-    ticks += t.tv_nsec / 1000000;
-    return ticks;
-#endif
+    return timer.elapsed();
 }
+
+//unsigned int GetTime()
+//{
+//    return GetTicks() / 1000;
+//}
+//
+//unsigned int GetTicks()
+//{
+//#ifdef WIN32
+//    return timeGetTime();
+//#elif __APPLE__
+//    uint64_t current = mach_absolute_time();
+//    static mach_timebase_info_data_t info = {0, 0};
+//    // get timebase info
+//    if (info.denom == 0)
+//        mach_timebase_info(&info);
+//    uint64_t elapsednano = current * (info.numer / info.denom);
+//    // convert ns to ms
+//    return elapsednano / 1e6;
+//#else
+//    uint32_t ticks;
+//    struct timespec t;
+//    clock_gettime(CLOCK_MONOTONIC, &t);
+//    ticks = t.tv_sec * 1000;
+//    ticks += t.tv_nsec / 1000000;
+//    return ticks;
+//#endif
+//}
 
 void LOG_Print(string message)
 {
@@ -225,11 +238,13 @@ int main(int argc, char **argv)
     QObject::connect(gproxy, SIGNAL(signal_clearFriendlist()),
             mainGUI, SLOT(clearFriendlist()), Qt::QueuedConnection);
 
-    QObject::connect(gproxy, SIGNAL(signal_addFriend(QString, bool)),
-            mainGUI, SLOT(addFriend(QString, bool)), Qt::QueuedConnection);
+    QObject::connect(gproxy, SIGNAL(signal_addFriend(QString, bool, QString)),
+            mainGUI, SLOT(addFriend(QString, bool, QString)), Qt::QueuedConnection);
 
     QObject::connect(gproxy, SIGNAL(signal_setGameslots(vector<CIncomingSlots*>)),
             mainGUI, SLOT(setGameslots(vector<CIncomingSlots*>)), Qt::QueuedConnection);
+
+    timer.start();
 
     CONSOLE_Print("[GPROXY] starting up");
     CONSOLE_Print("[GPROXY] Trying to loading configuration file");
@@ -500,8 +515,9 @@ void CGProxy::friendUpdate(vector<CIncomingFriendList *> friendList)
     for (vector<CIncomingFriendList *> ::iterator it = friendList.begin();
             it != friendList.end(); it++)
     {
-        addFriend(QString::fromStdString(((CIncomingFriendList *) (*it))->GetAccount()),
-                (((CIncomingFriendList *) (*it))->GetArea() != 0));
+        addFriend(QString::fromStdString(((*it))->GetAccount()),
+                (((*it))->GetArea() != 0),
+                QString::fromStdString((*it)->GetLocation()));
     }
 }
 
@@ -510,9 +526,9 @@ void CGProxy::clearFriendlist()
     emit signal_clearFriendlist();
 }
 
-void CGProxy::addFriend(QString username, bool online)
+void CGProxy::addFriend(QString username, bool online, QString location)
 {
-    emit signal_addFriend(username, online);
+    emit signal_addFriend(username, online, location);
 }
 
 bool CGProxy::Update(long usecBlock)
@@ -666,7 +682,8 @@ bool CGProxy::Update(long usecBlock)
 
             if (!m_RemoteServerIP.empty())
             {
-                if (m_GameIsReliable && m_ActionReceived && GetTime() - m_LastActionTime >= 60)
+                if (m_GameIsReliable && m_ActionReceived
+                        && getElapsedSeconds() - m_LastActionTime >= 60)
                 {
                     if (m_NumEmptyActionsUsed < m_NumEmptyActions)
                     {
@@ -679,7 +696,7 @@ bool CGProxy::Update(long usecBlock)
                         CONSOLE_Print("[GPROXY] ran out of time to reconnect");
                     }
 
-                    m_LastActionTime = GetTime();
+                    m_LastActionTime = getElapsedSeconds();
                 }
 
                 if (m_RemoteSocket->HasError())
@@ -689,17 +706,23 @@ bool CGProxy::Update(long usecBlock)
                     if (m_GameIsReliable && m_ActionReceived && m_ReconnectPort > 0)
                     {
                         SendLocalChat("You have been disconnected from the server due to a socket error.");
-                        uint32_t TimeRemaining = (m_NumEmptyActions - m_NumEmptyActionsUsed + 1) * 60 - (GetTime() - m_LastActionTime);
+                        uint32_t TimeRemaining = (m_NumEmptyActions
+                                - m_NumEmptyActionsUsed + 1) * 60
+                                - (getElapsedSeconds() - m_LastActionTime);
 
-                        if (GetTime() - m_LastActionTime > (((unsigned int) m_NumEmptyActions) - ((unsigned int) m_NumEmptyActionsUsed) + 1) * 60)
+                        if (getElapsedSeconds() - m_LastActionTime
+                                > (((unsigned int) m_NumEmptyActions)
+                                - ((unsigned int) m_NumEmptyActionsUsed) + 1) * 60)
+                        {
                             TimeRemaining = 0;
+                        }
 
                         SendLocalChat("GProxy++ is attempting to reconnect... (" + UTIL_ToString(TimeRemaining) + " seconds remain)");
                         CONSOLE_Print("[GPROXY] attempting to reconnect");
                         m_RemoteSocket->Reset();
                         m_RemoteSocket->SetNoDelay(true);
                         m_RemoteSocket->Connect(string(), m_RemoteServerIP, m_ReconnectPort);
-                        m_LastConnectionAttemptTime = GetTime();
+                        m_LastConnectionAttemptTime = getElapsedSeconds();
                     }
                     else
                     {
@@ -724,17 +747,23 @@ bool CGProxy::Update(long usecBlock)
                     if (m_GameIsReliable && m_ActionReceived && m_ReconnectPort > 0)
                     {
                         SendLocalChat("You have been disconnected from the server.");
-                        uint32_t TimeRemaining = (m_NumEmptyActions - m_NumEmptyActionsUsed + 1) * 60 - (GetTime() - m_LastActionTime);
+                        uint32_t TimeRemaining = (m_NumEmptyActions
+                                - m_NumEmptyActionsUsed + 1) * 60
+                                - (getElapsedSeconds() - m_LastActionTime);
 
-                        if (GetTime() - m_LastActionTime > (((unsigned int) m_NumEmptyActions) - ((unsigned int) m_NumEmptyActionsUsed) + 1) * 60)
+                        if (getElapsedSeconds() - m_LastActionTime
+                                > (((unsigned int) m_NumEmptyActions)
+                                - ((unsigned int) m_NumEmptyActionsUsed) + 1) * 60)
+                        {
                             TimeRemaining = 0;
+                        }
 
                         SendLocalChat("GProxy++ is attempting to reconnect... (" + UTIL_ToString(TimeRemaining) + " seconds remain)");
                         CONSOLE_Print("[GPROXY] attempting to reconnect");
                         m_RemoteSocket->Reset();
                         m_RemoteSocket->SetNoDelay(true);
                         m_RemoteSocket->Connect(string(), m_RemoteServerIP, m_ReconnectPort);
-                        m_LastConnectionAttemptTime = GetTime();
+                        m_LastConnectionAttemptTime = getElapsedSeconds();
                     }
                     else
                     {
@@ -754,21 +783,28 @@ bool CGProxy::Update(long usecBlock)
 
                 if (m_RemoteSocket->GetConnected())
                 {
-                    if (m_GameIsReliable && m_ActionReceived && m_ReconnectPort > 0 && GetTime() - m_RemoteSocket->GetLastRecv() >= 20)
+                    if (m_GameIsReliable && m_ActionReceived && m_ReconnectPort > 0
+                            && getElapsedSeconds() - m_RemoteSocket->GetLastRecv() >= 20)
                     {
                         CONSOLE_Print("[GPROXY] disconnected from remote server due to 20 second timeout");
                         SendLocalChat("You have been timed out from the server.");
-                        uint32_t TimeRemaining = (m_NumEmptyActions - m_NumEmptyActionsUsed + 1) * 60 - (GetTime() - m_LastActionTime);
+                        uint32_t TimeRemaining = (m_NumEmptyActions
+                                - m_NumEmptyActionsUsed + 1) * 60
+                                - (getElapsedSeconds() - m_LastActionTime);
 
-                        if (GetTime() - m_LastActionTime > ((unsigned int) (m_NumEmptyActions - m_NumEmptyActionsUsed + 1)) * 60)
+                        if (getElapsedSeconds() - m_LastActionTime
+                                > ((unsigned int) (m_NumEmptyActions
+                                - m_NumEmptyActionsUsed + 1)) * 60)
+                        {
                             TimeRemaining = 0;
+                        }
 
                         SendLocalChat("GProxy++ is attempting to reconnect... (" + UTIL_ToString(TimeRemaining) + " seconds remain)");
                         CONSOLE_Print("[GPROXY] attempting to reconnect");
                         m_RemoteSocket->Reset();
                         m_RemoteSocket->SetNoDelay(true);
                         m_RemoteSocket->Connect(string(), m_RemoteServerIP, m_ReconnectPort);
-                        m_LastConnectionAttemptTime = GetTime();
+                        m_LastConnectionAttemptTime = getElapsedSeconds();
                     }
                     else
                     {
@@ -776,10 +812,11 @@ bool CGProxy::Update(long usecBlock)
                         ExtractRemotePackets();
                         ProcessRemotePackets();
 
-                        if (m_GameIsReliable && m_ActionReceived && m_ReconnectPort > 0 && GetTime() - m_LastAckTime >= 10)
+                        if (m_GameIsReliable && m_ActionReceived && m_ReconnectPort > 0
+                                && getElapsedSeconds() - m_LastAckTime >= 10)
                         {
                             m_RemoteSocket->PutBytes(m_GPSProtocol->SEND_GPSC_ACK(m_TotalPacketsReceivedFromRemote));
-                            m_LastAckTime = GetTime();
+                            m_LastAckTime = getElapsedSeconds();
                         }
 
                         m_RemoteSocket->DoSend(&send_fd);
@@ -821,7 +858,7 @@ bool CGProxy::Update(long usecBlock)
                         else
                             CONSOLE_Print("[GPROXY] connected to remote server");
                     }
-                    else if (GetTime() - m_LastConnectionAttemptTime >= 10)
+                    else if (getElapsedSeconds() - m_LastConnectionAttemptTime >= 10)
                     {
                         // the connection attempt timed out (10 seconds)
 
@@ -829,17 +866,23 @@ bool CGProxy::Update(long usecBlock)
 
                         if (m_GameIsReliable && m_ActionReceived && m_ReconnectPort > 0)
                         {
-                            uint32_t TimeRemaining = (m_NumEmptyActions - m_NumEmptyActionsUsed + 1) * 60 - (GetTime() - m_LastActionTime);
+                            uint32_t TimeRemaining = (m_NumEmptyActions
+                                    - m_NumEmptyActionsUsed + 1) * 60
+                                    - (getElapsedSeconds() - m_LastActionTime);
 
-                            if (GetTime() - m_LastActionTime > ((unsigned int) (m_NumEmptyActions - m_NumEmptyActionsUsed + 1)) * 60)
+                            if (getElapsedSeconds() - m_LastActionTime
+                                    > ((unsigned int) (m_NumEmptyActions
+                                    - m_NumEmptyActionsUsed + 1)) * 60)
+                            {
                                 TimeRemaining = 0;
+                            }
 
                             SendLocalChat("GProxy++ is attempting to reconnect... (" + UTIL_ToString(TimeRemaining) + " seconds remain)");
                             CONSOLE_Print("[GPROXY] attempting to reconnect");
                             m_RemoteSocket->Reset();
                             m_RemoteSocket->SetNoDelay(true);
                             m_RemoteSocket->Connect(string(), m_RemoteServerIP, m_ReconnectPort);
-                            m_LastConnectionAttemptTime = GetTime();
+                            m_LastConnectionAttemptTime = getElapsedSeconds();
                         }
                         else
                         {
@@ -868,13 +911,13 @@ bool CGProxy::Update(long usecBlock)
         // handle game listing
         //
 
-        if (GetTime() - m_LastRefreshTime >= 2)
+        if (getElapsedSeconds() - m_LastRefreshTime >= 2)
         {
             for (vector<CIncomingGameHost *> ::iterator i = m_Games.begin(); i != m_Games.end();)
             {
                 // expire games older than 60 seconds
 
-                if (GetTime() - ((CIncomingGameHost *) (*i))->GetReceivedTime() >= 60)
+                if (getElapsedSeconds() - ((CIncomingGameHost *) (*i))->GetReceivedTime() >= 60)
                 {
                     // don't forget to remove it from the LAN list first
 
@@ -937,7 +980,7 @@ bool CGProxy::Update(long usecBlock)
                 i++;
             }
 
-            m_LastRefreshTime = GetTime();
+            m_LastRefreshTime = getElapsedSeconds();
         }
     }
 
@@ -1113,17 +1156,15 @@ bool CGProxy::CheckForwarding(string MessageString)
                 {
                     infile.getline(messageText, 224);
                     string tmp = parseTextline(messageText);
-                    //messageText=parseTextline(messageText);
 
                     if (gproxy->m_BNET->GetInGame() && (messageText[0] != "#"[0]))
                     {
                         if ((messageText[0] != "%"[0]))
                         {
                             if (messageText[0] != "~"[0])
-                                if (gproxy->m_GameStarted)
-                                    gproxy->SendAllMessage(tmp);
-                                else
-                                    gproxy->SendLobbyMessage(tmp);
+                            {
+                                gproxy->sendGamemessage(QString::fromStdString(tmp));
+                            }
                             else
                             {
 //                                Sleep(50);
@@ -1131,8 +1172,6 @@ bool CGProxy::CheckForwarding(string MessageString)
                         }
                         else
                         {
-                            //cchatcommand=tmp.substr(1);
-                            //CreateThread( NULL, 0, LPTHREAD_START_ROUTINE(docommand), NULL, 0, NULL );
                             gproxy->m_BNET->QueueChatCommand(tmp.substr(1));
                         }
                     }
@@ -1227,52 +1266,48 @@ bool CGProxy::CheckForwarding(string MessageString)
         }
         else if (Command.size() >= 2 && Command.substr(0, 2) == "/s" && Command.substr(0, 3) != "/sd")
         {
-            string message;
+            QString message;
 
             if (Command.size() == 2)
-                message = "!stats";
-            else
-                message = string("!stats").append(Command.substr(2));
-
-            if (!gproxy->m_BNET->GetInGame())
             {
-                gproxy->m_BNET->QueueChatCommand(message);
+                message = "!stats";
             }
             else
             {
-                if (!gproxy->m_GameStarted)
-                {
-                    SendLobbyMessage(message);
-                }
-                else
-                {
-                    SendAllyMessage(message);
-                }
+                message = QString("!stats").append(
+                        QString::fromStdString(Command.substr(2)));
+            }
+
+            if (!gproxy->m_BNET->GetInGame())
+            {
+                gproxy->m_BNET->QueueChatCommand(message.toStdString());
+            }
+            else
+            {
+                gproxy->sendGamemessage(message);
             }
         }
         else if (Command.size() >= 3 && Command.substr(0, 3) == "/sd")
         {
-            string message;
+            QString message;
 
             if (Command.size() == 3)
-                message = "!statsdota";
-            else
-                message = string("!statsdota").append(Command.substr(3));
-
-            if (!gproxy->m_BNET->GetInGame())
             {
-                gproxy->m_BNET->QueueChatCommand(message);
+                message = "!statsdota";
             }
             else
             {
-                if (!gproxy->m_GameStarted)
-                {
-                    SendLobbyMessage(message);
-                }
-                else
-                {
-                    SendAllyMessage(message);
-                }
+                message = QString("!statsdota").append(
+                        QString::fromStdString(Command.substr(3)));
+            }
+
+            if (!gproxy->m_BNET->GetInGame())
+            {
+                gproxy->m_BNET->QueueChatCommand(message.toStdString());
+            }
+            else
+            {
+                gproxy->sendGamemessage(message);
             }
         }
     }
@@ -1284,32 +1319,30 @@ bool CGProxy::CheckForwarding(string MessageString)
         }
         else if (Command.size() >= 2 && Command.substr(0, 2) == "!s" && Command.substr(0, 3) != "!sd")
         {
-            string message;
+            QString message;
 
             if (Command == "!s")
+            {
                 message = "!stats";
+            }
             else if (Command.substr(2, 1) == " ")
-                message = string("!stats").append(Command.substr(2));
+            {
+                message = QString("!stats").append(
+                        QString::fromStdString(Command.substr(2)));
+            }
 
             if (!gproxy->m_BNET->GetInGame())
             {
-                gproxy->m_BNET->QueueChatCommand(message);
+                gproxy->m_BNET->QueueChatCommand(message.toStdString());
             }
             else
             {
-                if (!gproxy->m_GameStarted)
-                {
-                    SendLobbyMessage(message);
-                }
-                else
-                {
-                    SendAllyMessage(message);
-                }
+                gproxy->sendGamemessage(message);
             }
         }
         else if (Command.size() >= 3 && Command.substr(0, 3) == "!sd")
         {
-            string message;
+            QString message;
 
             if (Command == "!sd")
             {
@@ -1317,23 +1350,17 @@ bool CGProxy::CheckForwarding(string MessageString)
             }
             else if (Command.substr(3, 1) == " ")
             {
-                message = string("!statsdota").append(Command.substr(3));
+                message = QString("!statsdota").append(
+                        QString::fromStdString(Command.substr(3)));
             }
 
             if (!gproxy->m_BNET->GetInGame())
             {
-                gproxy->m_BNET->QueueChatCommand(message);
+                gproxy->m_BNET->QueueChatCommand(message.toStdString());
             }
             else
             {
-                if (!gproxy->m_GameStarted)
-                {
-                    SendLobbyMessage(message);
-                }
-                else
-                {
-                    SendAllyMessage(message);
-                }
+                gproxy->sendGamemessage(message);
             }
         }
     }
@@ -1387,7 +1414,7 @@ void CGProxy::ProcessLocalPackets()
                                 m_RemoteSocket->Reset();
                                 m_RemoteSocket->SetNoDelay(true);
                                 m_RemoteSocket->Connect(string(), m_RemoteServerIP, m_RemoteServerPort);
-                                m_LastConnectionAttemptTime = GetTime();
+                                m_LastConnectionAttemptTime = getElapsedSeconds();
                                 m_GameIsReliable = (((CIncomingGameHost *) (*i))->GetMapWidth() == 1984 && ((CIncomingGameHost *) (*i))->GetMapHeight() == 1984);
                                 m_GameStarted = false;
 
@@ -1563,7 +1590,8 @@ void CGProxy::ProcessRemotePackets()
                         && MessageString.find("] was banned by player [") != string::npos
                         && MessageString.find("] on server [") != string::npos)
                     {
-                        sndPlaySound(L"Sounds\\Player got banned.wav", SND_ASYNC | SND_FILENAME);
+                        QSound::play("sounds/player_banned.wav");
+
                     }
 
                     // If the message is a autogenerated "same ip" message
@@ -1571,7 +1599,7 @@ void CGProxy::ProcessRemotePackets()
                          && MessageString.find("] has the same IP address as: ") != string::npos)
                         || MessageString.find("same IPs:") != string::npos)
                     {
-                        sndPlaySound(L"Sounds\\Same IP Sound.wav", SND_ASYNC | SND_FILENAME);
+                        QSound::play("sounds/same_ip.wav");
                     }
 
                     if (Flag == 16)
@@ -1624,7 +1652,7 @@ void CGProxy::ProcessRemotePackets()
                 {
                     if (gproxy->m_PlaySound)
                     {
-                        sndPlaySound(L"Sounds\\Player leaves.wav", SND_ASYNC | SND_FILENAME);
+                        QSound::play("sounds/leaver_detected.wav");
                     }
                     CONSOLE_Print("[ALL] " + QString::fromStdString(players[((int) Data[4])].GetName()) + " has left the game.");
                 }
@@ -1795,7 +1823,7 @@ void CGProxy::ProcessRemotePackets()
 //                {
 //                    if (((CIncomingFriendList *) (*i))->GetAccount().compare(playersName) == 0)
 //                    {
-//                        sndPlaySound(L"Sounds\\VIP joins.wav", SND_ASYNC | SND_FILENAME);
+//                        QSound::play("sounds/vip_joins.wav");
 //                    }
 //                }
             }
@@ -1814,7 +1842,7 @@ void CGProxy::ProcessRemotePackets()
             }
             else if (Packet->GetID() == CGameProtocol::W3GS_GAMELOADED_OTHERS)
             {
-                uint32_t loadingTime = GetTicks() - countdownEndTime;
+                uint32_t loadingTime = getElapsedMilliseconds() - countdownEndTime;
                 uint32_t sec = loadingTime / 1000;
                 uint32_t dsec = (loadingTime / 100) % 10;
                 ostringstream finishedLoading;
@@ -1843,7 +1871,7 @@ void CGProxy::ProcessRemotePackets()
 
                     if (gproxy->m_PlaySound)
                     {
-                        sndPlaySound(L"Sounds\\Game countdown started.wav", SND_ASYNC | SND_FILENAME);
+                        QSound::play("sounds/game_started.wav");
                     }
                 }
             }
@@ -1860,7 +1888,7 @@ void CGProxy::ProcessRemotePackets()
                 }
 
                 m_GameStarted = true;
-                countdownEndTime = GetTicks();
+                countdownEndTime = getElapsedMilliseconds();
 
                 slotListWithPlayer = 0;
                 for (vector<CIncomingSlots *> ::iterator it = slotList.begin(); it != slotList.end(); it++)
@@ -1922,7 +1950,7 @@ void CGProxy::ProcessRemotePackets()
                 }
 
                 m_ActionReceived = true;
-                m_LastActionTime = GetTime();
+                m_LastActionTime = getElapsedSeconds();
             }
             else if (Packet->GetID() == CGameProtocol::W3GS_START_LAG)
             {
@@ -2137,7 +2165,7 @@ bool CGProxy::AddGame(CIncomingGameHost *game)
     // check for duplicates and rehosted games
 
     bool DuplicateFound = false;
-    uint32_t OldestReceivedTime = GetTime();
+    uint32_t OldestReceivedTime = getElapsedSeconds();
 
     for (vector<CIncomingGameHost *> ::iterator i = m_Games.begin(); i != m_Games.end(); i++)
     {
@@ -2185,85 +2213,38 @@ bool CGProxy::AddGame(CIncomingGameHost *game)
     return !DuplicateFound;
 }
 
-void CGProxy::SendAllMessage(string message)
+void CGProxy::sendGamemessage(QString message, bool alliesOnly)
 {
-    if (message.empty())
-        return;
-
-    if (!gproxy->m_BNET->GetInGame())
+    if(message.isEmpty() || !gproxy->m_BNET->GetInGame())
     {
-        CONSOLE_Print("[Manufactoring][ERROR] Cannot send \"AllMessage\". You need to be ingame.");
         return;
     }
 
-        /*if( false && gGProxy->m_GameStarted && !gameLoaded ) // deactivated
-        {
-                CONSOLE_Print( "[Manufactoring][ERROR] Cannot send \"AllMessage\". Game is loading." );
-        }*/
-    else if (!gproxy->m_GameStarted)
+    if (message.length() > 254)
     {
-        CONSOLE_Print("[Manufactoring][ERROR] Cannot send \"AllMessage\". You are currently in the lobby.");
+        message = message.left(254);
     }
-    else
+
+    BYTEARRAY toPIDs;
+    BYTEARRAY packet;
+
+    if(!gproxy->m_GameStarted)
     {
-        if (message.size() > 254)
-            message = message.substr(0, 254);
-
-        BYTEARRAY toPIDs;
-
         for (vector<CIncomingSlots *> ::iterator it = slotList.begin(); it != slotList.end(); it++)
         {
-            //if( (*it)->GetslotListtatus() == 2 && (*it)->GetComputerStatus() == 0 )
             toPIDs.push_back(((CIncomingSlots *) (*it))->GetPID());
         }
 
-        BYTEARRAY extraFlags;
-        extraFlags.push_back(0);
-        extraFlags.push_back(0);
-        extraFlags.push_back(0);
-        extraFlags.push_back(0);
-
-        BYTEARRAY Packet = gproxy->m_GameProtocol->SEND_W3GS_CHAT_TO_HOST(gproxy->m_ChatPID, toPIDs, 32, extraFlags, message);
-
-        if (CheckForwarding(message))
-        {
-            m_PacketBuffer.push(new CCommandPacket(W3GS_HEADER_CONSTANT, Packet[1], Packet));
-            m_LocalPackets.push(new CCommandPacket(W3GS_HEADER_CONSTANT, Packet[1], Packet));
-            m_TotalPacketsReceivedFromLocal++;
-        }
+        packet = gproxy->m_GameProtocol->SEND_W3GS_CHAT_TO_HOST(gproxy->m_ChatPID, toPIDs, 16, BYTEARRAY(), message.toStdString());
     }
-}
-
-void CGProxy::SendAllyMessage(string message)
-{
-    if (message.empty())
-        return;
-
-    if (!gproxy->m_BNET->GetInGame())
+    else if(alliesOnly)
     {
-        CONSOLE_Print("[Manufactoring][ERROR] Cannot send \"AllyMessage\". You need to be ingame.");
-        return;
-    }
-
-        /*if(false && gGProxy->m_GameStarted && !gameLoaded )// Phyton deactivated
-        {
-                CONSOLE_Print( "[Manufactoring][ERROR] Cannot send \"AllyMessage\". Game is loading." );
-        }*/
-    else if (!gproxy->m_GameStarted)
-    {
-        CONSOLE_Print("[Manufactoring][ERROR] Cannot send \"AllyMessage\". You are currently in the lobby.");
-    }
-    else
-    {
-        if (message.size() > 254)
-            message = message.substr(0, 254);
-
-        BYTEARRAY toPIDs;
-
         for (vector<CIncomingSlots *> ::iterator it = slotList.begin(); it != slotList.end(); it++)
         {
-            if (/*(*it)->GetslotListtatus() == 2 && (*it)->GetComputerStatus() == 0 && */((CIncomingSlots *) (*it))->GetTeam() == teamNumber)
+            if (((CIncomingSlots *) (*it))->GetTeam() == teamNumber)
+            {
                 toPIDs.push_back(((CIncomingSlots *) (*it))->GetPID());
+            }
         }
 
         BYTEARRAY extraFlags;
@@ -2272,57 +2253,33 @@ void CGProxy::SendAllyMessage(string message)
         extraFlags.push_back(0);
         extraFlags.push_back(0);
 
-        BYTEARRAY Packet = gproxy->m_GameProtocol->SEND_W3GS_CHAT_TO_HOST(gproxy->m_ChatPID, toPIDs, 32, extraFlags, message);
-
-        if (CheckForwarding(message))
-        {
-            m_PacketBuffer.push(new CCommandPacket(W3GS_HEADER_CONSTANT, Packet[1], Packet));
-            m_LocalPackets.push(new CCommandPacket(W3GS_HEADER_CONSTANT, Packet[1], Packet));
-            m_TotalPacketsReceivedFromLocal++;
-        }
-    }
-}
-
-void CGProxy::SendLobbyMessage(string message)
-{
-    if (message.empty())
-        return;
-
-    if (!gproxy->m_BNET->GetInGame())
-    {
-        CONSOLE_Print("[Manufactoring][ERROR] Cannot send lobby message. You need to be in a lobby.");
-        return;
-    }
-    else if (gproxy->m_GameStarted)
-    {
-        CONSOLE_Print("[Manufactoring][ERROR] Cannot send lobby message. The game has already started.");
-        return;
+        packet = gproxy->m_GameProtocol->SEND_W3GS_CHAT_TO_HOST(gproxy->m_ChatPID, toPIDs, 32, extraFlags, message.toStdString());
     }
     else
     {
-        if (message.size() > 254)
-            message = message.substr(0, 254);
-
-        BYTEARRAY toPIDs;
-
         for (vector<CIncomingSlots *> ::iterator it = slotList.begin(); it != slotList.end(); it++)
         {
-            //if( (*it)->GetslotListtatus() == 2 && (*it)->GetComputerStatus() == 0 )
             toPIDs.push_back(((CIncomingSlots *) (*it))->GetPID());
         }
 
-        BYTEARRAY Packet = gproxy->m_GameProtocol->SEND_W3GS_CHAT_TO_HOST(gproxy->m_ChatPID, toPIDs, 16, BYTEARRAY(), message);
+        BYTEARRAY extraFlags;
+        extraFlags.push_back(0);
+        extraFlags.push_back(0);
+        extraFlags.push_back(0);
+        extraFlags.push_back(0);
 
-        if (CheckForwarding(message))
-        {
-            m_PacketBuffer.push(new CCommandPacket(W3GS_HEADER_CONSTANT, Packet[1], Packet));
-            m_LocalPackets.push(new CCommandPacket(W3GS_HEADER_CONSTANT, Packet[1], Packet));
-            m_TotalPacketsReceivedFromLocal++;
-        }
+        packet = gproxy->m_GameProtocol->SEND_W3GS_CHAT_TO_HOST(gproxy->m_ChatPID, toPIDs, 32, extraFlags, message.toStdString());
+    }
+
+    if (CheckForwarding(message.toStdString()))
+    {
+        m_PacketBuffer.push(new CCommandPacket(W3GS_HEADER_CONSTANT, packet[1], packet));
+        m_LocalPackets.push(new CCommandPacket(W3GS_HEADER_CONSTANT, packet[1], packet));
+        m_TotalPacketsReceivedFromLocal++;
     }
 }
 
-void CGProxy::SendChangeTeam(unsigned char team)
+void CGProxy::changeTeam(unsigned char team)
 {
     BYTEARRAY toPIDs;
 
@@ -2435,7 +2392,7 @@ bool CGProxy::checkStatus (int statusCode)
                 CONSOLE_Print("[ERROR] Could not save configuration file. Aborted by User interaction.");
 
                 QMessageBox msgBox;
-                msgBox.setWindowIcon(QIcon(":/images/images/Error.png"));
+                msgBox.setWindowIcon(QIcon(":/images/Error.png"));
                 msgBox.setWindowTitle("Error");
                 msgBox.setText("Could not save configuration file.\n"
                         "Aborted by User interaction."
@@ -2450,7 +2407,7 @@ bool CGProxy::checkStatus (int statusCode)
             CONSOLE_Print("[ERROR] Error while loading configuration file. Check your file permissions.");
 
             QMessageBox msgBox;
-            msgBox.setWindowIcon(QIcon(":/images/images/Error.png"));
+            msgBox.setWindowIcon(QIcon(":/images/Error.png"));
             msgBox.setWindowTitle("Error");
             msgBox.setText("Could not access the configuration file.\n"
                     "Maybe you dont have permissions to write to that directory.\n"
@@ -2466,7 +2423,7 @@ bool CGProxy::checkStatus (int statusCode)
                     "Error code: " + QString::number(statusCode));
 
             QMessageBox msgBox;
-            msgBox.setWindowIcon(QIcon(":/images/images/Error.png"));
+            msgBox.setWindowIcon(QIcon(":/images/Error.png"));
             msgBox.setWindowTitle("Error");
             msgBox.setText("Unknown error while loading configuration file.\n"
                     "ErrorCode: " + QString::number(statusCode));

@@ -194,7 +194,7 @@ public:
     void SetSearchGameName(string nSearchGameName)
     {
         m_SearchGameName = nSearchGameName;
-        m_SearchGameNameTime = GetTime();
+        m_SearchGameNameTime = getElapsedSeconds();
     }
 
     string GetFriend(int i)

@@ -1076,7 +1076,7 @@ CIncomingGameHost :: CIncomingGameHost( uint16_t nGameType, uint16_t nParameter,
 	m_HostCounter = nHostCounter;
 	m_StatString = nStatString;
 	m_UniqueGameID = NextUniqueGameID++;
-	m_ReceivedTime = GetTime( );
+	m_ReceivedTime = getElapsedSeconds();
 
 	// decode stat string
 

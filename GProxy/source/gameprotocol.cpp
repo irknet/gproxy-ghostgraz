@@ -263,6 +263,32 @@ BYTEARRAY CGameProtocol :: SEND_W3GS_DECREATEGAME( uint32_t hostCounter )
 	return packet;
 }
 
+//BYTEARRAY CGameProtocol :: SEND_W3GS_REQJOIN(uint32_t hostCounter,
+//        uint32_t entryKey, unsigned char unknownByte, uint16_t listenPort,
+//        uint32_t peerKey, string playerName, uint32_t unknownDWORD,
+//        uint16_t internalPort, uint32_t internalIP)
+//{
+//    BYTEARRAY packet;
+//
+//    packet.push_back( W3GS_HEADER_CONSTANT );
+//    packet.push_back( W3GS_REQJOIN );
+//    packet.push_back( 0 );
+//    packet.push_back( 0 );
+//    UTIL_AppendByteArray( packet, hostCounter, false );
+//    UTIL_AppendByteArray( packet, entryKey, false );
+//    packet.push_back(unknownByte);
+//    UTIL_AppendByteArray( packet, listenPort, false );
+//    UTIL_AppendByteArray( packet, peerKey, false );
+//    UTIL_AppendByteArrayFast( packet, playerName );
+//    UTIL_AppendByteArray( packet, unknownDWORD, false );
+//    UTIL_AppendByteArray( packet, internalPort, false );
+//    UTIL_AppendByteArray( packet, internalIP, false );
+//    AssignLength( packet );
+//    CONSOLE_Print("SENDING REQJOIN");
+//
+//    return packet;
+//}
+
 /////////////////////
 // OTHER FUNCTIONS //
 /////////////////////

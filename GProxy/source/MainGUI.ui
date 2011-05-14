@@ -20,8 +20,8 @@
    <string>GProxy GhostGraz v2.0</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="images.qrc">
-    <normaloff>:/images/images/GProxy.gif</normaloff>:/images/images/GProxy.gif</iconset>
+   <iconset resource="resources.qrc">
+    <normaloff>:/images/GProxy.gif</normaloff>:/images/GProxy.gif</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="palette">
@@ -342,8 +342,8 @@ p, li { white-space: pre-wrap; }
   </widget>
   <action name="actionExit">
    <property name="icon">
-    <iconset resource="images.qrc">
-     <normaloff>:/images/images/Cancel.png</normaloff>:/images/images/Cancel.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/images/Cancel.png</normaloff>:/images/Cancel.png</iconset>
    </property>
    <property name="text">
     <string>Exit</string>
@@ -351,8 +351,8 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="actionConfig">
    <property name="icon">
-    <iconset resource="images.qrc">
-     <normaloff>:/images/images/Tool.png</normaloff>:/images/images/Tool.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/images/Tool.png</normaloff>:/images/Tool.png</iconset>
    </property>
    <property name="text">
     <string>Config</string>
@@ -360,7 +360,7 @@ p, li { white-space: pre-wrap; }
   </action>
  </widget>
  <resources>
-  <include location="images.qrc"/>
+  <include location="resources.qrc"/>
  </resources>
  <connections>
   <connection>

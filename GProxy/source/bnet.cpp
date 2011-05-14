@@ -29,15 +29,15 @@
 #include <mmsystem.h>
 #include <cctype>
 #include <direct.h>
-#include <MMSystem.h>
 #include <string>
 #include <QString>
 #include <QStringList>
 #include <QByteArray>
+#include <QSound>
 
 using namespace std;
 
-uint32_t lastgames = GetTime () - 7;
+uint32_t lastgames = getElapsedSeconds() - 7;
 
 CBNET::CBNET (CGProxy *nGProxy, MainGUI *p_mainGUI, string nServer, string nBNLSServer, uint16_t nBNLSPort, uint32_t nBNLSWardenCookie, string nCountryAbbrev, string nCountry, string nUserName, string nUserPassword, string nFirstChannel, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nMaxMessageLength)
 {
@@ -163,7 +163,8 @@ bool CBNET::Update (void *fd, void *send_fd)
 
         CONSOLE_Print("[BNET] disconnected from battle.net due to socket error");
 
-        if (m_Socket->GetError() == ECONNRESET && GetTime() - m_LastConnectionAttemptTime <= 15)
+        if (m_Socket->GetError() == ECONNRESET
+                && getElapsedSeconds() - m_LastConnectionAttemptTime <= 15)
         {
             CONSOLE_Print("[BNET] warning - you are probably temporarily IP banned from battle.net");
         }
@@ -178,7 +179,7 @@ bool CBNET::Update (void *fd, void *send_fd)
         m_BNLSClient = NULL; */
         m_BNCSUtil->Reset(m_UserName, m_UserPassword);
         m_Socket->Reset();
-        m_LastDisconnectedTime = GetTime();
+        m_LastDisconnectedTime = getElapsedSeconds();
         m_LoggedIn = false;
         m_InChat = false;
         m_InGame = false;
@@ -198,7 +199,7 @@ bool CBNET::Update (void *fd, void *send_fd)
         CONSOLE_Print("[BNET] waiting 90 seconds to reconnect");
         m_BNCSUtil->Reset(m_UserName, m_UserPassword);
         m_Socket->Reset();
-        m_LastDisconnectedTime = GetTime();
+        m_LastDisconnectedTime = getElapsedSeconds();
         m_LoggedIn = false;
         m_InChat = false;
         m_InGame = false;
@@ -214,26 +215,31 @@ bool CBNET::Update (void *fd, void *send_fd)
         ProcessPackets();
 
         // request the public game list every 15 seconds
-        if (!m_GProxy->m_LocalSocket && m_ListPublicGames && GetTime() - m_LastGetPublicListTime >= 15 && m_OutPackets.size() <= 2)
+        if (!m_GProxy->m_LocalSocket && m_ListPublicGames
+                && getElapsedSeconds() - m_LastGetPublicListTime >= 15
+                && m_OutPackets.size() <= 2)
         {
             // request 20 games (note: it seems like 20 is the maximum, requesting more doesn't result in more results returned)
 
             QueueGetGameList(20);
-            m_LastGetPublicListTime = GetTime();
+            m_LastGetPublicListTime = getElapsedSeconds();
         }
 
-        if (!m_SearchGameName.empty() && GetTime() - m_SearchGameNameTime >= 120)
+        if (!m_SearchGameName.empty()
+                && getElapsedSeconds() - m_SearchGameNameTime >= 120)
         {
             CONSOLE_Print("[BNET] stopped searching for game \"" + QString::fromStdString(m_SearchGameName) + "\"");
             autosearch(true);
-            m_SearchGameNameTime = GetTime();
+            m_SearchGameNameTime = getElapsedSeconds();
             m_SearchGameName.clear();
         }
 
-        if (!m_GProxy->m_LocalSocket && !m_SearchGameName.empty() && GetTime() - m_LastGetSearchGameTime >= 7 && m_OutPackets.size() <= 2)
+        if (!m_GProxy->m_LocalSocket && !m_SearchGameName.empty()
+                && getElapsedSeconds() - m_LastGetSearchGameTime >= 7
+                && m_OutPackets.size() <= 2)
         {
             QueueGetGameList(m_SearchGameName);
-            m_LastGetSearchGameTime = GetTime();
+            m_LastGetSearchGameTime = getElapsedSeconds();
         }
 
         // check if at least one packet is waiting to be sent and if we've waited long enough to prevent flooding
@@ -248,7 +254,8 @@ bool CBNET::Update (void *fd, void *send_fd)
         else
             WaitTicks = 4000;
 
-        if (!m_OutPackets.empty() && GetTicks() - m_LastOutPacketTicks >= WaitTicks)
+        if (!m_OutPackets.empty()
+                && getElapsedMilliseconds() - m_LastOutPacketTicks >= WaitTicks)
         {
             if (m_OutPackets.size() > 7)
                 CONSOLE_Print("[BNET] packet queue warning - there are " + QString::fromStdString(UTIL_ToString(m_OutPackets.size())) + " packets waiting to be sent");
@@ -256,14 +263,15 @@ bool CBNET::Update (void *fd, void *send_fd)
             m_Socket->PutBytes(m_OutPackets.front());
             m_LastOutPacketSize = ((BYTEARRAY) m_OutPackets.front()).size();
             m_OutPackets.pop();
-            m_LastOutPacketTicks = GetTicks();
+            m_LastOutPacketTicks = getElapsedMilliseconds();
         }
 
         // send a null packet every 60 seconds to detect disconnects
-        if (GetTime() - m_LastNullTime >= 60 && GetTicks() - m_LastOutPacketTicks >= 60000)
+        if (getElapsedSeconds() - m_LastNullTime >= 60
+                && getElapsedMilliseconds() - m_LastOutPacketTicks >= 60000)
         {
             m_Socket->PutBytes(m_Protocol->SEND_SID_NULL());
-            m_LastNullTime = GetTime();
+            m_LastNullTime = getElapsedSeconds();
         }
 
         m_Socket->DoSend((fd_set *) send_fd);
@@ -281,27 +289,28 @@ bool CBNET::Update (void *fd, void *send_fd)
             m_Socket->PutBytes(m_Protocol->SEND_PROTOCOL_INITIALIZE_SELECTOR());
             m_Socket->PutBytes(m_Protocol->SEND_SID_AUTH_INFO(m_War3Version, m_GProxy->m_TFT, m_CountryAbbrev, m_Country));
             m_Socket->DoSend((fd_set *) send_fd);
-            m_LastNullTime = GetTime();
-            m_LastOutPacketTicks = GetTicks();
+            m_LastNullTime = getElapsedSeconds();
+            m_LastOutPacketTicks = getElapsedMilliseconds();
 
             while (!m_OutPackets.empty())
                 m_OutPackets.pop();
 
             return false;
         }
-        else if (GetTime() - m_LastConnectionAttemptTime >= 15)
+        else if (getElapsedSeconds() - m_LastConnectionAttemptTime >= 15)
         {
             // the connection attempt timed out (15 seconds)
             CONSOLE_Print("[BNET] connect timed out");
             CONSOLE_Print("[BNET] waiting 90 seconds to reconnect");
             m_Socket->Reset();
-            m_LastDisconnectedTime = GetTime();
+            m_LastDisconnectedTime = getElapsedSeconds();
             m_WaitingToConnect = true;
             return false;
         }
     }
 
-    if (!m_Socket->GetConnecting() && !m_Socket->GetConnected() && (m_FirstConnect || GetTime() - m_LastDisconnectedTime >= 90))
+    if (!m_Socket->GetConnecting() && !m_Socket->GetConnected()
+            && (m_FirstConnect || getElapsedSeconds() - m_LastDisconnectedTime >= 90))
     {
         // attempt to connect to battle.net
         m_FirstConnect = false;
@@ -329,7 +338,7 @@ bool CBNET::Update (void *fd, void *send_fd)
         }
 
         m_WaitingToConnect = false;
-        m_LastConnectionAttemptTime = GetTime();
+        m_LastConnectionAttemptTime = getElapsedSeconds();
         return false;
     }
 
@@ -419,19 +428,6 @@ void CBNET::ProcessPackets ()
 
                     for (vector<CIncomingGameHost *> ::iterator i = Games.begin(); i != Games.end();)
                     {
-                        /* if( (*i)->GetMapWidth( ) != 1984 || (*i)->GetMapHeight( ) != 1984 )
-                        {
-                                // not a reliable game
-
-                                delete *i;
-                                i = Games.erase( i );
-                                continue;
-                        } */
-
-                        // filter game names
-                        /*if (fcfgfilterfirst())
-
-                                m_PublicGameFilter=fcfgfilter();*/
                         if (!m_PublicGameFilter.empty() && ((CIncomingGameHost *) (*i))->GetGameName() != m_SearchGameName)
                         {
                             string FilterLower = m_PublicGameFilter;
@@ -448,9 +444,42 @@ void CBNET::ProcessPackets ()
                         }
 
                         if (m_GProxy->AddGame(*i))
+                        {
                             NewReliableGamesReceived++;
+                            /*
+                                (DWORD) Host Counter (Game ID)
+                                (DWORD) Entry Key (used in LAN)
+                                (BYTE) Unknown
+                                (WORD) Listen Port
+                                (DWORD) Peer Key
+                                (STRING) Player name
+                                (DWORD) Unknown
+                                (WORD) Internal Port
+                                (DWORD) Internal IP
+                             */
+//                            if(!GetInGame())
+//                            {
+//                                m_GProxy->m_RemoteSocket->Reset();
+//                                m_GProxy->m_RemoteSocket->SetNoDelay(true);
+//
+//                                BYTEARRAY test = (*i)->GetIP();
+//                                BYTEARRAY ip_cstr = UTIL_ExtractCString(test, 0);
+//                                string ip = string(ip_cstr.begin(), ip_cstr.end());
+//
+//                                m_GProxy->m_RemoteSocket->Connect(string(), ip, (*i)->GetPort());
+//                                m_GProxy->m_RemoteSocket->PutBytes(
+//                                m_GProxy->m_GameProtocol->SEND_W3GS_REQJOIN(
+//                                        (*i)->GetHostCounter(),
+//                                        (uint32_t) 0, (unsigned char) 0,
+//                                        (uint16_t) 6126, (uint32_t) 2,
+//                                        "Manufactoring", (uint32_t) 0,
+//                                        (uint16_t) 0, (uint32_t) 0));
+//                            }
+                        }
                         else
+                        {
                             OldReliableGamesReceived++;
+                        }
 
                         i++;
                     }
@@ -762,20 +791,30 @@ void CBNET::ProcessChatEvent (CIncomingChatEvent * chatEvent)
     else if (Event == CBNETProtocol::EID_WHISPER)
     {
         m_ReplyTarget = User.toStdString();
+
         CONSOLE_Print("[WHISPER] [" + User + "] " + Message);
-        if (Message.mid(0, 30) == "Spoof check by replying to thi")//phy autospoofcheck
+
+        if (Message.mid(0, 30) == "Spoof check by replying to thi")
+        {
             Pspoofcheck();
-        if (Message == "!getgames")
+        }
+        else if (Message == "!getgames")
+        {
             QueueChatCommand(m_UserName + " is currently not hosting any games. Why should I, I am not a bot.", GetReplyTarget(), true);
-        if (Message == "!games")
+        }
+        else if (Message == "!games")
+        {
             QueueChatCommand("I know, I can be a very kind channel bot, but I am currently tired and just want to relax. So please do not disturb me. Thx in advance.", GetReplyTarget(), true);
+        }
 
         if (m_GProxy->m_LocalSocket)
+        {
             m_GProxy->SendLocalChat(User.toStdString() + " whispers: " + Message.toStdString());
+        }
 
         if (m_GProxy->m_PlaySound)
         {
-            sndPlaySound(L"Sounds\\Whisper Sound.wav", SND_ASYNC | SND_FILENAME);
+            QSound::play("sounds/whisper.wav");
         }
     }
     else if (Event == CBNETProtocol::EID_TALK)

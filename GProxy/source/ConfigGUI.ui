@@ -17,8 +17,8 @@
    <string>GProxy Configuration</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="images.qrc">
-    <normaloff>:/images/images/Tool.png</normaloff>:/images/images/Tool.png</iconset>
+   <iconset resource="resources.qrc">
+    <normaloff>:/images/Tool.png</normaloff>:/images/Tool.png</iconset>
   </property>
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
@@ -44,7 +44,7 @@
   </widget>
  </widget>
  <resources>
-  <include location="images.qrc"/>
+  <include location="resources.qrc"/>
  </resources>
  <connections>
   <connection>

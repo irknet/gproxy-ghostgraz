@@ -51,7 +51,7 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=-Lsource/gmp/lib -Lsource/ms_sdk -Lsource/mysql/lib -Lsource/pdcurses source/ms_sdk/version.lib source/ms_sdk/winmm.lib source/ms_sdk/ws2_32.lib ../BNCSUtil/dist/Release/Qt_MinGW-Windows/BNCSUtil.dll
+LDLIBSOPTIONS=-Lsource/gmp/lib -Lsource/ms_sdk -Lsource/mysql/lib -Lsource/pdcurses source/ms_sdk/version.lib source/ms_sdk/ws2_32.lib ../BNCSUtil/dist/Release/Qt_MinGW-Windows/BNCSUtil.dll
 
 nbproject/qt-${CND_CONF}.mk: nbproject/qt-${CND_CONF}.pro FORCE
 	${QMAKE} VPATH=. -spec win32-g++ -o qttmp-${CND_CONF}.mk nbproject/qt-${CND_CONF}.pro

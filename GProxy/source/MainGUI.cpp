@@ -5,6 +5,7 @@
 #include "delegate/ChannellistDelegate.h"
 #include "delegate/GamelistDelegate.h"
 #include "ConfigGUI.h"
+#include "socket.h"
 #include <windows.h>
 
 #include <QDesktopWidget>
@@ -12,6 +13,8 @@
 #include <QIcon>
 #include <QMessageBox>
 #include <QIcon>
+#include <QProcess>
+#include <QSound>
 
 MainGUI::MainGUI (CGProxy *p_gproxy)
 {
@@ -168,9 +171,88 @@ void MainGUI::onChannelChanged ()
 void MainGUI::onChannelContextMenu (const QPoint& pos)
 {
     QPoint globalPos = widget.channelList->mapToGlobal(pos);
+    QListWidgetItem* item = widget.channelList->itemAt(pos);
+
+    if(!item)
+    {
+        return;
+    }
+
+    QString user = item->data(ChannellistDelegate::USER).toString();
+
+    QMenu menu;
+
+    if (gproxy->m_BNET->GetInGame())
+    {
+        if(user == "The Sentinel" || user == "The Scourge" || user.startsWith("Team "))
+        {
+            menu.addAction("Change team");
+        }
+        else if(item->data(ChannellistDelegate::SLOT_STATUS).toInt() == 2
+                && item->data(ChannellistDelegate::SLOT_COMPUTER_STATUS).toInt() == 0)
+        {
+            menu.addAction("Whisper");
+            menu.addAction("!stats");
+            menu.addAction("!statsdota");
+        }
+    }
+    else
+    {
+        menu.addAction("Whisper");
+    }
+
+    QAction* action = menu.exec(globalPos);
+    if (action)
+    {
+        if (action->text() == "Whisper")
+        {
+            widget.inputField->setPlainText("/w " + user + " ");
+            widget.inputField->setFocus();
+            widget.inputField->moveCursor(QTextCursor::End);
+        }
+        else if(action->text() == "!stats" || action->text() == "!statsdota")
+        {
+            gproxy->sendGamemessage(action->text() + " " + user);
+        }
+        else if(action->text() == "Change team")
+        {
+            int team;
+
+            if(user == "The Sentinel")
+            {
+                team = 0;
+            }
+            else if(user == "The Scourge")
+            {
+                team = 1;
+            }
+            else
+            {
+                team = user.mid(5).toInt();
+            }
+
+            gproxy->changeTeam(team);
+        }
+        else
+        {
+            addMessage("[ERROR] Not yet implemented!", false);
+        }
+    }
+}
+
+void MainGUI::onFriendsContextMenu (const QPoint& pos)
+{
+    QPoint globalPos = widget.friendList->mapToGlobal(pos);
+    QListWidgetItem* item = widget.friendList->itemAt(pos);
+
+    if(!item)
+    {
+        return;
+    }
 
     QMenu menu;
     menu.addAction("Whisper");
+
     if (gproxy->m_BNET->GetInGame())
     {
         menu.addAction("!stats");
@@ -180,49 +262,19 @@ void MainGUI::onChannelContextMenu (const QPoint& pos)
     QAction* action = menu.exec(globalPos);
     if (action)
     {
-        QListWidgetItem *item = widget.channelList->itemAt(pos);
-
-        if (item)
+        if (action->text() == "Whisper")
         {
-            if (action->text() == "Whisper")
-            {
-                widget.inputField->setPlainText("/w "
-                        + item->data(ChannellistDelegate::USER).toString() + " ");
-                widget.inputField->setFocus();
-                widget.inputField->moveCursor(QTextCursor::End);
-            }
-            else
-            {
-                addMessage("[ERROR] Not yet implemented!", false);
-            }
+            widget.inputField->setPlainText("/w " + item->text() + " ");
+            widget.inputField->setFocus();
+            widget.inputField->moveCursor(QTextCursor::End);
         }
-    }
-}
-
-void MainGUI::onFriendsContextMenu (const QPoint& pos)
-{
-    QPoint globalPos = widget.friendList->mapToGlobal(pos);
-
-    QMenu menu;
-    menu.addAction("Whisper");
-
-    QAction* action = menu.exec(globalPos);
-    if (action)
-    {
-        QListWidgetItem *item = widget.friendList->itemAt(pos);
-
-        if (item)
+        else if(action->text() == "!stats" || action->text() == "!statsdota")
         {
-            if (action->text() == "Whisper")
-            {
-                widget.inputField->setPlainText("/w " + item->text() + " ");
-                widget.inputField->setFocus();
-                widget.inputField->moveCursor(QTextCursor::End);
-            }
-            else
-            {
-                addMessage("[ERROR] Not yet implemented!", false);
-            }
+            gproxy->sendGamemessage(action->text() + " " + item->text());
+        }
+        else
+        {
+            addMessage("[ERROR] Not yet implemented!", false);
         }
     }
 }
@@ -547,28 +599,18 @@ void MainGUI::processInput (const QString& input)
     else if (command == "/test")
     {
         // Isn't it obvious?
+        QSound::play("sounds/game_started.wav");
     }
     else if (gproxy->m_BNET->GetInGame())
     {
-        if (gproxy->m_GameStarted)
-        {
-            if (command.startsWith("/a "))
+            if (command.startsWith("/all "))
             {
-                gproxy->SendAllMessage(input.mid(3).toStdString());
-            }
-            else if (command.startsWith("/all "))
-            {
-                gproxy->SendAllMessage(input.mid(5).toStdString());
+                gproxy->sendGamemessage(input.mid(3), true);
             }
             else
             {
-                gproxy->SendAllyMessage(input.toStdString());
+                gproxy->sendGamemessage(input);
             }
-        }
-        else
-        {
-            gproxy->SendLobbyMessage(input.toStdString());
-        }
     }
     else
     {
@@ -811,10 +853,11 @@ void MainGUI::clearFriendlist ()
     widget.friendList->clear();
 }
 
-void MainGUI::addFriend (QString username, bool online)
+void MainGUI::addFriend (QString username, bool online, QString location)
 {
     QListWidgetItem *newItem = new QListWidgetItem();
     newItem->setText(username);
+    newItem->setToolTip(location);
 
     if (online)
     {
@@ -913,43 +956,31 @@ void MainGUI::sortSlots (int teams)
 
 void MainGUI::startWarcraft()
 {
-    STARTUPINFO si;
-    PROCESS_INFORMATION pi;
-    ZeroMemory(&si, sizeof ( si));
-    si.cb = sizeof ( si);
-    ZeroMemory(&pi, sizeof ( pi));
-    string War3EXE;
+    QString exePath;
 
     if (!gproxy->getCDKeyTFT().isEmpty())
     {
-        War3EXE = gproxy->getWar3Path().toStdString() + "Frozen Throne.exe";
+        exePath = gproxy->getWar3Path() + "Frozen Throne.exe";
     }
     else
     {
-        War3EXE = gproxy->getWar3Path().toStdString() + "Warcraft III.exe";
+        exePath = gproxy->getWar3Path() + "Warcraft III.exe";
     }
 
-    BOOL hProcess = CreateProcessA(War3EXE.c_str(), NULL, NULL, NULL,
-            FALSE, NORMAL_PRIORITY_CLASS, NULL,
-            gproxy->getWar3Path().toStdString().c_str(), LPSTARTUPINFOA(&si), &pi);
+    QProcess *wc3Process = new QProcess(this);
+    wc3Process->start(exePath, QStringList());
 
-    if (!hProcess)
+    if(!wc3Process->waitForStarted(1000))
     {
-        addMessage("[Error] failed to start warcraft 3");
-        showErrorMessage("Could not start Warcraft 3.");
-    }
-    else
-    {
-        addMessage("[GPROXY] starting warcraft 3");
-        CloseHandle(pi.hProcess);
-        CloseHandle(pi.hThread);
+        addMessage("[Error] "+wc3Process->errorString());
+        showErrorMessage(wc3Process->errorString());
     }
 }
 
 void MainGUI::showErrorMessage(QString errorMessage)
 {
     QMessageBox msgBox;
-    msgBox.setWindowIcon(QIcon(":/images/images/Error.png"));
+    msgBox.setWindowIcon(QIcon(":/images/Error.png"));
     msgBox.setWindowTitle("Error");
     msgBox.setText(errorMessage);
     msgBox.exec();

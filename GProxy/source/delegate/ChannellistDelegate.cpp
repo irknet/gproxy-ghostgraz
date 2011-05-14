@@ -59,12 +59,12 @@ const
                 }
             }
 
+            int colorID = index.data(ChannellistDelegate::SLOT_COLOR).toInt();
+            QRect rFill(rect.x()+3, rect.y() + 3, 8, 8);
+            painter->fillRect(rFill, this->getBrush(colorID));
+
             rect.adjust(15, 0, 0, 0);
         }
-
-//        int colorID = index.data(ChannellistDelegate::SLOT_COLOR).toInt();
-//        QRect rFill(rect.x()+3, rect.y()-12, 8, 8);
-//        painter->fillRect(rFill, this->getBrush(colorID));
 
         painter->drawText(rect, Qt::AlignLeft, user);
     }
@@ -82,79 +82,59 @@ const
 
 QBrush ChannellistDelegate::getBrush (const int &colorID) const
 {
-    QColor c;
-    QBrush b;
-    b.setStyle(Qt::SolidPattern);
-
     switch (colorID)
     {
         case 0:
         {
-            c = QColor::fromRgb(255, 0, 0);
-            break;
+            return QBrush(QColor(255, 0, 0));
         }
         case 1:
         {
-            c = QColor::fromRgb(0, 0, 255);
-            break;
+            return QBrush(QColor(0, 0, 255));
         }
         case 2:
         {
-            c = QColor::fromRgb(0, 255, 255);
-            break;
+            return QBrush(QColor(0, 255, 255));
         }
         case 3:
         {
-            c = QColor::fromRgb(128, 0, 128);
-            break;
+            return QBrush(QColor(128, 0, 128));
         }
         case 4:
         {
-            c = QColor::fromRgb(255, 255, 0);
-            break;
+            return QBrush(QColor(255, 255, 0));
         }
         case 5:
         {
-            c = QColor::fromRgb(255, 140, 0);
-            break;
+            return QBrush(QColor(255, 140, 0));
         }
         case 6:
         {
-            c = QColor::fromRgb(0, 255, 0);
-            break;
+            return QBrush(QColor(0, 255, 0));
         }
         case 7:
         {
-            c = QColor::fromRgb(255, 0, 255);
-            break;
+            return QBrush(QColor(255, 0, 255));
         }
         case 8:
         {
-            c = QColor::fromRgb(128, 128, 128);
-            break;
+            return QBrush(QColor(128, 128, 128));
         }
         case 9:
         {
-            c = QColor::fromRgb(100, 149, 237);
-            break;
+            return QBrush(QColor(100, 149, 237));
         }
         case 10:
         {
-            c = QColor::fromRgb(34, 139, 34);
-            break;
+            return QBrush(QColor(34, 139, 34));
         }
         case 11:
         {
-            c = QColor::fromRgb(102, 51, 0);
-            break;
+            return QBrush(QColor(102, 51, 0));
         }
         default:
         {
-            c = QColor::fromRgb(255, 255, 255);
-            break;
+            return QBrush(QColor(255, 255, 255));
         }
     }
-
-    b.setColor(c);
-    return b;
 }

@@ -59,7 +59,7 @@ public slots:
     void addChannelUser(QString username, QString clanTag);
     void removeChannelUser(QString username);
     void clearFriendlist();
-    void addFriend(QString username, bool online);
+    void addFriend(QString username, bool online, QString location);
     void clearGamelist();
     void addGame(QString botname, QString gamename, QString openSlots);
     void setGameslots(vector<CIncomingSlots *> slotList);

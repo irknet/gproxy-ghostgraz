@@ -29,7 +29,7 @@
                    projectFiles="true">
       <itemPath>source/ConfigGUI.ui</itemPath>
       <itemPath>source/MainGUI.ui</itemPath>
-      <itemPath>source/images.qrc</itemPath>
+      <itemPath>source/resources.qrc</itemPath>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
@@ -113,7 +113,6 @@
           </linkerAddLib>
           <linkerLibItems>
             <linkerLibFileItem>source/ms_sdk/version.lib</linkerLibFileItem>
-            <linkerLibFileItem>source/ms_sdk/winmm.lib</linkerLibFileItem>
             <linkerLibFileItem>source/ms_sdk/ws2_32.lib</linkerLibFileItem>
             <linkerLibFileItem>../BNCSUtil/dist/Debug/Qt_MinGW-Windows/BNCSUtil.dll</linkerLibFileItem>
           </linkerLibItems>
@@ -188,7 +187,6 @@
           </linkerAddLib>
           <linkerLibItems>
             <linkerLibFileItem>source/ms_sdk/version.lib</linkerLibFileItem>
-            <linkerLibFileItem>source/ms_sdk/winmm.lib</linkerLibFileItem>
             <linkerLibFileItem>source/ms_sdk/ws2_32.lib</linkerLibFileItem>
             <linkerLibFileItem>../BNCSUtil/dist/Release/Qt_MinGW-Windows/BNCSUtil.dll</linkerLibFileItem>
           </linkerLibItems>
