@@ -203,9 +203,9 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>665</x>
-      <y>0</y>
+      <y>30</y>
       <width>231</width>
-      <height>551</height>
+      <height>521</height>
      </rect>
     </property>
     <property name="contextMenuPolicy">
@@ -313,6 +313,19 @@ p, li { white-space: pre-wrap; }
     </property>
     <property name="readOnly">
      <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="refreshButton">
+    <property name="geometry">
+     <rect>
+      <x>670</x>
+      <y>0</y>
+      <width>221</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Refresh</string>
     </property>
    </widget>
   </widget>

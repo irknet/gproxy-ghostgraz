@@ -6,6 +6,7 @@
 #include "delegate/GamelistDelegate.h"
 #include "ConfigGUI.h"
 #include "socket.h"
+#include "DownloadThread.h"
 #include <windows.h>
 
 #include <QDesktopWidget>
@@ -15,6 +16,8 @@
 #include <QIcon>
 #include <QProcess>
 #include <QSound>
+#include <QTimer>
+#include <QFile>
 
 MainGUI::MainGUI (CGProxy *p_gproxy)
 {
@@ -22,7 +25,10 @@ MainGUI::MainGUI (CGProxy *p_gproxy)
     gproxy = p_gproxy;
 }
 
-MainGUI::~MainGUI () { }
+MainGUI::~MainGUI ()
+{
+    gproxy = NULL;
+}
 
 CGProxy* MainGUI::getGproxy ()
 {
@@ -73,6 +79,10 @@ void MainGUI::initLayout ()
     unsigned int inputFieldHeight = 60;
     unsigned int channelFieldHeight = 25;
 
+    widget.refreshButton->setMinimumSize(200, channelFieldHeight);
+    widget.refreshButton->setMaximumSize(200, channelFieldHeight);
+    widget.refreshButton->move(width() - 400, 0);
+
     widget.channelField->setMinimumSize(200, channelFieldHeight);
     widget.channelField->setMaximumSize(200, channelFieldHeight);
     widget.channelField->move(width() - 200, 0);
@@ -90,9 +100,9 @@ void MainGUI::initLayout ()
     widget.friendList->move(width() - 200, channelFieldHeight +
             (height() - inputFieldHeight - channelFieldHeight) / 2);
 
-    widget.gameList->setMinimumSize(200, height() - inputFieldHeight);
-    widget.gameList->setMaximumSize(200, height() - inputFieldHeight);
-    widget.gameList->move(width() - 400, 0);
+    widget.gameList->setMinimumSize(200, height() - inputFieldHeight - channelFieldHeight);
+    widget.gameList->setMaximumSize(200, height() - inputFieldHeight - channelFieldHeight);
+    widget.gameList->move(width() - 400, channelFieldHeight);
 
     widget.inputField->setMinimumSize(width(), inputFieldHeight);
     widget.inputField->setMaximumSize(width(), inputFieldHeight);
@@ -122,6 +132,8 @@ void MainGUI::initSlots ()
             this, SLOT(onMenuConfigClicked()));
     connect(widget.menu_StartWarcraft, SIGNAL(aboutToShow()),
             this, SLOT(onMenuStartWarcraftClicked()));
+    connect(widget.refreshButton, SIGNAL(clicked()),
+            this, SLOT(onRefreshButtonClicked()));
 }
 
 void MainGUI::resizeEvent (QResizeEvent *event)
@@ -173,7 +185,7 @@ void MainGUI::onChannelContextMenu (const QPoint& pos)
     QPoint globalPos = widget.channelList->mapToGlobal(pos);
     QListWidgetItem* item = widget.channelList->itemAt(pos);
 
-    if(!item)
+    if (!item)
     {
         return;
     }
@@ -184,21 +196,22 @@ void MainGUI::onChannelContextMenu (const QPoint& pos)
 
     if (gproxy->m_BNET->GetInGame())
     {
-        if(user == "The Sentinel" || user == "The Scourge" || user.startsWith("Team "))
+        if (user == "The Sentinel" || user == "The Scourge" || user.startsWith("Team "))
         {
-            menu.addAction("Change team");
+            menu.addAction(QIcon(":/images/Play.png"), "Change team");
         }
-        else if(item->data(ChannellistDelegate::SLOT_STATUS).toInt() == 2
+        else if (item->data(ChannellistDelegate::SLOT_STATUS).toInt() == 2
                 && item->data(ChannellistDelegate::SLOT_COMPUTER_STATUS).toInt() == 0)
         {
-            menu.addAction("Whisper");
-            menu.addAction("!stats");
-            menu.addAction("!statsdota");
+            menu.addAction(QIcon(":/images/Mail.png"), "Whisper");
+            menu.addAction(QIcon(":/images/Edit.png"), "!stats");
+            menu.addAction(QIcon(":/images/Edit Alt.png"), "!statsdota");
         }
     }
     else
     {
-        menu.addAction("Whisper");
+        menu.addAction(QIcon(":/images/Mail.png"), "Whisper");
+        menu.addAction(QIcon(":/images/User.png"), "Whois");
     }
 
     QAction* action = menu.exec(globalPos);
@@ -210,19 +223,23 @@ void MainGUI::onChannelContextMenu (const QPoint& pos)
             widget.inputField->setFocus();
             widget.inputField->moveCursor(QTextCursor::End);
         }
-        else if(action->text() == "!stats" || action->text() == "!statsdota")
+        else if (action->text() == "Whois")
+        {
+            gproxy->m_BNET->QueueChatCommand(QString("/whois " + user).toStdString());
+        }
+        else if (action->text() == "!stats" || action->text() == "!statsdota")
         {
             gproxy->sendGamemessage(action->text() + " " + user);
         }
-        else if(action->text() == "Change team")
+        else if (action->text() == "Change team")
         {
             int team;
 
-            if(user == "The Sentinel")
+            if (user == "The Sentinel")
             {
                 team = 0;
             }
-            else if(user == "The Scourge")
+            else if (user == "The Scourge")
             {
                 team = 1;
             }
@@ -245,18 +262,19 @@ void MainGUI::onFriendsContextMenu (const QPoint& pos)
     QPoint globalPos = widget.friendList->mapToGlobal(pos);
     QListWidgetItem* item = widget.friendList->itemAt(pos);
 
-    if(!item)
+    if (!item)
     {
         return;
     }
 
     QMenu menu;
-    menu.addAction("Whisper");
+    menu.addAction(QIcon(":/images/Mail.png"), "Whisper");
+    menu.addAction(QIcon(":/images/User.png"), "Whois");
 
     if (gproxy->m_BNET->GetInGame())
     {
-        menu.addAction("!stats");
-        menu.addAction("!statsdota");
+        menu.addAction(QIcon(":/images/Edit.png"), "!stats");
+        menu.addAction(QIcon(":/images/Edit Alt.png"), "!statsdota");
     }
 
     QAction* action = menu.exec(globalPos);
@@ -268,7 +286,11 @@ void MainGUI::onFriendsContextMenu (const QPoint& pos)
             widget.inputField->setFocus();
             widget.inputField->moveCursor(QTextCursor::End);
         }
-        else if(action->text() == "!stats" || action->text() == "!statsdota")
+        else if (action->text() == "Whois")
+        {
+            gproxy->m_BNET->QueueChatCommand(QString("/whois " + item->text()).toStdString());
+        }
+        else if (action->text() == "!stats" || action->text() == "!statsdota")
         {
             gproxy->sendGamemessage(action->text() + " " + item->text());
         }
@@ -304,9 +326,39 @@ void MainGUI::onMenuConfigClicked ()
     config->show();
 }
 
-void MainGUI::onMenuStartWarcraftClicked()
+void MainGUI::onMenuStartWarcraftClicked ()
 {
     startWarcraft();
+}
+
+void MainGUI::onRefreshButtonClicked ()
+{
+    widget.refreshButton->setEnabled(false);
+
+    DownloadThread* dt = new DownloadThread(this);
+    dt->refresh();
+    delete dt;
+
+    widget.refreshButton->setText("Refresh (10)");
+    QTimer::singleShot(1000, this, SLOT(updateRefreshButton()));
+}
+
+void MainGUI::updateRefreshButton ()
+{
+    QString text = widget.refreshButton->text();
+    int secondsLeft = text.mid(9, text.length() - 10).toInt();
+
+    if (secondsLeft != 1)
+    {
+        widget.refreshButton->setText("Refresh ("
+                + QString::number(secondsLeft - 1) + ")");
+        QTimer::singleShot(1000, this, SLOT(updateRefreshButton()));
+    }
+    else
+    {
+        widget.refreshButton->setText("Refresh");
+        widget.refreshButton->setEnabled(true);
+    }
 }
 
 void MainGUI::processInput (const QString& input)
@@ -385,7 +437,7 @@ void MainGUI::processInput (const QString& input)
             if (botname.length() > 2)
             {
                 gproxy->m_BNET->QueueChatCommand("/w " + botname.toStdString()
-                + " !priv " + pgn.toStdString());
+                        + " !priv " + pgn.toStdString());
             }
             else
             {
@@ -599,18 +651,73 @@ void MainGUI::processInput (const QString& input)
     else if (command == "/test")
     {
         // Isn't it obvious?
-        QSound::play("sounds/game_started.wav");
+    }
+    else if (command.startsWith("/p ") || command.startsWith("/phrase "))
+    {
+        QString filePath = "phrase/";
+
+        if (command.startsWith("/p "))
+        {
+            filePath.append(command.mid(3));
+        }
+        else if (command.startsWith("/phrase "))
+        {
+            filePath.append(command.mid(8));
+        }
+
+        if (!filePath.endsWith(".txt"))
+        {
+            filePath.append(".txt");
+        }
+
+        QFile* phraseFile = new QFile(filePath);
+
+        if (phraseFile->open(QFile::ReadOnly))
+        {
+            QStringList lines = QString(phraseFile->readAll()).split("\n");
+
+            foreach(QString line, lines)
+            {
+                if (gproxy->m_BNET->GetInGame() && !line.startsWith("#"))
+                {
+                    if (!line.startsWith("%"))
+                    {
+                        if (!line.startsWith("~"))
+                        {
+                            gproxy->sendGamemessage(line);
+                        }
+                        else
+                        {
+                            // Sleep
+                        }
+                    }
+                    else
+                    {
+                        gproxy->m_BNET->QueueChatCommand(line.mid(1).toStdString());
+                    }
+                }
+                else if (!line.startsWith("#"))
+                {
+                    gproxy->m_BNET->QueueChatCommand(line.toStdString());
+                }
+            }
+        }
+        else
+        {
+            CONSOLE_Print("[ERROR] File \"" + filePath + "\" does not exist!");
+            gproxy->SendLocalChat(string() + "File \"" + filePath.toStdString() + "\" does not exist!");
+        }
     }
     else if (gproxy->m_BNET->GetInGame())
     {
-            if (command.startsWith("/all "))
-            {
-                gproxy->sendGamemessage(input.mid(3), true);
-            }
-            else
-            {
-                gproxy->sendGamemessage(input);
-            }
+        if (command.startsWith("/all "))
+        {
+            gproxy->sendGamemessage(input.mid(3), true);
+        }
+        else
+        {
+            gproxy->sendGamemessage(input);
+        }
     }
     else
     {
@@ -622,11 +729,12 @@ void MainGUI::addMessage (QString message, bool log)
 {
     if (log)
     {
+
         LOG_Print(message.toStdString());
     }
 
     addColor(message);
-    widget.outputField->append(message);
+            widget.outputField->append(message);
 }
 
 void MainGUI::addColor (QString &message)
@@ -636,7 +744,7 @@ void MainGUI::addColor (QString &message)
             || message.startsWith("[WHISPER TO]"))
     {
         message.prepend("<font color=\"Lime\">");
-        message.append("</font>");
+                message.append("</font>");
     }
     else if (message.startsWith("[Phyton]")
             || message.startsWith("[Pr0gm4n]")
@@ -644,28 +752,28 @@ void MainGUI::addColor (QString &message)
             || message.startsWith("Bot ["))
     {
         message.prepend("<font color=\"DarkGreen\">");
-        message.append("</font>");
+                message.append("</font>");
     }
     else if (message.startsWith("[Manufactoring]"))
     {
         message.prepend("<font color=\"Gold\">");
-        message.append("</font>");
+                message.append("</font>");
     }
     else if (message.startsWith("[LOCAL]"))
     {
         // removing "[LOCAL] "
         message.remove(0, 8);
 
-        // special coloring only for the chiefs
+                // special coloring only for the chiefs
         if (message.startsWith("[baerli_graz]")
                 || message.startsWith("[klingone_graz]"))
         {
             message.insert(1, "<font color=\"red\">");
-            message.insert(message.indexOf("]"), "</font>");
+                    message.insert(message.indexOf("]"), "</font>");
         }
 
         message.prepend("<font color=\"White\">");
-        message.append("</font>");
+                message.append("</font>");
     }
     else if (message.startsWith("[QUEUED]"))
     {
@@ -673,61 +781,62 @@ void MainGUI::addColor (QString &message)
         message = "[" + QString::fromStdString(gproxy->m_BNET->m_UserName) + "]"
                 + message.mid(8, message.size() - 8);
 
-        // special coloring only for the chiefs
+                // special coloring only for the chiefs
         if (message.startsWith("[baerli_graz]")
                 || message.startsWith("[klingone_graz]"))
         {
             message.insert(1, "<font color=\"red\">");
-            message.insert(message.indexOf("]"), "</font>");
+                    message.insert(message.indexOf("]"), "</font>");
         }
 
         message.prepend("<font color=\"White\">");
-        message.append("</font>");
+                message.append("</font>");
     }
     else if (message.startsWith("[INFO]"))
     {
         message.remove(0, 7);
-        message.prepend("<font color=\"Cyan\">");
-        message.append("</font>");
+                message.prepend("<font color=\"Cyan\">");
+                message.append("</font>");
     }
     else if (message.startsWith("[TCPSOCKET]"))
     {
         message.prepend("<font color=\"Indigo\">");
-        message.append("</font>");
+                message.append("</font>");
     }
     else if (message.startsWith("[GPROXY]")
             || message.startsWith("[UDPSOCKET]"))
     {
         message.prepend("<font color=\"Indigo\">");
-        message.append("</font>");
+                message.append("</font>");
     }
     else if (message.startsWith("[BNET]"))
     {
         message.prepend("<font color=\"DarkRed\">");
-        message.append("</font>");
+                message.append("</font>");
     }
     else if (message.startsWith("[EMOTE]"))
     {
         message.remove(0, 8);
-        message.prepend("<font color=\"Gray\">");
-        message.append("</font>");
+                message.prepend("<font color=\"Gray\">");
+                message.append("</font>");
     }
     else if (message.endsWith(" has joined the game.")
             || message.endsWith(" has left the game."))
     {
         message.prepend("<font color=\"Gold\">");
-        message.append("</font>");
+                message.append("</font>");
     }
     else if (message.startsWith("[ERROR]")
             || message.startsWith("[Manufactoring][ERROR]"))
     {
         message.prepend("<font color=\"Red\">");
-        message.append("</font>");
+                message.append("</font>");
     }
     else
     {
+
         message.prepend("<font color=\"White\">");
-        message.append("</font>");
+                message.append("</font>");
     }
 }
 
@@ -738,17 +847,18 @@ void MainGUI::addColor (QListWidgetItem *item)
     if (username == "baerli_graz" || username == "klingone_graz")
     {
         item->setData(ChannellistDelegate::COLOR_USER, QColor(255, 0, 0));
-        item->setToolTip("Creator of GhostGraz");
+                item->setToolTip("Creator of GhostGraz");
     }
     else if (username.startsWith("GhostGraz"))
     {
         item->setData(ChannellistDelegate::COLOR_USER, QColor(255, 255, 0));
-        item->setToolTip("GhostGraz bot");
+                item->setToolTip("GhostGraz bot");
     }
     else if (username == "Phyton" || username == "Manufactoring")
     {
+
         item->setData(ChannellistDelegate::COLOR_USER, QColor(0, 255, 0));
-        item->setToolTip("Creator of GProxy GhostGraz");
+                item->setToolTip("Creator of GProxy GhostGraz");
     }
 }
 
@@ -763,14 +873,15 @@ void MainGUI::sortChannelList ()
                 || item->data(ChannellistDelegate::USER).toString() == "Phyton"
                 || item->data(ChannellistDelegate::USER).toString() == "Manufactoring")
         {
+
             QListWidgetItem *newItem = new QListWidgetItem();
-            newItem->setData(ChannellistDelegate::USER,
+                    newItem->setData(ChannellistDelegate::USER,
                     item->data(ChannellistDelegate::USER));
-            newItem->setData(ChannellistDelegate::CLAN_TAG,
+                    newItem->setData(ChannellistDelegate::CLAN_TAG,
                     item->data(ChannellistDelegate::CLAN_TAG));
-            addColor(newItem);
-            delete widget.channelList->takeItem(i);
-            widget.channelList->insertItem(0, newItem);
+                    addColor(newItem);
+                    delete widget.channelList->takeItem(i);
+                    widget.channelList->insertItem(0, newItem);
         }
     }
 }
@@ -782,11 +893,12 @@ void MainGUI::sortFriendList ()
         QListWidgetItem *item = widget.friendList->item(i);
         if (item->foreground() == Qt::green)
         {
+
             QListWidgetItem *newItem = new QListWidgetItem();
-            newItem->setText(item->text());
-            newItem->setForeground(Qt::green);
-            delete widget.friendList->takeItem(i);
-            widget.friendList->insertItem(0, newItem);
+                    newItem->setText(item->text());
+                    newItem->setForeground(Qt::green);
+                    delete widget.friendList->takeItem(i);
+                    widget.friendList->insertItem(0, newItem);
         }
     }
 }
@@ -806,26 +918,27 @@ void MainGUI::addChannelUser (QString username, QString clanTag)
             {
                 // Update
                 QListWidgetItem *newItem = new QListWidgetItem();
-                newItem->setData(ChannellistDelegate::USER, username);
-                newItem->setData(ChannellistDelegate::CLAN_TAG, clanTag);
-                addColor(newItem);
-                delete widget.channelList->takeItem(i);
-                widget.channelList->addItem(newItem);
-                //                sortChannelList();
+                        newItem->setData(ChannellistDelegate::USER, username);
+                        newItem->setData(ChannellistDelegate::CLAN_TAG, clanTag);
+                        addColor(newItem);
+                        delete widget.channelList->takeItem(i);
+                        widget.channelList->addItem(newItem);
+                        //                sortChannelList();
                 return;
             }
         }
     }
 
     QListWidgetItem *newItem = new QListWidgetItem();
-    newItem->setData(ChannellistDelegate::USER, username);
+            newItem->setData(ChannellistDelegate::USER, username);
     if (!clanTag.isEmpty())
     {
+
         newItem->setData(ChannellistDelegate::CLAN_TAG, clanTag);
     }
     addColor(newItem);
-    widget.channelList->addItem(newItem);
-    //    sortChannelList();
+            widget.channelList->addItem(newItem);
+            //    sortChannelList();
 }
 
 void MainGUI::removeChannelUser (QString username)
@@ -836,7 +949,8 @@ void MainGUI::removeChannelUser (QString username)
         if (item->data(ChannellistDelegate::USER).toString() == username)
         {
             item = widget.channelList->takeItem(i);
-            delete item;
+                    delete item;
+
             return;
         }
     }
@@ -844,20 +958,22 @@ void MainGUI::removeChannelUser (QString username)
 
 void MainGUI::changeChannel (QString channel)
 {
+
     widget.channelList->clear();
-    widget.channelField->setText(channel);
+            widget.channelField->setText(channel);
 }
 
 void MainGUI::clearFriendlist ()
 {
+
     widget.friendList->clear();
 }
 
 void MainGUI::addFriend (QString username, bool online, QString location)
 {
     QListWidgetItem *newItem = new QListWidgetItem();
-    newItem->setText(username);
-    newItem->setToolTip(location);
+            newItem->setText(username);
+            newItem->setToolTip(location);
 
     if (online)
     {
@@ -865,24 +981,27 @@ void MainGUI::addFriend (QString username, bool online, QString location)
     }
     else
     {
+
         newItem->setForeground(Qt::red);
     }
 
     widget.friendList->addItem(newItem);
-    sortFriendList();
+            sortFriendList();
 }
 
 void MainGUI::addGame (QString botname, QString gamename, QString openSlots)
 {
+
     QListWidgetItem* newItem = new QListWidgetItem();
-    newItem->setData(GamelistDelegate::BOTNAME, botname);
-    newItem->setData(GamelistDelegate::GAMENAME, gamename);
-    newItem->setData(GamelistDelegate::OPEN_SLOTS, openSlots);
-    widget.gameList->addItem(newItem);
+            newItem->setData(GamelistDelegate::BOTNAME, botname);
+            newItem->setData(GamelistDelegate::GAMENAME, gamename);
+            newItem->setData(GamelistDelegate::OPEN_SLOTS, openSlots);
+            widget.gameList->addItem(newItem);
 }
 
 void MainGUI::clearGamelist ()
 {
+
     widget.gameList->clear();
 }
 
@@ -890,28 +1009,28 @@ void MainGUI::setGameslots (vector<CIncomingSlots *> slotList)
 {
     widget.channelList->clear();
 
-    QVector<int> vTeamNumbers;
+            QVector<int> vTeamNumbers;
 
     for (vector<CIncomingSlots *>::iterator it = slotList.begin(); it != slotList.end(); it++)
     {
         if (!gproxy->isDotaMap())
         {
             if (!vTeamNumbers.contains((*it)->GetTeam()))
-                vTeamNumbers.push_back((*it)->GetTeam());
-        }
+                    vTeamNumbers.push_back((*it)->GetTeam());
+            }
 
         QListWidgetItem *itemSlot = new QListWidgetItem();
-        itemSlot->setData(ChannellistDelegate::SLOT_PID, (*it)->GetPID());
-        itemSlot->setData(ChannellistDelegate::SLOT_DOWNLOAD_STATUS, (*it)->GetDownloadStatus());
-        itemSlot->setData(ChannellistDelegate::SLOT_STATUS, (*it)->GetSlotStatus());
-        itemSlot->setData(ChannellistDelegate::SLOT_COMPUTER_STATUS, (*it)->GetComputerStatus());
-        itemSlot->setData(ChannellistDelegate::SLOT_TEAM, (*it)->GetTeam());
-        itemSlot->setData(ChannellistDelegate::SLOT_COLOR, (*it)->GetColor());
-        itemSlot->setData(ChannellistDelegate::SLOT_RACE, (*it)->GetRace());
-        itemSlot->setData(ChannellistDelegate::SLOT_COMPUTER_TYPE, (*it)->GetComputerType());
-        itemSlot->setData(ChannellistDelegate::SLOT_HANDICAP, (*it)->GetHandicap());
-        itemSlot->setData(ChannellistDelegate::USER, QString::fromStdString((*it)->GetName()));
-        widget.channelList->addItem(itemSlot);
+                itemSlot->setData(ChannellistDelegate::SLOT_PID, (*it)->GetPID());
+                itemSlot->setData(ChannellistDelegate::SLOT_DOWNLOAD_STATUS, (*it)->GetDownloadStatus());
+                itemSlot->setData(ChannellistDelegate::SLOT_STATUS, (*it)->GetSlotStatus());
+                itemSlot->setData(ChannellistDelegate::SLOT_COMPUTER_STATUS, (*it)->GetComputerStatus());
+                itemSlot->setData(ChannellistDelegate::SLOT_TEAM, (*it)->GetTeam());
+                itemSlot->setData(ChannellistDelegate::SLOT_COLOR, (*it)->GetColor());
+                itemSlot->setData(ChannellistDelegate::SLOT_RACE, (*it)->GetRace());
+                itemSlot->setData(ChannellistDelegate::SLOT_COMPUTER_TYPE, (*it)->GetComputerType());
+                itemSlot->setData(ChannellistDelegate::SLOT_HANDICAP, (*it)->GetHandicap());
+                itemSlot->setData(ChannellistDelegate::USER, QString::fromStdString((*it)->GetName()));
+                widget.channelList->addItem(itemSlot);
     }
 
     if (!gproxy->isDotaMap())
@@ -919,26 +1038,27 @@ void MainGUI::setGameslots (vector<CIncomingSlots *> slotList)
         for (int i = 0; i < vTeamNumbers.count(); i++)
         {
             QListWidgetItem *itemTeam = new QListWidgetItem();
-            QString teamString = QString("Team ").append(QString::number(i + 1));
-            itemTeam->setData(ChannellistDelegate::USER, teamString);
-            widget.channelList->insertItem(i, itemTeam);
+                    QString teamString = QString("Team ").append(QString::number(i + 1));
+                    itemTeam->setData(ChannellistDelegate::USER, teamString);
+                    widget.channelList->insertItem(i, itemTeam);
         }
 
         sortSlots(vTeamNumbers.count());
     }
     else
     {
+
         QListWidgetItem *itemSentinel = new QListWidgetItem();
-        itemSentinel->setData(ChannellistDelegate::USER, "The Sentinel");
-        itemSentinel->setData(ChannellistDelegate::COLOR_USER, QColor(255, 0, 0));
-        widget.channelList->insertItem(0, itemSentinel);
+                itemSentinel->setData(ChannellistDelegate::USER, "The Sentinel");
+                itemSentinel->setData(ChannellistDelegate::COLOR_USER, QColor(255, 0, 0));
+                widget.channelList->insertItem(0, itemSentinel);
 
-        QListWidgetItem *itemScourge = new QListWidgetItem();
-        itemScourge->setData(ChannellistDelegate::USER, "The Scourge");
-        itemScourge->setData(ChannellistDelegate::COLOR_USER, QColor(0, 255, 0));
-        widget.channelList->insertItem(1, itemScourge);
+                QListWidgetItem *itemScourge = new QListWidgetItem();
+                itemScourge->setData(ChannellistDelegate::USER, "The Scourge");
+                itemScourge->setData(ChannellistDelegate::COLOR_USER, QColor(0, 255, 0));
+                widget.channelList->insertItem(1, itemScourge);
 
-        sortSlots(2);
+                sortSlots(2);
     }
 }
 
@@ -946,15 +1066,16 @@ void MainGUI::sortSlots (int teams)
 {
     for (int i = widget.channelList->count() - 1; i >= teams; i--)
     {
+
         QListWidgetItem *sortedItem =
                 widget.channelList->item(widget.channelList->count() - 1)->clone();
-        delete widget.channelList->takeItem(widget.channelList->count() - 1);
-        widget.channelList->insertItem(sortedItem->data(
+                delete widget.channelList->takeItem(widget.channelList->count() - 1);
+                widget.channelList->insertItem(sortedItem->data(
                 ChannellistDelegate::SLOT_TEAM).toInt() + 1, sortedItem);
     }
 }
 
-void MainGUI::startWarcraft()
+void MainGUI::startWarcraft ()
 {
     QString exePath;
 
@@ -968,20 +1089,21 @@ void MainGUI::startWarcraft()
     }
 
     QProcess *wc3Process = new QProcess(this);
-    wc3Process->start(exePath, QStringList());
+            wc3Process->start(exePath, QStringList());
 
-    if(!wc3Process->waitForStarted(1000))
+    if (!wc3Process->waitForStarted(1000))
     {
-        addMessage("[Error] "+wc3Process->errorString());
-        showErrorMessage(wc3Process->errorString());
+
+        addMessage("[Error] " + wc3Process->errorString());
+                showErrorMessage(wc3Process->errorString());
     }
 }
 
-void MainGUI::showErrorMessage(QString errorMessage)
+void MainGUI::showErrorMessage (QString errorMessage)
 {
     QMessageBox msgBox;
-    msgBox.setWindowIcon(QIcon(":/images/Error.png"));
-    msgBox.setWindowTitle("Error");
-    msgBox.setText(errorMessage);
-    msgBox.exec();
+            msgBox.setWindowIcon(QIcon(":/images/Error.png"));
+            msgBox.setWindowTitle("Error");
+            msgBox.setText(errorMessage);
+            msgBox.exec();
 }

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'MainGUI.h'
 **
-** Created: Sat 14. May 22:57:28 2011
+** Created: Sun 15. May 17:57:49 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_MainGUI[] = {
        5,       // revision
        0,       // classname
        0,    0, // classinfo
-      19,   14, // methods
+      21,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -40,16 +40,18 @@ static const uint qt_meta_data_MainGUI[] = {
      162,    8,    8,    8, 0x08,
      189,    8,    8,    8, 0x08,
      211,    8,    8,    8, 0x08,
-     252,  240,    8,    8, 0x0a,
-     285,  277,    8,    8, 0x2a,
-     313,  305,    8,    8, 0x0a,
-     353,  336,    8,    8, 0x0a,
-     394,  385,    8,    8, 0x0a,
-     421,    8,    8,    8, 0x0a,
-     464,  439,    8,    8, 0x0a,
-     496,    8,    8,    8, 0x0a,
-     539,  512,    8,    8, 0x0a,
-     581,  572,    8,    8, 0x0a,
+     240,    8,    8,    8, 0x08,
+     265,    8,    8,    8, 0x08,
+     299,  287,    8,    8, 0x0a,
+     332,  324,    8,    8, 0x2a,
+     360,  352,    8,    8, 0x0a,
+     400,  383,    8,    8, 0x0a,
+     441,  432,    8,    8, 0x0a,
+     468,    8,    8,    8, 0x0a,
+     511,  486,    8,    8, 0x0a,
+     543,    8,    8,    8, 0x0a,
+     586,  559,    8,    8, 0x0a,
+     628,  619,    8,    8, 0x0a,
 
        0        // eod
 };
@@ -61,9 +63,10 @@ static const char qt_meta_stringdata_MainGUI[] = {
     "onGameListItemClicked(QListWidgetItem*)\0"
     "onOutputFieldSliderMoved()\0"
     "onMenuConfigClicked()\0"
-    "onMenuStartWarcraftClicked()\0message,log\0"
-    "addMessage(QString,bool)\0message\0"
-    "addMessage(QString)\0channel\0"
+    "onMenuStartWarcraftClicked()\0"
+    "onRefreshButtonClicked()\0updateRefreshButton()\0"
+    "message,log\0addMessage(QString,bool)\0"
+    "message\0addMessage(QString)\0channel\0"
     "changeChannel(QString)\0username,clanTag\0"
     "addChannelUser(QString,QString)\0"
     "username\0removeChannelUser(QString)\0"
@@ -112,19 +115,21 @@ int MainGUI::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         case 6: onOutputFieldSliderMoved(); break;
         case 7: onMenuConfigClicked(); break;
         case 8: onMenuStartWarcraftClicked(); break;
-        case 9: addMessage((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2]))); break;
-        case 10: addMessage((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 11: changeChannel((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 12: addChannelUser((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2]))); break;
-        case 13: removeChannelUser((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 14: clearFriendlist(); break;
-        case 15: addFriend((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2])),(*reinterpret_cast< QString(*)>(_a[3]))); break;
-        case 16: clearGamelist(); break;
-        case 17: addGame((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2])),(*reinterpret_cast< QString(*)>(_a[3]))); break;
-        case 18: setGameslots((*reinterpret_cast< vector<CIncomingSlots*>(*)>(_a[1]))); break;
+        case 9: onRefreshButtonClicked(); break;
+        case 10: updateRefreshButton(); break;
+        case 11: addMessage((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2]))); break;
+        case 12: addMessage((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 13: changeChannel((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 14: addChannelUser((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2]))); break;
+        case 15: removeChannelUser((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 16: clearFriendlist(); break;
+        case 17: addFriend((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2])),(*reinterpret_cast< QString(*)>(_a[3]))); break;
+        case 18: clearGamelist(); break;
+        case 19: addGame((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2])),(*reinterpret_cast< QString(*)>(_a[3]))); break;
+        case 20: setGameslots((*reinterpret_cast< vector<CIncomingSlots*>(*)>(_a[1]))); break;
         default: ;
         }
-        _id -= 19;
+        _id -= 21;
     }
     return _id;
 }

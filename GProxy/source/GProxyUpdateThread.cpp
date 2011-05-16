@@ -5,7 +5,10 @@ GProxyUpdateThread::GProxyUpdateThread (CGProxy *p_gproxy)
     gproxy = p_gproxy;
 }
 
-GProxyUpdateThread::~GProxyUpdateThread () { }
+GProxyUpdateThread::~GProxyUpdateThread ()
+{
+    this->exit(0);
+}
 
 void GProxyUpdateThread::run ()
 {

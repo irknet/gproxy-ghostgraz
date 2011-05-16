@@ -5,5 +5,10 @@
     <file>images/Cancel.png</file>
     <file>images/Tool.png</file>
     <file>images/Error.png</file>
+    <file>images/Mail.png</file>
+    <file>images/User.png</file>
+    <file>images/Edit.png</file>
+    <file>images/Edit Alt.png</file>
+    <file>images/Play.png</file>
   </qresource>
 </RCC>

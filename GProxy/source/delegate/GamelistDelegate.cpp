@@ -1,25 +1,32 @@
 #include "delegate/GamelistDelegate.h"
 
-void GamelistDelegate::paint(QPainter * painter,
+void GamelistDelegate::paint (QPainter * painter,
         const QStyleOptionViewItem & option, const QModelIndex & index)
 const
 {
-//    if (option.state & QStyle::State_Selected)
-//    {
-//        painter->fillRect(option.rect, option.palette.color(QPalette::Highlight));
-//    }
-
     QString bot = "Botname: " + index.data(35).toString();
     QString gamename = index.data(36).toString();
     QString openSlots = "Open slots: " + index.data(37).toString();
-//    QColor color = getColor(index.data(37).toString().mid(1).toInt());
+
+    int openSlotsCount = index.data(37).toString().mid(1).toInt();
+    QBrush brush = getBrush(openSlotsCount);
+
+    if (gamename.startsWith("in channel") || gamename == "-")
+    {
+        brush = QBrush(QColor(255, 255, 255));
+    }
 
     QRect rect = option.rect;
     painter->save();
 
-//    painter->fillRect(rect, color);
+    painter->setPen(QColor(0, 0, 0));
+    QFont font = painter->font();
+    font.setBold(true);
+    painter->setFont(font);
+
+    painter->fillRect(rect, brush);
     painter->drawLine(rect.left(), rect.bottom(), rect.right(), rect.bottom());
-//    painter->setPen(QColor(0, 0, 0));
+
     painter->drawText(rect, Qt::AlignHCenter, gamename);
     rect.adjust(0, 15, 0, 0);
     painter->drawText(rect, Qt::AlignLeft, openSlots);
@@ -28,52 +35,33 @@ const
     painter->restore();
 }
 
-QSize GamelistDelegate::sizeHint(const QStyleOptionViewItem & option,
+QSize GamelistDelegate::sizeHint (const QStyleOptionViewItem & option,
         const QModelIndex & index)
 const
 {
     return QSize(200, 35);
 }
 
-QColor GamelistDelegate::getColor(int openSlots) const
+QBrush GamelistDelegate::getBrush (int openSlots) const
 {
-//    switch(openSlots)
-//    {
-//        case 0:
-//            return QColor(140, 0, 0);
-//            break;
-//        case 1:
-//            return QColor(225, 0, 0);
-//            break;
-//        case 2:
-//            return QColor(255, 0, 70);
-//            break;
-//        case 3:
-//            return QColor(255, 0, 255);
-//            break;
-//        case 4:
-//            return QColor(173, 47, 255);
-//            break;
-//        case 5:
-//            return QColor(152, 152, 251);
-//            break;
-//        case 6:
-//            return QColor(0, 127, 255);
-//            break;
-//        case 7:
-//            return QColor(102, 170, 205);
-//            break;
-//        case 8:
-//            return QColor(0, 255, 255);
-//            break;
-//        case 9:
-//            return QColor(0, 209, 206);
-//            break;
-//        case 10:
-//            return QColor(30, 255, 144);
-//            break;
-//        default:
-//            return QColor(255, 255, 255);
-//    }
-    return QColor::fromRgb(255, 255, 255);
+    if (openSlots >= 6)
+    {
+        return QBrush(QColor(102, 255, 153));
+    }
+    else if (openSlots >= 4)
+    {
+        return QBrush(QColor(255, 165, 0));
+    }
+    else if (openSlots >= 1)
+    {
+        return QBrush(QColor(255, 0, 0));
+    }
+    else if (openSlots == 0)
+    {
+        return QBrush(QColor(153, 0, 0));
+    }
+    else
+    {
+        return QBrush(QColor(255, 255, 255));
+    }
 }

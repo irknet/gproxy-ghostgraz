@@ -15,7 +15,8 @@
 
 using namespace std;
 
-class MainGUI : public QMainWindow {
+class MainGUI : public QMainWindow
+{
     Q_OBJECT
 
 private:
@@ -52,6 +53,8 @@ private slots:
     void onOutputFieldSliderMoved();
     void onMenuConfigClicked();
     void onMenuStartWarcraftClicked();
+    void onRefreshButtonClicked();
+    void updateRefreshButton();
 
 public slots:
     void addMessage(QString message, bool log = true);

@@ -942,10 +942,14 @@ void CBNET::QueueChatCommand (string chatCommand)
     if (m_LoggedIn)
     {
         if (m_PasswordHashType == "pvpgn" && chatCommand.size() > m_MaxMessageLength)
+        {
             chatCommand = chatCommand.substr(0, m_MaxMessageLength);
+        }
 
         if (chatCommand.size() > 255)
+        {
             chatCommand = chatCommand.substr(0, 255);
+        }
 
         if (m_OutPackets.size() > 10)
         {

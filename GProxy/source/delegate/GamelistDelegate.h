@@ -24,7 +24,7 @@ protected:
             const QModelIndex & index) const;
 
 private:
-    QColor getColor(int openSlots) const;
+    QBrush getBrush(int openSlots) const;
 };
 
 #endif	/* MULTILINEDELEGATE_H */

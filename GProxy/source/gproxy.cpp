@@ -431,13 +431,11 @@ CGProxy::~CGProxy()
 
 void CGProxy::cleanup()
 {
-//    CONSOLE_Print("[GPROXY] shutting down running threads");
-//    gUpdateThread->quit();
-//    dt->quit();
-//    delete gUpdateThread;
-//    delete dt;
-//    gUpdateThread = NULL;
-//    dt = NULL;
+    CONSOLE_Print("[GPROXY] shutting down running threads");
+    delete gUpdateThread;
+    delete dt;
+    gUpdateThread = NULL;
+    dt = NULL;
 
 #ifdef WIN32
     CONSOLE_Print("[GPROXY] shutting down winsock");
@@ -445,8 +443,8 @@ void CGProxy::cleanup()
 #endif
 
     CONSOLE_Print("[GPROXY] shutting down");
-//    delete mainGUI;
-//    mainGUI = NULL;
+    delete mainGUI;
+    mainGUI = NULL;
     delete gproxy;
     gproxy = NULL;
 }

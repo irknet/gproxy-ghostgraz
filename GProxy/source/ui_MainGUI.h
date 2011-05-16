@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainGUI.ui'
 **
-** Created: Sat 14. May 22:56:58 2011
+** Created: Sun 15. May 16:37:15 2011
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -21,6 +21,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QMenuBar>
 #include <QtGui/QPlainTextEdit>
+#include <QtGui/QPushButton>
 #include <QtGui/QTextEdit>
 #include <QtGui/QWidget>
 
@@ -38,6 +39,7 @@ public:
     QListWidget *friendList;
     QListWidget *gameList;
     QLineEdit *channelField;
+    QPushButton *refreshButton;
     QMenuBar *menubar;
     QMenu *menu_File;
     QMenu *menu_StartWarcraft;
@@ -64,7 +66,7 @@ public:
         centralwidget = new QWidget(MainGUI);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         QPalette palette;
-        QBrush brush(QColor(210, 210, 210, 255));
+        QBrush brush(QColor(255, 255, 255, 255));
         brush.setStyle(Qt::SolidPattern);
         palette.setBrush(QPalette::Active, QPalette::Text, brush);
         QBrush brush1(QColor(0, 0, 0, 255));
@@ -75,9 +77,7 @@ public:
         QBrush brush2(QColor(120, 120, 120, 255));
         brush2.setStyle(Qt::SolidPattern);
         palette.setBrush(QPalette::Disabled, QPalette::Text, brush2);
-        QBrush brush3(QColor(255, 255, 255, 255));
-        brush3.setStyle(Qt::SolidPattern);
-        palette.setBrush(QPalette::Disabled, QPalette::Base, brush3);
+        palette.setBrush(QPalette::Disabled, QPalette::Base, brush);
         centralwidget->setPalette(palette);
         QFont font;
         font.setFamily(QString::fromUtf8("Courier New"));
@@ -122,7 +122,7 @@ public:
         friendList->setSelectionMode(QAbstractItemView::NoSelection);
         gameList = new QListWidget(centralwidget);
         gameList->setObjectName(QString::fromUtf8("gameList"));
-        gameList->setGeometry(QRect(665, 0, 231, 551));
+        gameList->setGeometry(QRect(665, 30, 231, 521));
         gameList->setContextMenuPolicy(Qt::NoContextMenu);
         gameList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         gameList->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -147,6 +147,9 @@ public:
         channelField->setCursor(QCursor(Qt::BlankCursor));
         channelField->setAlignment(Qt::AlignCenter);
         channelField->setReadOnly(true);
+        refreshButton = new QPushButton(centralwidget);
+        refreshButton->setObjectName(QString::fromUtf8("refreshButton"));
+        refreshButton->setGeometry(QRect(670, 0, 221, 23));
         MainGUI->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainGUI);
         menubar->setObjectName(QString::fromUtf8("menubar"));
@@ -180,6 +183,7 @@ public:
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Courier New'; font-size:12pt;\"></p></body></html>", 0, QApplication::UnicodeUTF8));
         inputField->setPlainText(QString());
         channelField->setText(QApplication::translate("MainGUI", "Channel", 0, QApplication::UnicodeUTF8));
+        refreshButton->setText(QApplication::translate("MainGUI", "Refresh", 0, QApplication::UnicodeUTF8));
         menu_File->setTitle(QApplication::translate("MainGUI", "File", 0, QApplication::UnicodeUTF8));
         menu_StartWarcraft->setTitle(QApplication::translate("MainGUI", "Start Warcraft", 0, QApplication::UnicodeUTF8));
     } // retranslateUi

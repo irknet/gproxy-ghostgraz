@@ -14,10 +14,11 @@ class DownloadThread : public QThread {
 public:
     DownloadThread(MainGUI *p_mainGUI);
     virtual ~DownloadThread();
-    
+    void refresh();
+
 protected:
     void run();
-    
+
 private:
     MainGUI *mainGUI;
     QUrl url;
@@ -26,7 +27,7 @@ private:
 
 private slots:
     void downloadFinished();
-    
+
 signals:
     void signal_clearGamelist();
     void signal_addGame(QString, QString, QString);
