@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainGUI.ui'
 **
-** Created: Sun 15. May 16:37:15 2011
+** Created: Fri 20. May 18:44:09 2011
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -18,8 +18,6 @@
 #include <QtGui/QLineEdit>
 #include <QtGui/QListWidget>
 #include <QtGui/QMainWindow>
-#include <QtGui/QMenu>
-#include <QtGui/QMenuBar>
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QPushButton>
 #include <QtGui/QTextEdit>
@@ -32,6 +30,7 @@ class Ui_MainGUI
 public:
     QAction *actionExit;
     QAction *actionConfig;
+    QAction *actionAction;
     QWidget *centralwidget;
     QTextEdit *outputField;
     QPlainTextEdit *inputField;
@@ -40,15 +39,12 @@ public:
     QListWidget *gameList;
     QLineEdit *channelField;
     QPushButton *refreshButton;
-    QMenuBar *menubar;
-    QMenu *menu_File;
-    QMenu *menu_StartWarcraft;
 
     void setupUi(QMainWindow *MainGUI)
     {
         if (MainGUI->objectName().isEmpty())
             MainGUI->setObjectName(QString::fromUtf8("MainGUI"));
-        MainGUI->resize(1081, 577);
+        MainGUI->resize(1085, 555);
         MainGUI->setMinimumSize(QSize(500, 200));
         QIcon icon;
         icon.addFile(QString::fromUtf8(":/images/GProxy.gif"), QSize(), QIcon::Normal, QIcon::Off);
@@ -63,6 +59,8 @@ public:
         QIcon icon2;
         icon2.addFile(QString::fromUtf8(":/images/Tool.png"), QSize(), QIcon::Normal, QIcon::Off);
         actionConfig->setIcon(icon2);
+        actionAction = new QAction(MainGUI);
+        actionAction->setObjectName(QString::fromUtf8("actionAction"));
         centralwidget = new QWidget(MainGUI);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         QPalette palette;
@@ -126,7 +124,11 @@ public:
         gameList->setContextMenuPolicy(Qt::NoContextMenu);
         gameList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         gameList->setEditTriggers(QAbstractItemView::NoEditTriggers);
-        gameList->setSelectionMode(QAbstractItemView::NoSelection);
+        gameList->setProperty("showDropIndicator", QVariant(true));
+        gameList->setDragEnabled(true);
+        gameList->setDragDropMode(QAbstractItemView::DragDrop);
+        gameList->setDefaultDropAction(Qt::MoveAction);
+        gameList->setSelectionMode(QAbstractItemView::SingleSelection);
         channelField = new QLineEdit(centralwidget);
         channelField->setObjectName(QString::fromUtf8("channelField"));
         channelField->setGeometry(QRect(900, 0, 181, 21));
@@ -151,19 +153,6 @@ public:
         refreshButton->setObjectName(QString::fromUtf8("refreshButton"));
         refreshButton->setGeometry(QRect(670, 0, 221, 23));
         MainGUI->setCentralWidget(centralwidget);
-        menubar = new QMenuBar(MainGUI);
-        menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 1081, 21));
-        menu_File = new QMenu(menubar);
-        menu_File->setObjectName(QString::fromUtf8("menu_File"));
-        menu_StartWarcraft = new QMenu(menubar);
-        menu_StartWarcraft->setObjectName(QString::fromUtf8("menu_StartWarcraft"));
-        MainGUI->setMenuBar(menubar);
-
-        menubar->addAction(menu_File->menuAction());
-        menubar->addAction(menu_StartWarcraft->menuAction());
-        menu_File->addAction(actionConfig);
-        menu_File->addAction(actionExit);
 
         retranslateUi(MainGUI);
         QObject::connect(actionExit, SIGNAL(activated()), MainGUI, SLOT(close()));
@@ -176,6 +165,7 @@ public:
         MainGUI->setWindowTitle(QApplication::translate("MainGUI", "GProxy GhostGraz v2.0", 0, QApplication::UnicodeUTF8));
         actionExit->setText(QApplication::translate("MainGUI", "Exit", 0, QApplication::UnicodeUTF8));
         actionConfig->setText(QApplication::translate("MainGUI", "Config", 0, QApplication::UnicodeUTF8));
+        actionAction->setText(QApplication::translate("MainGUI", "action", 0, QApplication::UnicodeUTF8));
         outputField->setHtml(QApplication::translate("MainGUI", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
@@ -184,8 +174,6 @@ public:
         inputField->setPlainText(QString());
         channelField->setText(QApplication::translate("MainGUI", "Channel", 0, QApplication::UnicodeUTF8));
         refreshButton->setText(QApplication::translate("MainGUI", "Refresh", 0, QApplication::UnicodeUTF8));
-        menu_File->setTitle(QApplication::translate("MainGUI", "File", 0, QApplication::UnicodeUTF8));
-        menu_StartWarcraft->setTitle(QApplication::translate("MainGUI", "Start Warcraft", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

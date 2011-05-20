@@ -1,10 +1,3 @@
-/*
- * File:   MainGUI.h
- * Author: Michael
- *
- * Created on 15. April 2011, 23:42
- */
-
 #ifndef _MAINGUI_H
 #define	_MAINGUI_H
 
@@ -26,8 +19,9 @@ public:
     MainGUI(CGProxy *p_gproxy);
     virtual ~MainGUI();
     void init();
-    CGProxy* getGproxy();
 
+    CGProxy* getGproxy();
+    void startWarcraft();
 
 private:
     Ui::MainGUI widget;
@@ -40,8 +34,6 @@ private:
     void sortChannelList();
     void sortFriendList();
     void sortSlots(int teams);
-    void startWarcraft();
-    void showErrorMessage(QString errorMessage);
 
 private slots:
     void onClose();
@@ -51,8 +43,6 @@ private slots:
     void onFriendsContextMenu(const QPoint&);
     void onGameListItemClicked(QListWidgetItem*);
     void onOutputFieldSliderMoved();
-    void onMenuConfigClicked();
-    void onMenuStartWarcraftClicked();
     void onRefreshButtonClicked();
     void updateRefreshButton();
 
@@ -66,6 +56,7 @@ public slots:
     void clearGamelist();
     void addGame(QString botname, QString gamename, QString openSlots);
     void setGameslots(vector<CIncomingSlots *> slotList);
+    void showErrorMessage(QString errorMessage);
 };
 
 #endif	/* _MAINGUI_H */

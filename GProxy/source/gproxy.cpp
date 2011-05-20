@@ -1,32 +1,11 @@
-/*
-
-   Copyright 2010 Trevor Hogan
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-
- */
-
-// todotodo: GHost++ may drop the player even after they reconnect if they run out of time and haven't caught up yet
-
 #include <QtGui/QApplication>
-#include <QMessageBox>
-#include <QIcon>
 #include <QSound>
 #include <QElapsedTimer>
+#include <QDateTime>
+#include <QTextStream>
 
 #include "gproxy.h"
 #include "util.h"
-#include "config_.h"
 #include "socket.h"
 #include "commandpacket.h"
 #include "bnetprotocol.h"
@@ -45,23 +24,14 @@
 #include <windows.h>
 #include <winsock.h>
 //#include "mysql/include/mysql.h" // has to be after winsock
-#include <time.h>
 
-#ifndef WIN32
-#include <sys/time.h>
-#endif
-
-#ifdef __APPLE__
-#include <mach/mach_time.h>
-#endif
-
-CGProxy *gproxy;
-MainGUI *mainGUI;
+CGProxy* gproxy;
+MainGUI* mainGUI;
 GProxyUpdateThread *gUpdateThread;
 DownloadThread *dt;
 QElapsedTimer timer;
 
-string gLogFile;
+QFile* logFile;
 vector<string> gGamesBuffer;
 
 /* Phytons variables */
@@ -82,12 +52,12 @@ unsigned int countdownEndTime;
 //MYSQL_RES *res;
 //MYSQL_ROW row;
 
-void addgame(string gamename)
+void addgame (string gamename)
 {
     gGamesBuffer.push_back(gamename);
 };
 
-string parseTextline(string input)
+string parseTextline (string input)
 {
     if (gproxy->m_LocalSocket && (input.find("$host$") != string::npos))
     {
@@ -97,7 +67,7 @@ string parseTextline(string input)
     return input;
 };
 
-string get_time()
+string get_time ()
 {
     string temp;
     time_t rawtime;
@@ -111,7 +81,7 @@ string get_time()
     return temp.assign(buffer);
 }
 
-bool textEndsWith(string text, string endText)
+bool textEndsWith (string text, string endText)
 {
     if (text.length() > endText.length())
     {
@@ -124,67 +94,29 @@ bool textEndsWith(string text, string endText)
     return false;
 }
 
-unsigned long getElapsedSeconds()
+unsigned long getElapsedSeconds ()
 {
     return timer.elapsed() / 1000;
 }
 
-unsigned long getElapsedMilliseconds()
+unsigned long getElapsedMilliseconds ()
 {
     return timer.elapsed();
 }
 
-//unsigned int GetTime()
-//{
-//    return GetTicks() / 1000;
-//}
-//
-//unsigned int GetTicks()
-//{
-//#ifdef WIN32
-//    return timeGetTime();
-//#elif __APPLE__
-//    uint64_t current = mach_absolute_time();
-//    static mach_timebase_info_data_t info = {0, 0};
-//    // get timebase info
-//    if (info.denom == 0)
-//        mach_timebase_info(&info);
-//    uint64_t elapsednano = current * (info.numer / info.denom);
-//    // convert ns to ms
-//    return elapsednano / 1e6;
-//#else
-//    uint32_t ticks;
-//    struct timespec t;
-//    clock_gettime(CLOCK_MONOTONIC, &t);
-//    ticks = t.tv_sec * 1000;
-//    ticks += t.tv_nsec / 1000000;
-//    return ticks;
-//#endif
-//}
-
-void LOG_Print(string message)
+void LOG_Print (QString logMessage)
 {
-    if (!gLogFile.empty())
+    if (logFile->isOpen() && logFile->isWritable())
     {
-        ofstream Log;
-        Log.open(gLogFile.c_str(), ios::app);
-
-        if (!Log.fail())
-        {
-            time_t Now = time(NULL);
-            string Time = asctime(localtime(&Now));
-
-            // erase the newline
-
-            Time.erase(Time.size() - 1);
-            Log << "[" << Time << "] " << message << endl;
-            Log.close();
-        }
+        QTextStream log(logFile);
+        QString dateTime = QLocale().toString(QDateTime::currentDateTime(),
+                "[dddd dd-MM-yyyy hh:mm:ss] ");
+        log << dateTime << logMessage << "\n";
+        log.flush();
     }
 }
 
-// Phyton core alias for searchforgame
-void CheckForGame(string gamename)
+void CheckForGame (string gamename)
 {
     if (getautosearch())
     {
@@ -195,7 +127,8 @@ void CheckForGame(string gamename)
 }
 
 // Phyton autospoofcheck
-void Pspoofcheck()
+
+void Pspoofcheck ()
 {
     if (gproxy->m_BNET->GetLoggedIn())
     {
@@ -203,7 +136,7 @@ void Pspoofcheck()
     }
 }
 
-void CONSOLE_Print(QString message, bool log)
+void CONSOLE_Print (QString message, bool log)
 {
     gproxy->addMessage(message, log);
 }
@@ -212,7 +145,7 @@ void CONSOLE_Print(QString message, bool log)
 // main
 //
 
-int main(int argc, char **argv)
+int main (int argc, char **argv)
 {
     QApplication app(argc, argv);
 
@@ -244,6 +177,11 @@ int main(int argc, char **argv)
     QObject::connect(gproxy, SIGNAL(signal_setGameslots(vector<CIncomingSlots*>)),
             mainGUI, SLOT(setGameslots(vector<CIncomingSlots*>)), Qt::QueuedConnection);
 
+    QObject::connect(gproxy, SIGNAL(signal_showErrorMessage(QString)),
+            mainGUI, SLOT(showErrorMessage(QString)));
+
+    QLocale::setDefault(QLocale::English);
+
     timer.start();
 
     CONSOLE_Print("[GPROXY] starting up");
@@ -253,20 +191,20 @@ int main(int argc, char **argv)
     gproxy->setConfig(config);
 
     int status = config->loadConfig();
-    if(gproxy->checkStatus(status) == false)
+    if (gproxy->checkStatus(status) == false)
     {
         return 1;
     }
 
     mainGUI->init();
 
-    if(config->getBoolean("log"))
+    if (config->getBoolean("log"))
     {
-        gLogFile = "gproxy_log.txt";
-    }
-    else
-    {
-        gLogFile = "";
+        logFile = new QFile("gproxy_log.txt");
+        if (!logFile->open(QFile::Append | QFile::Text))
+        {
+            gproxy->showErrorMessage(logFile->errorString());
+        }
     }
 
 #ifdef WIN32
@@ -331,9 +269,9 @@ int main(int argc, char **argv)
 // CGProxy
 //
 
-CGProxy::CGProxy() { }
+CGProxy::CGProxy () { }
 
-void CGProxy::init(string nServer, string nUsername, string nPassword, string nChannel, uint32_t nWar3Version, uint16_t nPort, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, string cpublic ,string cfilter,bool german_languagesupport, bool casearch, bool temp_displayautocreated, bool listing_current_games, int channelWidth)
+void CGProxy::init (string nServer, string nUsername, string nPassword, string nChannel, uint32_t nWar3Version, uint16_t nPort, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, string cpublic, string cfilter, bool german_languagesupport, bool casearch, bool temp_displayautocreated, bool listing_current_games, int channelWidth)
 {
     m_Version = mainGUI->windowTitle().remove(0, 7).toStdString();
     m_LocalServer = new CTCPServer();
@@ -392,7 +330,7 @@ void CGProxy::init(string nServer, string nUsername, string nPassword, string nC
     CONSOLE_Print("[GPROXY] Customized GProxy++ Version " + QString::fromStdString(m_Version));
 }
 
-CGProxy::~CGProxy()
+CGProxy::~CGProxy ()
 {
     for (vector<CIncomingGameHost *> ::iterator i = m_Games.begin(); i != m_Games.end(); i++)
         m_UDPSocket->Broadcast(6112, m_GameProtocol->SEND_W3GS_DECREATEGAME(((CIncomingGameHost *) (*i))->GetUniqueGameID()));
@@ -429,7 +367,7 @@ CGProxy::~CGProxy()
     }
 }
 
-void CGProxy::cleanup()
+void CGProxy::cleanup ()
 {
     CONSOLE_Print("[GPROXY] shutting down running threads");
     delete gUpdateThread;
@@ -449,17 +387,17 @@ void CGProxy::cleanup()
     gproxy = NULL;
 }
 
-void CGProxy::addMessage(QString msg, bool log)
+void CGProxy::addMessage (QString msg, bool log)
 {
     emit signal_addMessage(msg, log);
 }
 
-void CGProxy::changeChannel(QString channel)
+void CGProxy::changeChannel (QString channel)
 {
     emit signal_changeChannel(channel);
 }
 
-void CGProxy::addChannelUser(QString username, QString clanTag)
+void CGProxy::addChannelUser (QString username, QString clanTag)
 {
     // Phyton waitgame
     if (gproxy->getVShallCreate())
@@ -501,12 +439,12 @@ void CGProxy::addChannelUser(QString username, QString clanTag)
     emit signal_addChannelUser(username, clanTag);
 }
 
-void CGProxy::removeChannelUser(QString username)
+void CGProxy::removeChannelUser (QString username)
 {
     emit signal_removeChannelUser(username);
 }
 
-void CGProxy::friendUpdate(vector<CIncomingFriendList *> friendList)
+void CGProxy::friendUpdate (vector<CIncomingFriendList *> friendList)
 {
     clearFriendlist();
 
@@ -519,17 +457,22 @@ void CGProxy::friendUpdate(vector<CIncomingFriendList *> friendList)
     }
 }
 
-void CGProxy::clearFriendlist()
+void CGProxy::clearFriendlist ()
 {
     emit signal_clearFriendlist();
 }
 
-void CGProxy::addFriend(QString username, bool online, QString location)
+void CGProxy::addFriend (QString username, bool online, QString location)
 {
     emit signal_addFriend(username, online, location);
 }
 
-bool CGProxy::Update(long usecBlock)
+void CGProxy::showErrorMessage (QString errorMessage)
+{
+    emit signal_showErrorMessage(errorMessage);
+}
+
+bool CGProxy::Update (long usecBlock)
 {
     unsigned int NumFDs = 0;
 
@@ -985,7 +928,7 @@ bool CGProxy::Update(long usecBlock)
     return m_Exiting;
 }
 
-void CGProxy::ExtractLocalPackets()
+void CGProxy::ExtractLocalPackets ()
 {
     if (!m_LocalSocket)
         return;
@@ -1115,7 +1058,7 @@ void CGProxy::ExtractLocalPackets()
     }
 }
 
-bool CGProxy::CheckForwarding(string MessageString)
+bool CGProxy::CheckForwarding (string MessageString)
 {
     bool Forward = true;
     string Command = MessageString;
@@ -1165,7 +1108,7 @@ bool CGProxy::CheckForwarding(string MessageString)
                             }
                             else
                             {
-//                                Sleep(50);
+                                //                                Sleep(50);
                             }
                         }
                         else
@@ -1366,7 +1309,7 @@ bool CGProxy::CheckForwarding(string MessageString)
     return Forward;
 }
 
-void CGProxy::ProcessLocalPackets()
+void CGProxy::ProcessLocalPackets ()
 {
     if (!m_LocalSocket)
         return;
@@ -1487,7 +1430,7 @@ void CGProxy::ProcessLocalPackets()
     }
 }
 
-void CGProxy::ExtractRemotePackets()
+void CGProxy::ExtractRemotePackets ()
 {
     string *RecvBuffer = m_RemoteSocket->GetBytes();
     BYTEARRAY Bytes = UTIL_CreateByteArray((unsigned char *) RecvBuffer->c_str(), RecvBuffer->size());
@@ -1533,7 +1476,7 @@ void CGProxy::ExtractRemotePackets()
     }
 }
 
-void CGProxy::ProcessRemotePackets()
+void CGProxy::ProcessRemotePackets ()
 {
     if (!m_LocalSocket || !m_RemoteSocket)
         return;
@@ -1585,8 +1528,8 @@ void CGProxy::ProcessRemotePackets()
 
                     // If the message is a autogenerated ban message
                     if (MessageString.find("Player [") != string::npos
-                        && MessageString.find("] was banned by player [") != string::npos
-                        && MessageString.find("] on server [") != string::npos)
+                            && MessageString.find("] was banned by player [") != string::npos
+                            && MessageString.find("] on server [") != string::npos)
                     {
                         QSound::play("sounds/player_banned.wav");
 
@@ -1594,8 +1537,8 @@ void CGProxy::ProcessRemotePackets()
 
                     // If the message is a autogenerated "same ip" message
                     if ((MessageString.find("Player [") != string::npos
-                         && MessageString.find("] has the same IP address as: ") != string::npos)
-                        || MessageString.find("same IPs:") != string::npos)
+                            && MessageString.find("] has the same IP address as: ") != string::npos)
+                            || MessageString.find("same IPs:") != string::npos)
                     {
                         QSound::play("sounds/same_ip.wav");
                     }
@@ -1604,7 +1547,8 @@ void CGProxy::ProcessRemotePackets()
                     {
                         CONSOLE_Print("[LOBBY][" + QString::fromStdString(UTIL_ToColoredText(playerName))
                                 + "] " + QString::fromStdString(MessageString), false);
-                        LOG_Print("[LOBBY][" + playerName + "] " + MessageString);
+                        LOG_Print("[LOBBY][" + QString::fromStdString(playerName) + "] "
+                                + QString::fromStdString(MessageString));
                     }
                     else // GameStarted
                     {
@@ -1817,13 +1761,13 @@ void CGProxy::ProcessRemotePackets()
                 players[PID] = CPlayer(playersName);
                 CONSOLE_Print("[LOBBY] " + QString::fromStdString(playersName) + " has joined the game.");
 
-//                for (vector<CIncomingFriendList *> ::iterator i = vFriendList.begin(); i != vFriendList.end(); i++)
-//                {
-//                    if (((CIncomingFriendList *) (*i))->GetAccount().compare(playersName) == 0)
-//                    {
-//                        QSound::play("sounds/vip_joins.wav");
-//                    }
-//                }
+                //                for (vector<CIncomingFriendList *> ::iterator i = vFriendList.begin(); i != vFriendList.end(); i++)
+                //                {
+                //                    if (((CIncomingFriendList *) (*i))->GetAccount().compare(playersName) == 0)
+                //                    {
+                //                        QSound::play("sounds/vip_joins.wav");
+                //                    }
+                //                }
             }
             else if (Packet->GetID() == CGameProtocol::W3GS_MAPCHECK)
             {
@@ -1914,15 +1858,15 @@ void CGProxy::ProcessRemotePackets()
 
                 switch (reason)
                 {
-                case 0x09:
-                    CONSOLE_Print("[GPROXY] gamelobby is full");
-                    break;
-                case 0x10:
-                    CONSOLE_Print("[GPROXY] game has been started");
-                    break;
-                case 0x27:
-                    CONSOLE_Print("[GPROXY] wrong password");
-                    break;
+                    case 0x09:
+                        CONSOLE_Print("[GPROXY] gamelobby is full");
+                        break;
+                    case 0x10:
+                        CONSOLE_Print("[GPROXY] game has been started");
+                        break;
+                    case 0x27:
+                        CONSOLE_Print("[GPROXY] wrong password");
+                        break;
                 }
             }
             else if (Packet->GetID() == CGameProtocol::W3GS_INCOMING_ACTION)
@@ -2158,7 +2102,7 @@ void CGProxy::ProcessRemotePackets()
     }
 }
 
-bool CGProxy::AddGame(CIncomingGameHost *game)
+bool CGProxy::AddGame (CIncomingGameHost *game)
 {
     // check for duplicates and rehosted games
 
@@ -2211,9 +2155,9 @@ bool CGProxy::AddGame(CIncomingGameHost *game)
     return !DuplicateFound;
 }
 
-void CGProxy::sendGamemessage(QString message, bool alliesOnly)
+void CGProxy::sendGamemessage (QString message, bool alliesOnly)
 {
-    if(message.isEmpty() || !gproxy->m_BNET->GetInGame())
+    if (message.isEmpty() || !gproxy->m_BNET->GetInGame())
     {
         return;
     }
@@ -2226,7 +2170,7 @@ void CGProxy::sendGamemessage(QString message, bool alliesOnly)
     BYTEARRAY toPIDs;
     BYTEARRAY packet;
 
-    if(!gproxy->m_GameStarted)
+    if (!gproxy->m_GameStarted)
     {
         for (vector<CIncomingSlots *> ::iterator it = slotList.begin(); it != slotList.end(); it++)
         {
@@ -2235,7 +2179,7 @@ void CGProxy::sendGamemessage(QString message, bool alliesOnly)
 
         packet = gproxy->m_GameProtocol->SEND_W3GS_CHAT_TO_HOST(gproxy->m_ChatPID, toPIDs, 16, BYTEARRAY(), message.toStdString());
     }
-    else if(alliesOnly)
+    else if (alliesOnly)
     {
         for (vector<CIncomingSlots *> ::iterator it = slotList.begin(); it != slotList.end(); it++)
         {
@@ -2277,7 +2221,7 @@ void CGProxy::sendGamemessage(QString message, bool alliesOnly)
     }
 }
 
-void CGProxy::changeTeam(unsigned char team)
+void CGProxy::changeTeam (unsigned char team)
 {
     BYTEARRAY toPIDs;
 
@@ -2294,7 +2238,7 @@ void CGProxy::changeTeam(unsigned char team)
     m_TotalPacketsReceivedFromLocal++;
 }
 
-void CGProxy::SendLocalChat(string message)
+void CGProxy::SendLocalChat (string message)
 {
     if (m_LocalSocket)
     {
@@ -2315,7 +2259,7 @@ void CGProxy::SendLocalChat(string message)
     }
 }
 
-void CGProxy::SendEmptyAction()
+void CGProxy::SendEmptyAction ()
 {
     // we can't send any empty actions while the lag screen is up
     // so we keep track of who the lag screen is currently showing (if anyone) and we tear it down, send the empty action, and put it back up
@@ -2387,103 +2331,81 @@ bool CGProxy::checkStatus (int statusCode)
             }
             else
             {
-                CONSOLE_Print("[ERROR] Could not save configuration file. Aborted by User interaction.");
-
-                QMessageBox msgBox;
-                msgBox.setWindowIcon(QIcon(":/images/Error.png"));
-                msgBox.setWindowTitle("Error");
-                msgBox.setText("Could not save configuration file.\n"
+                emit signal_showErrorMessage("Could not save configuration file.\n"
                         "Aborted by User interaction."
                         "\nShutting down GProxy.");
-                msgBox.exec();
-
                 return false;
             }
         }
         case 2:
         {
-            CONSOLE_Print("[ERROR] Error while loading configuration file. Check your file permissions.");
-
-            QMessageBox msgBox;
-            msgBox.setWindowIcon(QIcon(":/images/Error.png"));
-            msgBox.setWindowTitle("Error");
-            msgBox.setText("Could not access the configuration file.\n"
+            emit signal_showErrorMessage("Could not access the configuration file.\n"
                     "Maybe you dont have permissions to write to that directory.\n"
                     "Try to move your folder outside \"C:\\Program Files\" or run as administrator."
                     "\nShutting down GProxy.");
-            msgBox.exec();
-
             return false;
         }
         default:
         {
-            CONSOLE_Print("[ERROR] Unknown error while loading configuration file.\n"
-                    "Error code: " + QString::number(statusCode));
-
-            QMessageBox msgBox;
-            msgBox.setWindowIcon(QIcon(":/images/Error.png"));
-            msgBox.setWindowTitle("Error");
-            msgBox.setText("Unknown error while loading configuration file.\n"
+            emit signal_showErrorMessage("Unknown error while loading configuration file.\n"
                     "ErrorCode: " + QString::number(statusCode));
-            msgBox.exec();
-
             return false;
         }
     }
 }
 
-bool fcfgfilterfirst()// Phyton filter
+bool fcfgfilterfirst ()// Phyton filter
 {
     return gproxy->cfgfilterfirst;
 
 }
 
-string fcfgfilter()// Phyton filter
+string fcfgfilter ()// Phyton filter
 {
     return gproxy->cfgfilter;
 }
 
-void saychat(string message)// Phyton parrot
+void saychat (string message)// Phyton parrot
 {
     gproxy->m_BNET->QueueChatCommand(message);
 }
 
-bool getautosearch() //pr0 autosearch
+bool getautosearch () //pr0 autosearch
 {
     return gproxy->autosearch;
 }
 
-void autosearch(bool autosearchNew) //pr0 autosearch
+void autosearch (bool autosearchNew) //pr0 autosearch
 {
     gproxy->autosearch = autosearchNew;
 }
 
-bool cautosearch() //pr0 cautosearch
+bool cautosearch () //pr0 cautosearch
 {
     return gproxy->cautosearch;
 }
 
-bool displayautocreated()
+bool displayautocreated ()
 {
     return gproxy->displayautocreated;
 }
 
-void displayautocreated(bool newone)
+void displayautocreated (bool newone)
 {
     gproxy->displayautocreated = newone;
 }
 
-void flisting_current_games(bool newone)
+void flisting_current_games (bool newone)
 {
     gproxy->m_listing_current_games = newone;
 }
 
-bool flisting_current_games()
+bool flisting_current_games ()
 {
     return gproxy->m_listing_current_games;
 }
 
-CIncomingSlots::CIncomingSlots(unsigned char nPID, unsigned char ndownloadStatus, unsigned char nslotStatus,
+CIncomingSlots::CIncomingSlots (unsigned char nPID, unsigned char ndownloadStatus, unsigned char nslotStatus,
         unsigned char ncomputerStatus, unsigned char nteam, unsigned char ncolor,
         unsigned char nrace, unsigned char ncomputerType, unsigned char nhandicap)
 {
@@ -2498,4 +2420,4 @@ CIncomingSlots::CIncomingSlots(unsigned char nPID, unsigned char ndownloadStatus
     handicap = (int) nhandicap;
 }
 
-CIncomingSlots::~CIncomingSlots() { }
+CIncomingSlots::~CIncomingSlots () { }

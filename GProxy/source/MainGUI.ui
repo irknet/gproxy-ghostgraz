@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1081</width>
-    <height>577</height>
+    <width>1085</width>
+    <height>555</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -218,7 +218,7 @@ p, li { white-space: pre-wrap; }
      <set>QAbstractItemView::NoEditTriggers</set>
     </property>
     <property name="selectionMode">
-     <enum>QAbstractItemView::NoSelection</enum>
+     <enum>QAbstractItemView::SingleSelection</enum>
     </property>
    </widget>
    <widget class="QLineEdit" name="channelField">
@@ -329,30 +329,6 @@ p, li { white-space: pre-wrap; }
     </property>
    </widget>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1081</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menu_File">
-    <property name="title">
-     <string>File</string>
-    </property>
-    <addaction name="actionConfig"/>
-    <addaction name="actionExit"/>
-   </widget>
-   <widget class="QMenu" name="menu_StartWarcraft">
-    <property name="title">
-     <string>Start Warcraft</string>
-    </property>
-   </widget>
-   <addaction name="menu_File"/>
-   <addaction name="menu_StartWarcraft"/>
-  </widget>
   <action name="actionExit">
    <property name="icon">
     <iconset resource="resources.qrc">
@@ -369,6 +345,11 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Config</string>
+   </property>
+  </action>
+  <action name="actionAction">
+   <property name="text">
+    <string>action</string>
    </property>
   </action>
  </widget>

@@ -7,6 +7,8 @@
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
+#include <QVector>
+#include <QStringList>
 
 class DownloadThread : public QThread {
     Q_OBJECT
@@ -24,6 +26,9 @@ private:
     QUrl url;
     QNetworkAccessManager manager;
     QNetworkReply *reply;
+    QVector<QString> vBotorder;
+
+    QVector<QStringList> sortGamelist(QVector<QStringList> vGamelist);
 
 private slots:
     void downloadFinished();

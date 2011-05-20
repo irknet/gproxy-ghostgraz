@@ -141,13 +141,8 @@ public:
 
 // output
 
-void LOG_Print( string message );
+void LOG_Print( QString message );
 void CONSOLE_Print( QString message, bool log = true );
-//void CONSOLE_ChangeChannel( string channel );
-//void CONSOLE_AddChannelUser( string name, string clanTag );
-//void CONSOLE_RemoveChannelUser( string name );
-//void CONSOLE_RemoveChannelUsers( );
-//void CONSOLE_FriendsReceived(vector<CIncomingFriendList *> Friends);
 void CheckForGame( string gamename );//phy core
 string parrot();//phy parrot
 string IntToString(int i);
@@ -314,6 +309,7 @@ public:
     void friendUpdate(vector<CIncomingFriendList *> friendList);
     void clearFriendlist();
     void addFriend(QString username, bool online, QString location);
+    void showErrorMessage(QString errorMessage);
 
 signals:
     void signal_addMessage(QString, bool);
@@ -323,6 +319,7 @@ signals:
     void signal_clearFriendlist();
     void signal_addFriend(QString, bool, QString);
     void signal_setGameslots(vector<CIncomingSlots*>);
+    void signal_showErrorMessage(QString);
 };
 
 

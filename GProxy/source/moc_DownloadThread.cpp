@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'DownloadThread.h'
 **
-** Created: Sun 15. May 17:57:47 2011
+** Created: Fri 20. May 21:15:46 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!

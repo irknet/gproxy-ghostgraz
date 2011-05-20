@@ -1,4 +1,3 @@
-
 #include "Config.h"
 #include <QStringList>
 #include <QTextStream>
@@ -66,6 +65,7 @@ void Config::addKeys()
     vKey.append("# Application config values");
     vKey.append("width");
     vKey.append("height");
+    vKey.append("botorder");
 }
 
 void Config::addValues(QString content)
