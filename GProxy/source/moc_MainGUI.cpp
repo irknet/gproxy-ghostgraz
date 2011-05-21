@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'MainGUI.h'
 **
-** Created: Fri 20. May 21:15:48 2011
+** Created: Sat 21. May 10:01:14 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_MainGUI[] = {
        5,       // revision
        0,       // classname
        0,    0, // classinfo
-      21,   14, // methods
+      20,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -38,20 +38,19 @@ static const uint qt_meta_data_MainGUI[] = {
       93,    8,    8,    8, 0x08,
      122,    8,    8,    8, 0x08,
      162,    8,    8,    8, 0x08,
-     197,    8,    8,    8, 0x08,
-     224,    8,    8,    8, 0x08,
-     249,    8,    8,    8, 0x08,
-     283,  271,    8,    8, 0x0a,
-     316,  308,    8,    8, 0x2a,
-     344,  336,    8,    8, 0x0a,
-     384,  367,    8,    8, 0x0a,
-     425,  416,    8,    8, 0x0a,
-     452,    8,    8,    8, 0x0a,
-     495,  470,    8,    8, 0x0a,
-     527,    8,    8,    8, 0x0a,
-     570,  543,    8,    8, 0x0a,
-     612,  603,    8,    8, 0x0a,
-     663,  650,    8,    8, 0x0a,
+     189,    8,    8,    8, 0x08,
+     214,    8,    8,    8, 0x08,
+     248,  236,    8,    8, 0x0a,
+     281,  273,    8,    8, 0x2a,
+     309,  301,    8,    8, 0x0a,
+     349,  332,    8,    8, 0x0a,
+     390,  381,    8,    8, 0x0a,
+     417,    8,    8,    8, 0x0a,
+     460,  435,    8,    8, 0x0a,
+     492,    8,    8,    8, 0x0a,
+     535,  508,    8,    8, 0x0a,
+     577,  568,    8,    8, 0x0a,
+     628,  615,    8,    8, 0x0a,
 
        0        // eod
 };
@@ -61,7 +60,6 @@ static const char qt_meta_stringdata_MainGUI[] = {
     "onChannelChanged()\0onChannelContextMenu(QPoint)\0"
     "onFriendsContextMenu(QPoint)\0"
     "onGameListItemClicked(QListWidgetItem*)\0"
-    "onGamelistItemRightClicked(QPoint)\0"
     "onOutputFieldSliderMoved()\0"
     "onRefreshButtonClicked()\0updateRefreshButton()\0"
     "message,log\0addMessage(QString,bool)\0"
@@ -112,24 +110,23 @@ int MainGUI::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         case 3: onChannelContextMenu((*reinterpret_cast< const QPoint(*)>(_a[1]))); break;
         case 4: onFriendsContextMenu((*reinterpret_cast< const QPoint(*)>(_a[1]))); break;
         case 5: onGameListItemClicked((*reinterpret_cast< QListWidgetItem*(*)>(_a[1]))); break;
-        case 6: onGamelistItemRightClicked((*reinterpret_cast< const QPoint(*)>(_a[1]))); break;
-        case 7: onOutputFieldSliderMoved(); break;
-        case 8: onRefreshButtonClicked(); break;
-        case 9: updateRefreshButton(); break;
-        case 10: addMessage((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2]))); break;
-        case 11: addMessage((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 12: changeChannel((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 13: addChannelUser((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2]))); break;
-        case 14: removeChannelUser((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 15: clearFriendlist(); break;
-        case 16: addFriend((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2])),(*reinterpret_cast< QString(*)>(_a[3]))); break;
-        case 17: clearGamelist(); break;
-        case 18: addGame((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2])),(*reinterpret_cast< QString(*)>(_a[3]))); break;
-        case 19: setGameslots((*reinterpret_cast< vector<CIncomingSlots*>(*)>(_a[1]))); break;
-        case 20: showErrorMessage((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 6: onOutputFieldSliderMoved(); break;
+        case 7: onRefreshButtonClicked(); break;
+        case 8: updateRefreshButton(); break;
+        case 9: addMessage((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2]))); break;
+        case 10: addMessage((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 11: changeChannel((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 12: addChannelUser((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2]))); break;
+        case 13: removeChannelUser((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 14: clearFriendlist(); break;
+        case 15: addFriend((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2])),(*reinterpret_cast< QString(*)>(_a[3]))); break;
+        case 16: clearGamelist(); break;
+        case 17: addGame((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2])),(*reinterpret_cast< QString(*)>(_a[3]))); break;
+        case 18: setGameslots((*reinterpret_cast< vector<CIncomingSlots*>(*)>(_a[1]))); break;
+        case 19: showErrorMessage((*reinterpret_cast< QString(*)>(_a[1]))); break;
         default: ;
         }
-        _id -= 21;
+        _id -= 20;
     }
     return _id;
 }

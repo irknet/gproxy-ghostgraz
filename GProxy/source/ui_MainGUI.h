@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainGUI.ui'
 **
-** Created: Fri 20. May 18:44:09 2011
+** Created: Sat 21. May 09:59:55 2011
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -124,10 +124,6 @@ public:
         gameList->setContextMenuPolicy(Qt::NoContextMenu);
         gameList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         gameList->setEditTriggers(QAbstractItemView::NoEditTriggers);
-        gameList->setProperty("showDropIndicator", QVariant(true));
-        gameList->setDragEnabled(true);
-        gameList->setDragDropMode(QAbstractItemView::DragDrop);
-        gameList->setDefaultDropAction(Qt::MoveAction);
         gameList->setSelectionMode(QAbstractItemView::SingleSelection);
         channelField = new QLineEdit(centralwidget);
         channelField->setObjectName(QString::fromUtf8("channelField"));

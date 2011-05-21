@@ -12,9 +12,9 @@ GProxyUpdateThread::~GProxyUpdateThread ()
 
 void GProxyUpdateThread::run ()
 {
-    while (true)
-    {
-        if (gproxy->Update(40000))
-            break;
-    }
+//    while (true)
+//    {
+//        if (gproxy->Update(40000))
+//            break;
+//    }
 }

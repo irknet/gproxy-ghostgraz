@@ -1,4 +1,10 @@
 #include "ConfigGUI.h"
+#include "gproxy.h"
+
+#ifdef WIN32
+#include "windows.h"
+#endif
+
 #include <QLabel>
 #include <QPushButton>
 #include <QFileDialog>
@@ -9,27 +15,37 @@
 
 ConfigGUI::ConfigGUI (Config *cfg)
 {
-    widget.setupUi(this);
-    this->cfg = cfg;
-    this->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint
-            | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    init();
+    init(cfg, false);
+}
+
+ConfigGUI::ConfigGUI (Config* cfg, bool exitOnClose)
+{
+    init(cfg, exitOnClose);
 }
 
 ConfigGUI::~ConfigGUI () { }
 
-void ConfigGUI::init ()
+void ConfigGUI::init (Config *cfg, bool exitOnClose)
 {
-    this->setFixedSize(450, 600);
-    widget.buttonBox->setGeometry(0, this->height() - 30, this->width(), 30);
+    widget.setupUi(this);
+    this->cfg = cfg;
+    this->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint
+            | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
-    int currentHeight = 5;
-    QFont textfieldFont("Arial", 9);
+    war3pathTextfield = new ClickableLineEdit((QWidget*) widget.war3pathLabel->parent());
+    war3pathTextfield->setObjectName("war3pathTextfield");
+    war3pathTextfield->setGeometry(180, 60, 210, 20);
+    war3pathTextfield->setFont(QFont("Arial", 9, QFont::Normal));
+    war3pathTextfield->setPlaceholderText("Warcraft 3 Install directory");
 
-    smTextfieldTextChanged = new QSignalMapper(this);
-    smServer = new QSignalMapper(this);
-    smFileDialog = new QSignalMapper(this);
+    initValues();
+    initSlots();
 
+    this->exitOnClose = exitOnClose;
+}
+
+void ConfigGUI::initValues ()
+{
     QVector<QString> vKey = cfg->getKeys();
     QVector<QString> vValue = cfg->getValues();
 
@@ -38,316 +54,144 @@ void ConfigGUI::init ()
         QString key = vKey.at(i);
         QString value = vValue.at(i);
 
-        QLabel *label = new QLabel(key, this);
-        label->setAccessibleName(key);
+        QList<QObject*> tabBarChildren = widget.tabWidget->children().at(0)->children();
 
-        if (key.startsWith("#"))
+        foreach(QObject *tab, tabBarChildren)
         {
-            if (key == "# Application config values")
+            QList<QObject*> tabChildren = tab->children();
+
+            foreach(QObject *tabChild, tabChildren)
             {
-                delete label;
-                break;
-            }
-            else
-            {
-                currentHeight += 10;
-                label->setText(key.mid(2));
-                label->setGeometry(10, currentHeight, this->width(), 25);
-                label->setAlignment(Qt::AlignCenter);
-                label->setFont(QFont("Arial", 10, QFont::Bold));
-                currentHeight += 32;
-                continue;
+                if (tabChild->objectName().startsWith(key))
+                {
+                    if (qobject_cast<QLineEdit*> (tabChild) != NULL)
+                    {
+                        QLineEdit *textfield = (QLineEdit*) tabChild;
+
+                        if (key == "war3path" && value.isEmpty())
+                        {
+#ifdef WIN32
+                            string war3path;
+                            HKEY hkey;
+                            long s = RegOpenKeyExA(HKEY_CURRENT_USER,
+                                    "Software\\Blizzard Entertainment\\Warcraft III",
+                                    0, KEY_QUERY_VALUE, &hkey);
+
+                            if (s == ERROR_SUCCESS)
+                            {
+                                char InstallPath[256];
+                                DWORD InstallPathSize = 256;
+                                RegQueryValueExA(hkey, "InstallPath",
+                                        NULL, NULL, (LPBYTE) InstallPath, &InstallPathSize);
+                                war3path = InstallPath;
+                                RegCloseKey(hkey);
+                            }
+                            textfield->setText(QString::fromStdString(war3path) + QDir::separator());
+#endif
+                        }
+                        else
+                        {
+                            textfield->setText(value);
+                        }
+                    }
+                    else if (qobject_cast<QComboBox*> (tabChild) != NULL)
+                    {
+                        QComboBox *combobox = (QComboBox*) tabChild;
+                        if (key == "server")
+                        {
+                            setSelectedCBValue(combobox, value);
+                        }
+                        else if (cfg->getBoolean(key) == false)
+                        {
+                            combobox->setCurrentIndex(1);
+                        }
+                    }
+                }
             }
         }
-        else
-        {
-            label->setGeometry(10, currentHeight, 200, 20);
-            label->setFont(QFont("Segoe UI", 9, QFont::Bold));
-
-            if (key == "war3path")
-            {
-                label->setText("Warcraft 3 Install path:");
-                FileDialogLineEdit *textfield = new FileDialogLineEdit(value, this);
-                textfield->setGeometry(180, currentHeight, 200, 20);
-                textfield->setFont(textfieldFont);
-                textfield->setAccessibleName(key);
-                QPushButton *fileButton = new QPushButton("...", this);
-                fileButton->setGeometry(380, currentHeight, 30, 20);
-                connect(textfield, SIGNAL(clicked()),
-                        smFileDialog, SLOT(map()));
-                smFileDialog->setMapping(textfield, textfield);
-                connect(fileButton, SIGNAL(clicked()),
-                        smFileDialog, SLOT(map()));
-                smFileDialog->setMapping(fileButton, textfield);
-            }
-            else if (key == "cdkeyroc")
-            {
-                label->setText("Reign of Chaos CD key:");
-                QLineEdit *textfield = new QLineEdit(value, this);
-                textfield->setGeometry(180, currentHeight, 230, 20);
-                textfield->setFont(textfieldFont);
-                textfield->setAccessibleName(key);
-                connect(textfield, SIGNAL(textChanged(const QString &)),
-                        smTextfieldTextChanged, SLOT(map()));
-                smTextfieldTextChanged->setMapping(textfield, textfield);
-            }
-            else if (key == "cdkeytft")
-            {
-                label->setText("The Frozen Throne CD key:");
-                QLineEdit *textfield = new QLineEdit(value, this);
-                textfield->setGeometry(180, currentHeight, 230, 20);
-                textfield->setFont(textfieldFont);
-                textfield->setAccessibleName(key);
-                connect(textfield, SIGNAL(textChanged(const QString &)),
-                        smTextfieldTextChanged, SLOT(map()));
-                smTextfieldTextChanged->setMapping(textfield, textfield);
-            }
-            else if (key == "server")
-            {
-                label->setText("Battle.net server:");
-                QComboBox *combobox = new QComboBox(this);
-                combobox->setGeometry(180, currentHeight, 230, 20);
-                combobox->setFont(textfieldFont);
-                combobox->setAccessibleName(key);
-                combobox->addItem("US West (Lordaeron)");
-                combobox->addItem("US East (Azeroth)");
-                combobox->addItem("Asia (Kalimdor)");
-                combobox->addItem("Europe (Northrend)");
-                combobox->addItem("PvPGN Server");
-                setSelectedCBValue(combobox, value);
-
-                connect(combobox, SIGNAL(currentIndexChanged(const QString&)),
-                        smServer, SLOT(map()));
-                smServer->setMapping(combobox, combobox);
-            }
-            else if (key == "username")
-            {
-                label->setText("Username:");
-                QLineEdit *textfield = new QLineEdit(value, this);
-                textfield->setGeometry(180, currentHeight, 230, 20);
-                textfield->setFont(textfieldFont);
-                textfield->setAccessibleName(key);
-                connect(textfield, SIGNAL(textChanged(const QString &)),
-                        smTextfieldTextChanged, SLOT(map()));
-                smTextfieldTextChanged->setMapping(textfield, textfield);
-            }
-            else if (key == "password")
-            {
-                label->setText("Password:");
-                QLineEdit *textfield = new QLineEdit(value, this);
-                textfield->setGeometry(180, currentHeight, 230, 20);
-                textfield->setFont(textfieldFont);
-                textfield->setAccessibleName(key);
-                textfield->setEchoMode(QLineEdit::Password);
-                connect(textfield, SIGNAL(textChanged(const QString &)),
-                        smTextfieldTextChanged, SLOT(map()));
-                smTextfieldTextChanged->setMapping(textfield, textfield);
-            }
-            else if (key == "channel")
-            {
-                label->setText("Channel:");
-                QLineEdit *textfield = new QLineEdit(value, this);
-                textfield->setGeometry(180, currentHeight, 230, 20);
-                textfield->setFont(textfieldFont);
-                textfield->setAccessibleName(key);
-                connect(textfield, SIGNAL(textChanged(const QString &)),
-                        smTextfieldTextChanged, SLOT(map()));
-                smTextfieldTextChanged->setMapping(textfield, textfield);
-            }
-            else if (key == "war3version")
-            {
-                label->setText("Warcraft 3 patch version:");
-                QLineEdit *textfield = new QLineEdit(value, this);
-                textfield->setGeometry(180, currentHeight, 230, 20);
-                textfield->setFont(textfieldFont);
-                textfield->setAccessibleName(key);
-                QIntValidator *validator = new QIntValidator(this);
-                validator->setBottom(0);
-                textfield->setValidator(validator);
-                connect(textfield, SIGNAL(textChanged(const QString &)),
-                        smTextfieldTextChanged, SLOT(map()));
-                smTextfieldTextChanged->setMapping(textfield, textfield);
-            }
-            else if (key == "port")
-            {
-                label->setText("Port:");
-                QLineEdit *textfield = new QLineEdit(value, this);
-                textfield->setGeometry(180, currentHeight, 230, 20);
-                textfield->setFont(textfieldFont);
-                textfield->setAccessibleName(key);
-                QIntValidator *validator = new QIntValidator(this);
-                validator->setBottom(1024);
-                textfield->setValidator(validator);
-                connect(textfield, SIGNAL(textChanged(const QString &)),
-                        smTextfieldTextChanged, SLOT(map()));
-                smTextfieldTextChanged->setMapping(textfield, textfield);
-            }
-            else if (key == "exeversion")
-            {
-                label->setText("Exe version:");
-                QLineEdit *textfield = new QLineEdit(value, this);
-                textfield->setGeometry(180, currentHeight, 230, 20);
-                textfield->setFont(textfieldFont);
-                textfield->setAccessibleName(key);
-                connect(textfield, SIGNAL(textChanged(const QString &)),
-                        smTextfieldTextChanged, SLOT(map()));
-                smTextfieldTextChanged->setMapping(textfield, textfield);
-            }
-            else if (key == "exeversionhash")
-            {
-                label->setText("Exe version hash:");
-                QLineEdit *textfield = new QLineEdit(value, this);
-                textfield->setGeometry(180, currentHeight, 230, 20);
-                textfield->setFont(textfieldFont);
-                textfield->setAccessibleName(key);
-                connect(textfield, SIGNAL(textChanged(const QString &)),
-                        smTextfieldTextChanged, SLOT(map()));
-                smTextfieldTextChanged->setMapping(textfield, textfield);
-            }
-            else if (key == "passwordhashtype")
-            {
-                label->setText("Password hash type:");
-                QLineEdit *textfield = new QLineEdit(value, this);
-                textfield->setGeometry(180, currentHeight, 230, 20);
-                textfield->setFont(textfieldFont);
-                textfield->setAccessibleName(key);
-                connect(textfield, SIGNAL(textChanged(const QString &)),
-                        smTextfieldTextChanged, SLOT(map()));
-                smTextfieldTextChanged->setMapping(textfield, textfield);
-            }
-            else if (key == "sound")
-            {
-                label->setText("Sound:");
-                QComboBox *combobox = new QComboBox(this);
-                combobox->setGeometry(180, currentHeight, 230, 20);
-                combobox->setFont(textfieldFont);
-                combobox->setAccessibleName(key);
-                combobox->addItem("On");
-                combobox->addItem("Off");
-                if (cfg->getBoolean(key) == false)
-                {
-                    combobox->setCurrentIndex(1);
-                }
-            }
-            else if (key == "privategamename")
-            {
-                label->setText("Privategamename:");
-                QLineEdit *textfield = new QLineEdit(value, this);
-                textfield->setGeometry(180, currentHeight, 230, 20);
-                textfield->setFont(textfieldFont);
-                textfield->setAccessibleName(key);
-                connect(textfield, SIGNAL(textChanged(const QString &)),
-                        smTextfieldTextChanged, SLOT(map()));
-                smTextfieldTextChanged->setMapping(textfield, textfield);
-            }
-            else if (key == "botprefix")
-            {
-                label->setText("Botprefix:");
-                QLineEdit *textfield = new QLineEdit(value, this);
-                textfield->setGeometry(180, currentHeight, 230, 20);
-                textfield->setFont(textfieldFont);
-                textfield->setAccessibleName(key);
-                connect(textfield, SIGNAL(textChanged(const QString &)),
-                        smTextfieldTextChanged, SLOT(map()));
-                smTextfieldTextChanged->setMapping(textfield, textfield);
-            }
-            else if (key == "autosearch")
-            {
-                label->setText("Autosearch:");
-                QComboBox *combobox = new QComboBox(this);
-                combobox->setGeometry(180, currentHeight, 230, 20);
-                combobox->setFont(textfieldFont);
-                combobox->setAccessibleName(key);
-                combobox->addItem("On");
-                combobox->addItem("Off");
-                if (cfg->getBoolean(key) == false)
-                {
-                    combobox->setCurrentIndex(1);
-                }
-            }
-            else if (key == "log")
-            {
-                label->setText("Enable logging:");
-                QComboBox *combobox = new QComboBox(this);
-                combobox->setGeometry(180, currentHeight, 230, 20);
-                combobox->setFont(textfieldFont);
-                combobox->setAccessibleName(key);
-                combobox->addItem("True");
-                combobox->addItem("False");
-                if (cfg->getBoolean(key) == false)
-                {
-                    combobox->setCurrentIndex(1);
-                }
-            }
-            else
-            {
-                QLineEdit *textfield = new QLineEdit(value, this);
-                textfield->setGeometry(180, currentHeight, 230, 20);
-                textfield->setFont(textfieldFont);
-                textfield->setAccessibleName(key);
-                connect(textfield, SIGNAL(textChanged(const QString &)),
-                        smTextfieldTextChanged, SLOT(map()));
-                smTextfieldTextChanged->setMapping(textfield, textfield);
-            }
-        }
-
-        currentHeight += 22;
     }
+}
 
-    connect(smTextfieldTextChanged, SIGNAL(mapped(QWidget *)),
-            this, SLOT(onTextfieldTextChanged(QWidget *)));
-
-    connect(smServer, SIGNAL(mapped(QWidget *)),
-            this, SLOT(onServerCBChanged(QWidget *)));
-
-    connect(smFileDialog, SIGNAL(mapped(QWidget *)),
-            this, SLOT(onOpenFileDialog(QWidget *)));
+void ConfigGUI::initSlots ()
+{
+    connect(widget.cdkeyrocTextfield, SIGNAL(textChanged(const QString &)),
+            this, SLOT(onCDKeyROCChanged(QString)));
+    connect(widget.cdkeytftTextfield, SIGNAL(textChanged(const QString &)),
+            this, SLOT(onCDKeyTFTChanged(QString)));
+    connect(widget.usernameTextfield, SIGNAL(textChanged(const QString &)),
+            this, SLOT(onUsernameChanged(QString)));
+    connect(widget.passwordTextfield, SIGNAL(textChanged(const QString &)),
+            this, SLOT(onPasswordChanged(QString)));
+    connect(widget.channelTextfield, SIGNAL(textChanged(const QString &)),
+            this, SLOT(onChannelChanged(QString)));
+    connect(widget.serverCombobox, SIGNAL(activated(const QString &)),
+            this, SLOT(onServerComboboxItemChanged(const QString &)));
+    connect(war3pathTextfield, SIGNAL(clicked()),
+            this, SLOT(onWar3pathChangeRequest()));
+    connect(widget.war3pathButton, SIGNAL(clicked()),
+            this, SLOT(onWar3pathChangeRequest()));
 }
 
 void ConfigGUI::accept ()
 {
-    QList<QObject*> child = this->children();
-    for (int i = 0; i < child.count(); i++)
+    QList<QObject*> tabBarChildren = widget.tabWidget->children().at(0)->children();
+
+    foreach(QObject *tab, tabBarChildren)
     {
-        if (qobject_cast<QLineEdit*> (child.at(i)) != NULL)
+        QList<QObject*> tabChildren = tab->children();
+
+        foreach(QObject *tabChild, tabChildren)
         {
-            QLineEdit *tf = (QLineEdit*) child.at(i);
-            cfg->setString(tf->accessibleName(), tf->text());
-        }
-        else if(qobject_cast<QComboBox*> (child.at(i)) != NULL)
-        {
-            QComboBox *cb = (QComboBox*) child.at(i);
-            if (cb->accessibleName() == "server")
+            if (qobject_cast<QLineEdit*> (tabChild) != NULL)
             {
-                if (cb->currentText() == "US West (Lordaeron)")
+                QLineEdit *textfield = (QLineEdit*) tabChild;
+                QString key = textfield->objectName().remove("Textfield");
+
+                if (!cfg->setString(key, textfield->text()))
                 {
-                    cfg->setString("server", "uswest.battle.net");
+                    showErrorMessage("Could not save " + key + " = " + textfield->text());
                 }
-                else if (cb->currentText() == "US East (Azeroth)")
+            }
+            else if (qobject_cast<QComboBox*> (tabChild) != NULL)
+            {
+                QComboBox *combobox = (QComboBox*) tabChild;
+                QString key = combobox->objectName().remove("Combobox");
+                if (key == "server")
                 {
-                    cfg->setString("server", "useast.battle.net");
-                }
-                else if (cb->currentText() == "Asia (Kalimdor)")
-                {
-                    cfg->setString("server", "asia.battle.net");
-                }
-                else if (cb->currentText() == "Europe (Northrend)")
-                {
-                    cfg->setString("server", "europe.battle.net");
+                    if (combobox->currentText() == "US West (Lordaeron)")
+                    {
+                        cfg->setString("server", "uswest.battle.net");
+                    }
+                    else if (combobox->currentText() == "US East (Azeroth)")
+                    {
+                        cfg->setString("server", "useast.battle.net");
+                    }
+                    else if (combobox->currentText() == "Asia (Kalimdor)")
+                    {
+                        cfg->setString("server", "asia.battle.net");
+                    }
+                    else if (combobox->currentText() == "Europe (Northrend)")
+                    {
+                        cfg->setString("server", "europe.battle.net");
+                    }
+                    else
+                    {
+                        cfg->setString("server", combobox->currentText());
+                    }
                 }
                 else
                 {
-                    cfg->setString("server", cb->currentText());
+                    if (!cfg->setString(key, combobox->currentText()))
+                    {
+                        showErrorMessage("Could not save " + key + " = "
+                                + combobox->currentText());
+                    }
                 }
-            }
-            else
-            {
-                cfg->setString(cb->accessibleName(), cb->currentText());
             }
         }
     }
 
-    if(cfg->hasRequiredValues())
+    if (cfg->hasRequiredValues())
     {
         cfg->commit();
         done(QDialog::Accepted);
@@ -364,15 +208,193 @@ void ConfigGUI::accept ()
 
 void ConfigGUI::reject ()
 {
+    if (exitOnClose)
+    {
+        showErrorMessage("You need to fill in all required values for GProxy to work.\n"
+                "Exiting...");
+        QApplication::quit();
+    }
+
     cfg->loadConfig();
     done(QDialog::Rejected);
 }
 
-void ConfigGUI::onServerCBChanged (QWidget *combobox)
+void ConfigGUI::onCDKeyROCChanged (QString text)
 {
-    QComboBox *cb = (QComboBox*) combobox;
+    QPoint position(widget.cdkeyrocTextfield->pos().x() + this->x()
+            + widget.cdkeyrocTextfield->width() + 7,
+            this->y() + widget.cdkeyrocTextfield->pos().y() + 30);
+    int cursorPosition = widget.cdkeyrocTextfield->cursorPosition();
 
-    if (cb->currentText() == "PvPGN Server")
+    widget.cdkeyrocTextfield->setText(text.toUpper());
+    widget.cdkeyrocTextfield->setCursorPosition(cursorPosition);
+
+    if (text.length() < 26)
+    {
+        QPalette pal;
+        pal.setColor(QPalette::Text, Qt::red);
+        widget.cdkeyrocTextfield->setPalette(pal);
+        QToolTip::showText(position,
+                "The cd key has to be 26 characters long", widget.cdkeyrocTextfield);
+    }
+    else if (text.length() > 26)
+    {
+        widget.cdkeyrocTextfield->setText(text.remove(cursorPosition - 1, 1));
+        widget.cdkeyrocTextfield->setCursorPosition(cursorPosition - 1);
+        QPalette pal;
+        pal.setColor(QPalette::Text, Qt::black);
+        widget.cdkeyrocTextfield->setPalette(pal);
+        QToolTip::showText(position,
+                "The cd key has to be 26 characters long", widget.cdkeyrocTextfield);
+    }
+    else
+    {
+        QPalette pal;
+        pal.setColor(QPalette::Text, Qt::black);
+        widget.cdkeyrocTextfield->setPalette(pal);
+    }
+
+    if (text.contains("-"))
+    {
+        widget.cdkeyrocTextfield->setText(text.replace("-", ""));
+        QToolTip::showText(position,
+                "Enter the cd key without dashes", widget.cdkeyrocTextfield);
+    }
+}
+
+void ConfigGUI::onCDKeyTFTChanged (QString text)
+{
+    QPoint position(widget.cdkeytftTextfield->pos().x() + this->x()
+            + widget.cdkeytftTextfield->width() + 7,
+            this->y() + widget.cdkeytftTextfield->pos().y() + 30);
+    int cursorPosition = widget.cdkeytftTextfield->cursorPosition();
+
+    widget.cdkeytftTextfield->setText(text.toUpper());
+    widget.cdkeytftTextfield->setCursorPosition(cursorPosition);
+
+    if (text.length() < 26)
+    {
+        QPalette pal;
+        pal.setColor(QPalette::Text, Qt::red);
+        widget.cdkeytftTextfield->setPalette(pal);
+        QToolTip::showText(position,
+                "The cd key has to be 26 characters long", widget.cdkeytftTextfield);
+    }
+    else if (text.length() > 26)
+    {
+        widget.cdkeytftTextfield->setText(text.remove(cursorPosition - 1, 1));
+        widget.cdkeytftTextfield->setCursorPosition(cursorPosition - 1);
+        QPalette pal;
+        pal.setColor(QPalette::Text, Qt::black);
+        widget.cdkeytftTextfield->setPalette(pal);
+        QToolTip::showText(position,
+                "The cd key has to be 26 characters long", widget.cdkeytftTextfield);
+    }
+    else
+    {
+        QPalette pal;
+        pal.setColor(QPalette::Text, Qt::black);
+        widget.cdkeytftTextfield->setPalette(pal);
+    }
+
+    if (text.contains("-"))
+    {
+        widget.cdkeytftTextfield->setText(text.replace("-", ""));
+        QToolTip::showText(position,
+                "Enter the cd key without dashes", widget.cdkeytftTextfield);
+    }
+}
+
+void ConfigGUI::onUsernameChanged (QString text)
+{
+    QPoint position(widget.usernameTextfield->pos().x() + this->x()
+            + widget.usernameTextfield->width() + 7,
+            this->y() + widget.usernameTextfield->pos().y() + 30);
+    int cursorPosition = widget.usernameTextfield->cursorPosition();
+
+    if (text.length() < 3)
+    {
+        QPalette pal;
+        pal.setColor(QPalette::Text, Qt::red);
+        widget.usernameTextfield->setPalette(pal);
+        QToolTip::showText(position,
+                "The username has be at least 3 characters long",
+                widget.usernameTextfield);
+    }
+    else if (text.length() > 15)
+    {
+        widget.usernameTextfield->setText(text.remove(cursorPosition - 1, 1));
+        widget.usernameTextfield->setCursorPosition(cursorPosition - 1);
+        QPalette pal;
+        pal.setColor(QPalette::Text, Qt::black);
+        widget.usernameTextfield->setPalette(pal);
+        QToolTip::showText(position,
+                "The username has a maximum length of 15 characters",
+                widget.usernameTextfield);
+    }
+    else
+    {
+        QPalette pal;
+        pal.setColor(QPalette::Text, Qt::black);
+        widget.usernameTextfield->setPalette(pal);
+    }
+}
+
+void ConfigGUI::onPasswordChanged (QString text)
+{
+    QPoint position(widget.passwordTextfield->pos().x() + this->x()
+            + widget.passwordTextfield->width() + 7,
+            this->y() + widget.passwordTextfield->pos().y() + 30);
+    int cursorPosition = widget.passwordTextfield->cursorPosition();
+
+    if (text.length() < 3)
+    {
+        QPalette pal;
+        pal.setColor(QPalette::Text, Qt::red);
+        widget.passwordTextfield->setPalette(pal);
+        QToolTip::showText(position,
+                "The password has be at least 3 characters long",
+                widget.passwordTextfield);
+    }
+    else if (text.length() > 15)
+    {
+        widget.passwordTextfield->setText(text.remove(cursorPosition - 1, 1));
+        widget.passwordTextfield->setCursorPosition(cursorPosition - 1);
+        QPalette pal;
+        pal.setColor(QPalette::Text, Qt::black);
+        widget.passwordTextfield->setPalette(pal);
+        QToolTip::showText(position,
+                "The password has a maximum length of 15 characters",
+                widget.passwordTextfield);
+    }
+    else
+    {
+        QPalette pal;
+        pal.setColor(QPalette::Text, Qt::black);
+        widget.passwordTextfield->setPalette(pal);
+    }
+}
+
+void ConfigGUI::onChannelChanged (QString text)
+{
+    QPoint position(widget.channelTextfield->pos().x() + this->x()
+            + widget.channelTextfield->width() + 7,
+            this->y() + widget.channelTextfield->pos().y() + 30);
+    int cursorPosition = widget.channelTextfield->cursorPosition();
+
+    if (text.length() > 31)
+    {
+        widget.channelTextfield->setText(text.remove(cursorPosition - 1, 1));
+        widget.channelTextfield->setCursorPosition(cursorPosition - 1);
+        QToolTip::showText(position,
+                "The channel name has a maximum length of 31 characters",
+                widget.channelTextfield);
+    }
+}
+
+void ConfigGUI::onServerComboboxItemChanged (const QString &text)
+{
+    if (text == "PvPGN Server")
     {
         QDialog *dialog = new QDialog(this);
         dialog->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint
@@ -393,20 +415,21 @@ void ConfigGUI::onServerCBChanged (QWidget *combobox)
 
         if (dialog->exec() == QDialog::Accepted && !textfield->text().isEmpty())
         {
-            setSelectedCBValue(cb, textfield->text());
+            setSelectedCBValue(widget.serverCombobox, textfield->text());
         }
         else
         {
-            setSelectedCBValue(cb, cb->accessibleDescription());
+            setSelectedCBValue(widget.serverCombobox,
+                    widget.serverCombobox->accessibleDescription());
         }
     }
     else
     {
-        cb->setAccessibleDescription(cb->currentText());
+        setSelectedCBValue(widget.serverCombobox, widget.serverCombobox->currentText());
     }
 }
 
-void ConfigGUI::setSelectedCBValue (QComboBox *combobox, QString value)
+void ConfigGUI::setSelectedCBValue (QComboBox *combobox, const QString &value)
 {
     if (value == "uswest.battle.net" || value == "US West (Lordaeron)")
     {
@@ -426,6 +449,10 @@ void ConfigGUI::setSelectedCBValue (QComboBox *combobox, QString value)
     }
     else // TODO if (the PvPGN Server already exists in the combobox)
     {
+        if (combobox->count() > 5)
+        {
+            combobox->removeItem(5);
+        }
         combobox->addItem(value);
         combobox->setCurrentIndex(combobox->count() - 1);
     }
@@ -433,110 +460,25 @@ void ConfigGUI::setSelectedCBValue (QComboBox *combobox, QString value)
     combobox->setAccessibleDescription(combobox->currentText());
 }
 
-void ConfigGUI::onTextfieldTextChanged (QWidget * textfield)
+void ConfigGUI::onWar3pathChangeRequest ()
 {
-    QLineEdit *tf = (QLineEdit*) textfield;
-    QString key = tf->accessibleName();
-    QString value = tf->text();
-    QPoint position(tf->pos().x() + this->x() + tf->width() + 7,
-            this->y() + tf->pos().y() + 10);
-    int cursorPosition = tf->cursorPosition();
-
-    if (key == "cdkeyroc" || key == "cdkeytft")
-    {
-        tf->setText(value.toUpper());
-        tf->setCursorPosition(cursorPosition);
-
-        if (value.length() < 26)
-        {
-            QPalette pal;
-            pal.setColor(QPalette::Text, Qt::red);
-            tf->setPalette(pal);
-            QToolTip::showText(position,
-                    "The cd key has to be 26 characters long", tf);
-        }
-        else if (value.length() > 26)
-        {
-            tf->setText(value.remove(cursorPosition - 1, 1));
-            tf->setCursorPosition(cursorPosition - 1);
-            QPalette pal;
-            pal.setColor(QPalette::Text, Qt::black);
-            tf->setPalette(pal);
-            QToolTip::showText(position,
-                    "The cd key has to be 26 characters long", tf);
-        }
-        else
-        {
-            QPalette pal;
-            pal.setColor(QPalette::Text, Qt::black);
-            tf->setPalette(pal);
-        }
-
-        if (value.contains("-"))
-        {
-            tf->setText(value.replace("-", ""));
-            QToolTip::showText(position,
-                    "Enter the cd key without dashes", tf);
-        }
-    }
-    else if (key == "username" || key == "password")
-    {
-        if (value.length() < 3)
-        {
-            QPalette pal;
-            pal.setColor(QPalette::Text, Qt::red);
-            tf->setPalette(pal);
-            QToolTip::showText(position,
-                    "The " + key + " has be at least 3 characters long", tf);
-        }
-        else if (value.length() > 15)
-        {
-            tf->setText(value.remove(cursorPosition - 1, 1));
-            tf->setCursorPosition(cursorPosition - 1);
-            QPalette pal;
-            pal.setColor(QPalette::Text, Qt::black);
-            tf->setPalette(pal);
-            QToolTip::showText(position,
-                    "The " + key + " has a maximum length of 15 characters", tf);
-        }
-        else
-        {
-            QPalette pal;
-            pal.setColor(QPalette::Text, Qt::black);
-            tf->setPalette(pal);
-        }
-    }
-    else if (key == "channel")
-    {
-        if (value.length() > 31)
-        {
-            tf->setText(value.remove(cursorPosition - 1, 1));
-            tf->setCursorPosition(cursorPosition - 1);
-            QToolTip::showText(position,
-                    "The channel name has a maximum length of 31 characters", tf);
-        }
-    }
-    else if (key == "log")
-    {
-        if (!value.endsWith(".txt"))
-        {
-            QToolTip::showText(position,
-                    "It is recommended that the log file is a textfile (.txt)", tf);
-        }
-    }
-}
-
-void ConfigGUI::onOpenFileDialog (QWidget* textfield)
-{
-    QLineEdit *tf = (QLineEdit*) textfield;
     QFileDialog fileDialog(this);
     fileDialog.setWindowTitle("Choose your Warcraft III Install directory");
     fileDialog.setFileMode(QFileDialog::DirectoryOnly);
-    //    fileDialog.setOption(QFileDialog::ShowDirsOnly);
+    fileDialog.setDirectory(war3pathTextfield->text());
 
     if (fileDialog.exec() == QDialog::Accepted)
     {
-        tf->setText(QDir::toNativeSeparators(fileDialog.selectedFiles().at(0))
+        war3pathTextfield->setText(QDir::toNativeSeparators(fileDialog.selectedFiles().at(0))
                 + QDir::separator());
     }
+}
+
+void ConfigGUI::showErrorMessage (const QString &errorMessage)
+{
+    QMessageBox msgBox;
+    msgBox.setWindowIcon(QIcon(":/images/Error.png"));
+    msgBox.setWindowTitle("Error");
+    msgBox.setText(errorMessage);
+    msgBox.exec();
 }

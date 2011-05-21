@@ -8,7 +8,7 @@ MenuBar::MenuBar (MainGUI *mainGUI) : QMenuBar(mainGUI)
     this->mainGUI = mainGUI;
 
     QMenu *fileMenu = this->addMenu("File");
-    QAction *configAction = new QAction(QIcon(":/images/Tool.png"), "Config", fileMenu);
+    QAction *configAction = new QAction(QIcon(":/images/Tool.png"), "Options", fileMenu);
     QAction *exitAction = new QAction(QIcon(":/images/Cancel.png"), "Exit", fileMenu);
     fileMenu->addAction(configAction);
     fileMenu->addSeparator();

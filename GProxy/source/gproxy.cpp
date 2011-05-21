@@ -15,6 +15,7 @@
 #include "MainGUI.h"
 #include "GProxyUpdateThread.h"
 #include "DownloadThread.h"
+#include "Config.h"
 #include "ConfigGUI.h"
 
 #include <signal.h>
@@ -66,20 +67,6 @@ string parseTextline (string input)
 
     return input;
 };
-
-string get_time ()
-{
-    string temp;
-    time_t rawtime;
-    struct tm * timeinfo;
-    char buffer [80];
-
-    time(&rawtime);
-    timeinfo = localtime(&rawtime);
-
-    strftime(buffer, 80, "[%H:%M:%S]", timeinfo);
-    return temp.assign(buffer);
-}
 
 bool textEndsWith (string text, string endText)
 {
@@ -2322,24 +2309,25 @@ bool CGProxy::checkStatus (int statusCode)
         }
         case 1:
         {
-            ConfigGUI *configGUI = new ConfigGUI(gproxy->getConfig());
-
-            if (configGUI->exec() == QDialog::Accepted)
-            {
-                CONSOLE_Print("[GPROXY] Configuration file successfully saved and initialized.");
-                return true;
-            }
-            else
-            {
-                emit signal_showErrorMessage("Could not save configuration file.\n"
-                        "Aborted by User interaction."
-                        "\nShutting down GProxy.");
-                return false;
-            }
+            ConfigGUI *configGUI = new ConfigGUI(gproxy->getConfig(), true);
+            configGUI->show();
+            return true;
+//            if (configGUI->exec() == QDialog::Accepted)
+//            {
+//                CONSOLE_Print("[GPROXY] Configuration file successfully saved and initialized.");
+//                return true;
+//            }
+//            else
+//            {
+//                emit signal_showErrorMessage("Could not save configuration file.\n"
+//                        "Aborted by User interaction."
+//                        "\nShutting down GProxy.");
+//                return false;
+//            }
         }
         case 2:
         {
-            emit signal_showErrorMessage("Could not access the configuration file.\n"
+            CONSOLE_Print("Could not access the configuration file.\n"
                     "Maybe you dont have permissions to write to that directory.\n"
                     "Try to move your folder outside \"C:\\Program Files\" or run as administrator."
                     "\nShutting down GProxy.");
@@ -2347,7 +2335,7 @@ bool CGProxy::checkStatus (int statusCode)
         }
         default:
         {
-            emit signal_showErrorMessage("Unknown error while loading configuration file.\n"
+            CONSOLE_Print("Unknown error while loading configuration file.\n"
                     "ErrorCode: " + QString::number(statusCode));
             return false;
         }

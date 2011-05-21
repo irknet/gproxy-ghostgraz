@@ -61,7 +61,6 @@ void Config::addKeys()
     vKey.append("autosearch");
     vKey.append("log");
 
-    // TODO
     vKey.append("# Application config values");
     vKey.append("width");
     vKey.append("height");
@@ -88,11 +87,11 @@ void Config::addValues(QString content)
         vTempValue.append(value);
     }
 
-    // Add default values
     for(int i = 0; i < vKey.count(); i++)
     {
         if(!vTempKey.contains(vKey.at(i)))
         {
+            // Add default values
             if(vKey.at(i) == "war3version")
             {
                 vValue.append("26");
@@ -129,7 +128,7 @@ void Config::addValues(QString content)
             {
                 vValue.append("on");
             }
-            else
+            else // add an empty string (THIS IS NEEDED!)
             {
                 vValue.append("");
             }
@@ -207,7 +206,7 @@ bool Config::getBoolean(QString key)
         {
             QString value = vValue.at(i).toLower();
             if(value == "false" || value == "off"
-                    || value == "no" || value == "n")
+                    || value == "no" || value == "n" || value == "disabled")
             {
                 return false;
             }
