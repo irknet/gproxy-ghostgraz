@@ -11,5 +11,7 @@
     <file>images/Edit Alt.png</file>
     <file>images/Play.png</file>
     <file>images/Chat Bubble.png</file>
+    <file>images/Add.png</file>
+    <file>images/Remove.png</file>
   </qresource>
 </RCC>

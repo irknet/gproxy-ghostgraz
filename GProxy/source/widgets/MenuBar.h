@@ -14,9 +14,12 @@ public:
 
 private:
     MainGUI *mainGUI;
+    QMenu *fileMenu;
+    QAction *configAction;
+    QAction *exitAction;
+    QAction *startWarcraftAction;
 
 private slots:
-    void onConfigAction();
     void onExitAction();
     void onWarcraftAction();
 };

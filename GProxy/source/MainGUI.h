@@ -57,6 +57,7 @@ public slots:
     void addGame(QString botname, QString gamename, QString openSlots);
     void setGameslots(vector<CIncomingSlots *> slotList);
     void showErrorMessage(QString errorMessage);
+    void showConfigDialog();
 };
 
 #endif	/* _MAINGUI_H */

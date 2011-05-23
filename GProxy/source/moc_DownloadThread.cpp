@@ -1,13 +1,13 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'DownloadThread.h'
 **
-** Created: Sat 21. May 10:01:12 2011
+** Created: Mon 23. May 21:17:50 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include "DownloadThread.h"
+#include "thread/DownloadThread.h"
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'DownloadThread.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 62

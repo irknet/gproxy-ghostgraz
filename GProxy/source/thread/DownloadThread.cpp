@@ -1,4 +1,4 @@
-#include "DownloadThread.h"
+#include "thread/DownloadThread.h"
 
 DownloadThread::DownloadThread (MainGUI *p_mainGUI)
 {
@@ -12,12 +12,13 @@ DownloadThread::DownloadThread (MainGUI *p_mainGUI)
             mainGUI, SLOT(addGame(QString, QString, QString)), Qt::QueuedConnection);
 
     QString botorder = mainGUI->getGproxy()->getConfig()->getString("botorder");
-    if(botorder.isEmpty())
+    if (botorder.isEmpty())
     {
         return;
     }
 
     QStringList botorderList = botorder.split(";");
+
     foreach(QString bot, botorderList)
     {
         vBotorder.append(bot);
@@ -26,7 +27,7 @@ DownloadThread::DownloadThread (MainGUI *p_mainGUI)
 
 DownloadThread::~DownloadThread ()
 {
-    this->exit(0);
+    delete reply;
 }
 
 void DownloadThread::refresh ()
@@ -43,7 +44,7 @@ void DownloadThread::run ()
 {
     while (true)
     {
-        while (mainGUI->getGproxy()->m_BNET->GetInGame())
+        while (mainGUI->getGproxy()->m_GameStarted)
         {
             this->sleep(5);
         }
@@ -51,8 +52,8 @@ void DownloadThread::run ()
         QEventLoop loop;
         QNetworkRequest request(url);
         reply = manager.get(request);
-        connect(reply, SIGNAL(finished()), this, SLOT(downloadFinished()));
-        connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+        connect(reply, SIGNAL(finished()), this, SLOT(downloadFinished()), Qt::QueuedConnection);
+        connect(reply, SIGNAL(finished()), &loop, SLOT(quit()), Qt::QueuedConnection);
         loop.exec();
 
         this->sleep(5);
@@ -63,10 +64,13 @@ void DownloadThread::downloadFinished ()
 {
     if (reply->error())
     {
+        reply = NULL;
         return;
     }
 
     QStringList lines = QString(reply->readAll()).split(QRegExp("\n"));
+    reply = NULL;
+
     if (lines.count() < 3)
     {
         // Game list is empty
@@ -114,6 +118,7 @@ QVector<QStringList> DownloadThread::sortGamelist (QVector<QStringList> vGamelis
 
     foreach(QString bot, vBotorder)
     {
+
         foreach(QStringList game, vGamelist)
         {
             if (game.at(0) == bot)
@@ -126,4 +131,10 @@ QVector<QStringList> DownloadThread::sortGamelist (QVector<QStringList> vGamelis
     }
 
     return vSortedGamelist;
+}
+
+void DownloadThread::stop ()
+{
+    this->terminate();
+    this->wait(5000);
 }

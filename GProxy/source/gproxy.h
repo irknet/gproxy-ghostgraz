@@ -22,7 +22,8 @@
 // standard integer sizes for 64 bit compatibility
 #include <stdint.h>
 
-#include <Config.h>
+#include "Config.h"
+
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -149,7 +150,6 @@ string IntToString(int i);
 void Pspoofcheck( );//phy autostpoofcheck
 bool fcfgfilterfirst();//phy filter
 string fcfgfilter();//phy filter
-void saychat(string message);//phy parrot
 bool autodetect();
 bool getautosearch(); //pr0 autosearch
 void autosearch(bool autosearchNew); //pr0 autosearch
@@ -184,19 +184,8 @@ class CGProxy : public QObject
 {
     Q_OBJECT
 
-private:
-    Config* config;
-    QString privategamename;
-    QString botprefix;
-    bool vShallCreate;
-    bool vShallCreateQuiet;
-    QString parrot;
-    QString war3Path;
-    QString cdKeyROC;
-    QString cdKeyTFT;
-    bool dotaMap;
-
 public:
+    // TODO Make these public attributes private and create setters and getters.
     string m_Version;
     CTCPServer *m_LocalServer;
     CTCPSocket *m_LocalSocket;
@@ -217,12 +206,6 @@ public:
     string m_War3Path;
     string m_CDKeyROC;
     string m_CDKeyTFT;
-    string m_Server;
-    QString username;
-    string m_Password;
-    string m_Channel;
-    uint32_t m_War3Version;
-    uint16_t m_Port;
     uint32_t m_LastConnectionAttemptTime;
     uint32_t m_LastRefreshTime;
     string m_RemoteServerIP;
@@ -260,8 +243,9 @@ public:
     CGProxy();
     ~CGProxy( );
 
-    void init(string nServer, string nUsername, string nPassword, string nChannel, uint32_t nWar3Version, uint16_t nPort, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, string cpublic ,string cfilter,bool german_languagesupport, bool casearch, bool temp_displayautocreated, bool listing_current_games, int channelWidth);
+    void init(string cpublic ,string cfilter, bool temp_displayautocreated, bool listing_current_games);
     void cleanup();
+    void applyConfig();
 
     // processing functions
 
@@ -278,6 +262,26 @@ public:
     bool CheckForwarding ( string MessageString );
     void changeTeam( unsigned char team );
     void SendEmptyAction( );
+
+    void setServer(const QString &server);
+    void setUsername(const QString &username);
+    void setPassword(const QString &password);
+    void setWar3version(const uint32_t &war3version);
+    void setPort(const uint16_t &port);
+    void setExeversion(const BYTEARRAY &exeversion);
+    void setExeversionhash(const BYTEARRAY &exeversionhash);
+    void setPasswordhashtype(const QString &passwordhashtype);
+    void setChannel(const QString &channel);
+
+    QString getServer();
+    QString getUsername();
+    QString getPassword();
+    uint32_t getWar3version();
+    uint16_t getPort();
+    BYTEARRAY getExeversion();
+    BYTEARRAY getExeversionhash();
+    QString getPasswordhashtype();
+    QString getChannel();
 
     void setPrivategamename(QString privategamename) { this->privategamename = privategamename; }
     void setBotprefix(QString botprefix) { this->botprefix = botprefix; }
@@ -310,6 +314,27 @@ public:
     void clearFriendlist();
     void addFriend(QString username, bool online, QString location);
     void showErrorMessage(QString errorMessage);
+
+private:
+    Config* config;
+    QString server;
+    QString username;
+    QString password;
+    uint32_t war3version;
+    uint16_t port;
+    BYTEARRAY exeversion;
+    BYTEARRAY exeversionhash;
+    QString passwordhashtype;
+    QString channel;
+    QString privategamename;
+    QString botprefix;
+    bool vShallCreate;
+    bool vShallCreateQuiet;
+    QString parrot;
+    QString war3Path;
+    QString cdKeyROC;
+    QString cdKeyTFT;
+    bool dotaMap;
 
 signals:
     void signal_addMessage(QString, bool);

@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'ConfigGUI.ui'
 **
-** Created: Sat 21. May 15:55:00 2011
+** Created: Mon 23. May 20:22:58 2011
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -31,7 +31,7 @@ class Ui_ConfigGUI
 {
 public:
     QDialogButtonBox *buttonBox;
-    QTabWidget *tabWidget;
+    QTabWidget *optionsTabWidget;
     QWidget *connectionTab;
     QLabel *channelLabel;
     QLabel *serverLabel;
@@ -60,8 +60,22 @@ public:
     QLineEdit *exeversionTextfield;
     QLabel *passwordhashtypeLabel;
     QLineEdit *passwordhashtypeTextfield;
-    QWidget *optionalTab;
-    QLabel *optionalSettingsHeaderLabel;
+    QWidget *appearanceTab;
+    QLabel *appearanceHeaderLabel;
+    QTabWidget *appearanceTabWidget;
+    QWidget *appearanceOutputareaTab;
+    QLabel *outputareaForegroundcolorLabel;
+    QLabel *outputareaBackgroundcolorLabel;
+    QLabel *outputareaHeaderLabel;
+    QLabel *outputareaFontLabel;
+    QPushButton *outputareaForegroundcolorButton;
+    QPushButton *outputareaBackgroundcolorButton;
+    QPushButton *outputareaFontButton;
+    QWidget *appearanceInputareaTab;
+    QWidget *appearanceGamelistTab;
+    QWidget *appearanceChannelTab;
+    QWidget *miscellaneousTab;
+    QLabel *miscellaneousHeaderLabel;
     QLabel *soundLabel;
     QLabel *privategamenameLabel;
     QLabel *botprefixLabel;
@@ -94,9 +108,9 @@ public:
         buttonBox->setOrientation(Qt::Horizontal);
         buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         buttonBox->setCenterButtons(true);
-        tabWidget = new QTabWidget(ConfigGUI);
-        tabWidget->setObjectName(QString::fromUtf8("tabWidget"));
-        tabWidget->setGeometry(QRect(0, 0, 450, 520));
+        optionsTabWidget = new QTabWidget(ConfigGUI);
+        optionsTabWidget->setObjectName(QString::fromUtf8("optionsTabWidget"));
+        optionsTabWidget->setGeometry(QRect(0, 0, 450, 520));
         connectionTab = new QWidget();
         connectionTab->setObjectName(QString::fromUtf8("connectionTab"));
         QFont font;
@@ -146,7 +160,7 @@ public:
         connectionHeaderLabel->setGeometry(QRect(0, 0, 450, 40));
         QFont font1;
         font1.setFamily(QString::fromUtf8("Calibri"));
-        font1.setPointSize(16);
+        font1.setPointSize(18);
         connectionHeaderLabel->setFont(font1);
         connectionHeaderLabel->setAlignment(Qt::AlignCenter);
         cdkeyrocTextfield = new QLineEdit(connectionTab);
@@ -189,7 +203,7 @@ public:
         war3pathButton = new QPushButton(connectionTab);
         war3pathButton->setObjectName(QString::fromUtf8("war3pathButton"));
         war3pathButton->setGeometry(QRect(390, 60, 30, 20));
-        tabWidget->addTab(connectionTab, QString());
+        optionsTabWidget->addTab(connectionTab, QString());
         pvpgnTab = new QWidget();
         pvpgnTab->setObjectName(QString::fromUtf8("pvpgnTab"));
         pvpgnHeaderLabel = new QLabel(pvpgnTab);
@@ -202,7 +216,7 @@ public:
         pvpgnHeaderLabel->setSizePolicy(sizePolicy1);
         QFont font3;
         font3.setFamily(QString::fromUtf8("Calibri"));
-        font3.setPointSize(16);
+        font3.setPointSize(18);
         font3.setBold(true);
         font3.setWeight(75);
         pvpgnHeaderLabel->setFont(font3);
@@ -234,71 +248,130 @@ public:
         passwordhashtypeTextfield->setObjectName(QString::fromUtf8("passwordhashtypeTextfield"));
         passwordhashtypeTextfield->setGeometry(QRect(180, 140, 240, 20));
         passwordhashtypeTextfield->setFont(font4);
-        tabWidget->addTab(pvpgnTab, QString());
-        optionalTab = new QWidget();
-        optionalTab->setObjectName(QString::fromUtf8("optionalTab"));
-        optionalSettingsHeaderLabel = new QLabel(optionalTab);
-        optionalSettingsHeaderLabel->setObjectName(QString::fromUtf8("optionalSettingsHeaderLabel"));
-        optionalSettingsHeaderLabel->setGeometry(QRect(0, 0, 450, 40));
-        sizePolicy1.setHeightForWidth(optionalSettingsHeaderLabel->sizePolicy().hasHeightForWidth());
-        optionalSettingsHeaderLabel->setSizePolicy(sizePolicy1);
-        optionalSettingsHeaderLabel->setFont(font3);
-        optionalSettingsHeaderLabel->setAlignment(Qt::AlignCenter);
-        soundLabel = new QLabel(optionalTab);
+        optionsTabWidget->addTab(pvpgnTab, QString());
+        appearanceTab = new QWidget();
+        appearanceTab->setObjectName(QString::fromUtf8("appearanceTab"));
+        appearanceHeaderLabel = new QLabel(appearanceTab);
+        appearanceHeaderLabel->setObjectName(QString::fromUtf8("appearanceHeaderLabel"));
+        appearanceHeaderLabel->setGeometry(QRect(0, 0, 450, 40));
+        sizePolicy1.setHeightForWidth(appearanceHeaderLabel->sizePolicy().hasHeightForWidth());
+        appearanceHeaderLabel->setSizePolicy(sizePolicy1);
+        appearanceHeaderLabel->setFont(font3);
+        appearanceHeaderLabel->setAlignment(Qt::AlignCenter);
+        appearanceTabWidget = new QTabWidget(appearanceTab);
+        appearanceTabWidget->setObjectName(QString::fromUtf8("appearanceTabWidget"));
+        appearanceTabWidget->setGeometry(QRect(0, 40, 450, 460));
+        appearanceOutputareaTab = new QWidget();
+        appearanceOutputareaTab->setObjectName(QString::fromUtf8("appearanceOutputareaTab"));
+        outputareaForegroundcolorLabel = new QLabel(appearanceOutputareaTab);
+        outputareaForegroundcolorLabel->setObjectName(QString::fromUtf8("outputareaForegroundcolorLabel"));
+        outputareaForegroundcolorLabel->setGeometry(QRect(10, 60, 160, 20));
+        outputareaForegroundcolorLabel->setFont(font);
+        outputareaBackgroundcolorLabel = new QLabel(appearanceOutputareaTab);
+        outputareaBackgroundcolorLabel->setObjectName(QString::fromUtf8("outputareaBackgroundcolorLabel"));
+        outputareaBackgroundcolorLabel->setGeometry(QRect(10, 100, 160, 20));
+        outputareaBackgroundcolorLabel->setFont(font);
+        outputareaHeaderLabel = new QLabel(appearanceOutputareaTab);
+        outputareaHeaderLabel->setObjectName(QString::fromUtf8("outputareaHeaderLabel"));
+        outputareaHeaderLabel->setGeometry(QRect(0, 0, 450, 40));
+        sizePolicy1.setHeightForWidth(outputareaHeaderLabel->sizePolicy().hasHeightForWidth());
+        outputareaHeaderLabel->setSizePolicy(sizePolicy1);
+        QFont font5;
+        font5.setFamily(QString::fromUtf8("Calibri"));
+        font5.setPointSize(16);
+        font5.setBold(true);
+        font5.setWeight(75);
+        outputareaHeaderLabel->setFont(font5);
+        outputareaHeaderLabel->setAlignment(Qt::AlignCenter);
+        outputareaFontLabel = new QLabel(appearanceOutputareaTab);
+        outputareaFontLabel->setObjectName(QString::fromUtf8("outputareaFontLabel"));
+        outputareaFontLabel->setGeometry(QRect(10, 140, 160, 20));
+        outputareaFontLabel->setFont(font);
+        outputareaForegroundcolorButton = new QPushButton(appearanceOutputareaTab);
+        outputareaForegroundcolorButton->setObjectName(QString::fromUtf8("outputareaForegroundcolorButton"));
+        outputareaForegroundcolorButton->setGeometry(QRect(180, 60, 240, 20));
+        outputareaBackgroundcolorButton = new QPushButton(appearanceOutputareaTab);
+        outputareaBackgroundcolorButton->setObjectName(QString::fromUtf8("outputareaBackgroundcolorButton"));
+        outputareaBackgroundcolorButton->setGeometry(QRect(180, 100, 240, 20));
+        outputareaFontButton = new QPushButton(appearanceOutputareaTab);
+        outputareaFontButton->setObjectName(QString::fromUtf8("outputareaFontButton"));
+        outputareaFontButton->setGeometry(QRect(180, 140, 240, 20));
+        appearanceTabWidget->addTab(appearanceOutputareaTab, QString());
+        appearanceInputareaTab = new QWidget();
+        appearanceInputareaTab->setObjectName(QString::fromUtf8("appearanceInputareaTab"));
+        appearanceTabWidget->addTab(appearanceInputareaTab, QString());
+        appearanceGamelistTab = new QWidget();
+        appearanceGamelistTab->setObjectName(QString::fromUtf8("appearanceGamelistTab"));
+        appearanceTabWidget->addTab(appearanceGamelistTab, QString());
+        appearanceChannelTab = new QWidget();
+        appearanceChannelTab->setObjectName(QString::fromUtf8("appearanceChannelTab"));
+        appearanceTabWidget->addTab(appearanceChannelTab, QString());
+        optionsTabWidget->addTab(appearanceTab, QString());
+        miscellaneousTab = new QWidget();
+        miscellaneousTab->setObjectName(QString::fromUtf8("miscellaneousTab"));
+        miscellaneousHeaderLabel = new QLabel(miscellaneousTab);
+        miscellaneousHeaderLabel->setObjectName(QString::fromUtf8("miscellaneousHeaderLabel"));
+        miscellaneousHeaderLabel->setGeometry(QRect(0, 0, 450, 40));
+        sizePolicy1.setHeightForWidth(miscellaneousHeaderLabel->sizePolicy().hasHeightForWidth());
+        miscellaneousHeaderLabel->setSizePolicy(sizePolicy1);
+        miscellaneousHeaderLabel->setFont(font3);
+        miscellaneousHeaderLabel->setAlignment(Qt::AlignCenter);
+        soundLabel = new QLabel(miscellaneousTab);
         soundLabel->setObjectName(QString::fromUtf8("soundLabel"));
         soundLabel->setGeometry(QRect(10, 60, 160, 20));
         soundLabel->setFont(font);
-        privategamenameLabel = new QLabel(optionalTab);
+        privategamenameLabel = new QLabel(miscellaneousTab);
         privategamenameLabel->setObjectName(QString::fromUtf8("privategamenameLabel"));
         privategamenameLabel->setGeometry(QRect(10, 100, 160, 20));
         privategamenameLabel->setFont(font);
-        botprefixLabel = new QLabel(optionalTab);
+        botprefixLabel = new QLabel(miscellaneousTab);
         botprefixLabel->setObjectName(QString::fromUtf8("botprefixLabel"));
         botprefixLabel->setGeometry(QRect(10, 140, 160, 20));
         botprefixLabel->setFont(font);
-        autosearchLabel = new QLabel(optionalTab);
+        autosearchLabel = new QLabel(miscellaneousTab);
         autosearchLabel->setObjectName(QString::fromUtf8("autosearchLabel"));
         autosearchLabel->setGeometry(QRect(10, 180, 160, 20));
         autosearchLabel->setFont(font);
-        loggingLabel = new QLabel(optionalTab);
+        loggingLabel = new QLabel(miscellaneousTab);
         loggingLabel->setObjectName(QString::fromUtf8("loggingLabel"));
         loggingLabel->setGeometry(QRect(10, 220, 160, 20));
         loggingLabel->setFont(font);
-        soundCombobox = new QComboBox(optionalTab);
+        soundCombobox = new QComboBox(miscellaneousTab);
         soundCombobox->setObjectName(QString::fromUtf8("soundCombobox"));
         soundCombobox->setGeometry(QRect(180, 60, 240, 20));
-        QFont font5;
-        font5.setFamily(QString::fromUtf8("Arial"));
-        font5.setPointSize(9);
-        font5.setBold(false);
-        font5.setWeight(50);
-        soundCombobox->setFont(font5);
+        QFont font6;
+        font6.setFamily(QString::fromUtf8("Arial"));
+        font6.setPointSize(9);
+        font6.setBold(false);
+        font6.setWeight(50);
+        soundCombobox->setFont(font6);
         soundCombobox->setMaxCount(10);
-        privategamenameTextfield = new QLineEdit(optionalTab);
+        privategamenameTextfield = new QLineEdit(miscellaneousTab);
         privategamenameTextfield->setObjectName(QString::fromUtf8("privategamenameTextfield"));
         privategamenameTextfield->setGeometry(QRect(180, 100, 240, 20));
         privategamenameTextfield->setFont(font4);
-        botprefixTextfield = new QLineEdit(optionalTab);
+        botprefixTextfield = new QLineEdit(miscellaneousTab);
         botprefixTextfield->setObjectName(QString::fromUtf8("botprefixTextfield"));
         botprefixTextfield->setGeometry(QRect(180, 140, 240, 20));
         botprefixTextfield->setFont(font4);
-        autosearchCombobox = new QComboBox(optionalTab);
+        autosearchCombobox = new QComboBox(miscellaneousTab);
         autosearchCombobox->setObjectName(QString::fromUtf8("autosearchCombobox"));
         autosearchCombobox->setGeometry(QRect(180, 180, 240, 20));
-        autosearchCombobox->setFont(font5);
+        autosearchCombobox->setFont(font6);
         autosearchCombobox->setMaxCount(10);
-        logCombobox = new QComboBox(optionalTab);
+        logCombobox = new QComboBox(miscellaneousTab);
         logCombobox->setObjectName(QString::fromUtf8("logCombobox"));
         logCombobox->setGeometry(QRect(180, 220, 240, 20));
-        logCombobox->setFont(font5);
+        logCombobox->setFont(font6);
         logCombobox->setMaxCount(10);
-        tabWidget->addTab(optionalTab, QString());
+        optionsTabWidget->addTab(miscellaneousTab, QString());
 
         retranslateUi(ConfigGUI);
         QObject::connect(buttonBox, SIGNAL(accepted()), ConfigGUI, SLOT(accept()));
         QObject::connect(buttonBox, SIGNAL(rejected()), ConfigGUI, SLOT(reject()));
 
-        tabWidget->setCurrentIndex(0);
+        optionsTabWidget->setCurrentIndex(0);
+        appearanceTabWidget->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(ConfigGUI);
@@ -335,7 +408,7 @@ public:
          << QApplication::translate("ConfigGUI", "PvPGN Server", 0, QApplication::UnicodeUTF8)
         );
         war3pathButton->setText(QApplication::translate("ConfigGUI", "...", 0, QApplication::UnicodeUTF8));
-        tabWidget->setTabText(tabWidget->indexOf(connectionTab), QApplication::translate("ConfigGUI", "Connection", 0, QApplication::UnicodeUTF8));
+        optionsTabWidget->setTabText(optionsTabWidget->indexOf(connectionTab), QApplication::translate("ConfigGUI", "Connection", 0, QApplication::UnicodeUTF8));
         pvpgnHeaderLabel->setText(QApplication::translate("ConfigGUI", "Player vs Player Gaming Network", 0, QApplication::UnicodeUTF8));
         exeversionhashLabel->setText(QApplication::translate("ConfigGUI", "Exe vesion hash:", 0, QApplication::UnicodeUTF8));
         exeversionhashTextfield->setText(QString());
@@ -346,8 +419,21 @@ public:
         passwordhashtypeLabel->setText(QApplication::translate("ConfigGUI", "Password hash type:", 0, QApplication::UnicodeUTF8));
         passwordhashtypeTextfield->setText(QString());
         passwordhashtypeTextfield->setPlaceholderText(QApplication::translate("ConfigGUI", "Password hash type", 0, QApplication::UnicodeUTF8));
-        tabWidget->setTabText(tabWidget->indexOf(pvpgnTab), QApplication::translate("ConfigGUI", "PvPGN", 0, QApplication::UnicodeUTF8));
-        optionalSettingsHeaderLabel->setText(QApplication::translate("ConfigGUI", "Optional settings", 0, QApplication::UnicodeUTF8));
+        optionsTabWidget->setTabText(optionsTabWidget->indexOf(pvpgnTab), QApplication::translate("ConfigGUI", "PvPGN", 0, QApplication::UnicodeUTF8));
+        appearanceHeaderLabel->setText(QApplication::translate("ConfigGUI", "Appearance", 0, QApplication::UnicodeUTF8));
+        outputareaForegroundcolorLabel->setText(QApplication::translate("ConfigGUI", "Foreground color:", 0, QApplication::UnicodeUTF8));
+        outputareaBackgroundcolorLabel->setText(QApplication::translate("ConfigGUI", "Background color:", 0, QApplication::UnicodeUTF8));
+        outputareaHeaderLabel->setText(QApplication::translate("ConfigGUI", "Output area", 0, QApplication::UnicodeUTF8));
+        outputareaFontLabel->setText(QApplication::translate("ConfigGUI", "Font:", 0, QApplication::UnicodeUTF8));
+        outputareaForegroundcolorButton->setText(QApplication::translate("ConfigGUI", "Change foreground color", 0, QApplication::UnicodeUTF8));
+        outputareaBackgroundcolorButton->setText(QApplication::translate("ConfigGUI", "Change background color", 0, QApplication::UnicodeUTF8));
+        outputareaFontButton->setText(QApplication::translate("ConfigGUI", "Change font", 0, QApplication::UnicodeUTF8));
+        appearanceTabWidget->setTabText(appearanceTabWidget->indexOf(appearanceOutputareaTab), QApplication::translate("ConfigGUI", "Ouput area", 0, QApplication::UnicodeUTF8));
+        appearanceTabWidget->setTabText(appearanceTabWidget->indexOf(appearanceInputareaTab), QApplication::translate("ConfigGUI", "Input area", 0, QApplication::UnicodeUTF8));
+        appearanceTabWidget->setTabText(appearanceTabWidget->indexOf(appearanceGamelistTab), QApplication::translate("ConfigGUI", "Gamelist", 0, QApplication::UnicodeUTF8));
+        appearanceTabWidget->setTabText(appearanceTabWidget->indexOf(appearanceChannelTab), QApplication::translate("ConfigGUI", "Channel", 0, QApplication::UnicodeUTF8));
+        optionsTabWidget->setTabText(optionsTabWidget->indexOf(appearanceTab), QApplication::translate("ConfigGUI", "Appearance", 0, QApplication::UnicodeUTF8));
+        miscellaneousHeaderLabel->setText(QApplication::translate("ConfigGUI", "Miscellaneous", 0, QApplication::UnicodeUTF8));
         soundLabel->setText(QApplication::translate("ConfigGUI", "Sound:", 0, QApplication::UnicodeUTF8));
         privategamenameLabel->setText(QApplication::translate("ConfigGUI", "Privategamename:", 0, QApplication::UnicodeUTF8));
         botprefixLabel->setText(QApplication::translate("ConfigGUI", "Botprefix:", 0, QApplication::UnicodeUTF8));
@@ -372,7 +458,7 @@ public:
          << QApplication::translate("ConfigGUI", "Enabled", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ConfigGUI", "Disabled", 0, QApplication::UnicodeUTF8)
         );
-        tabWidget->setTabText(tabWidget->indexOf(optionalTab), QApplication::translate("ConfigGUI", "Optional", 0, QApplication::UnicodeUTF8));
+        optionsTabWidget->setTabText(optionsTabWidget->indexOf(miscellaneousTab), QApplication::translate("ConfigGUI", "Miscellaneous", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

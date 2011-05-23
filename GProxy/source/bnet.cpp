@@ -798,14 +798,6 @@ void CBNET::ProcessChatEvent (CIncomingChatEvent * chatEvent)
         {
             Pspoofcheck();
         }
-        else if (Message == "!getgames")
-        {
-            QueueChatCommand(m_UserName + " is currently not hosting any games. Why should I, I am not a bot.", GetReplyTarget(), true);
-        }
-        else if (Message == "!games")
-        {
-            QueueChatCommand("I know, I can be a very kind channel bot, but I am currently tired and just want to relax. So please do not disturb me. Thx in advance.", GetReplyTarget(), true);
-        }
 
         if (m_GProxy->m_LocalSocket)
         {
@@ -845,11 +837,11 @@ void CBNET::ProcessChatEvent (CIncomingChatEvent * chatEvent)
         }
         if (s == m_GProxy->getParrot() && !Message.mid(0, 8).startsWith("[PARROT]"))
         {
-            saychat("[PARROT]" + Message.toStdString());
+            QueueChatCommand("[PARROT]" + Message);
         }
         else if ("Parrot parrot" == m_GProxy->getParrot() && Message.mid(0, 8) != "[PARROT]")
         {
-            saychat("[PARROT]" + Message.toStdString());
+            QueueChatCommand("[PARROT]" + Message);
         }
         if (Message.mid(0, 22) == "Creating public game [" /*&& autodetect()*/)//phy autosearch
         {
@@ -934,52 +926,62 @@ void CBNET::QueueEnterChat ()
         m_OutPackets.push(m_Protocol->SEND_SID_ENTERCHAT());
 }
 
-void CBNET::QueueChatCommand (string chatCommand)
+void CBNET::QueueChatCommand (QString chatCommand, bool showMessage)
 {
-    if (chatCommand.empty())
+    if (chatCommand.isEmpty())
+    {
         return;
+    }
 
     if (m_LoggedIn)
     {
-        if (m_PasswordHashType == "pvpgn" && chatCommand.size() > m_MaxMessageLength)
+        if (m_PasswordHashType == "pvpgn" && (unsigned int) chatCommand.length() > m_MaxMessageLength)
         {
-            chatCommand = chatCommand.substr(0, m_MaxMessageLength);
+            chatCommand = chatCommand.mid(0, m_MaxMessageLength);
         }
 
         if (chatCommand.size() > 255)
         {
-            chatCommand = chatCommand.substr(0, 255);
+            chatCommand = chatCommand.mid(0, 255);
         }
 
         if (m_OutPackets.size() > 10)
         {
-            CONSOLE_Print("[BNET] attempted to queue chat command [" + QString::fromStdString(chatCommand) + "] but there are too many (" + QString::number(m_OutPackets.size()) + ") packets queued, discarding");
+            CONSOLE_Print("[BNET] attempted to queue chat command ["
+                    + chatCommand + "] but there are too many ("
+                    + QString::number(m_OutPackets.size()) + ") packets queued, discarding");
         }
         else
         {
-            if (chatCommand.substr(0, 3) == "/w ")
+            if (chatCommand.startsWith("/w ") && showMessage)
             {
-                CONSOLE_Print("[WHISPER TO] " + QString::fromStdString(chatCommand.substr(3, chatCommand.size() - 3)));
+                CONSOLE_Print("[WHISPER TO] " + chatCommand.mid(3, chatCommand.length() - 3));
             }
-            else
+            else if(showMessage)
             {
-                CONSOLE_Print("[QUEUED] " + QString::fromStdString(chatCommand));
+                CONSOLE_Print("[QUEUED] " + chatCommand);
             }
-            m_OutPackets.push(m_Protocol->SEND_SID_CHATCOMMAND(chatCommand));
+
+            m_OutPackets.push(m_Protocol->SEND_SID_CHATCOMMAND(chatCommand.toStdString()));
         }
     }
 }
 
-void CBNET::QueueChatCommand (string chatCommand, string user, bool whisper)
+void CBNET::QueueChatCommand (QString chatCommand, string user, bool whisper)
 {
-    if (chatCommand.empty())
+    if (chatCommand.isEmpty())
+    {
         return;
-    // if whisper is true send the chat command as a whisper to user, otherwise just queue the chat command
+    }
 
     if (whisper)
-        QueueChatCommand("/w " + user + " " + chatCommand);
+    {
+        QueueChatCommand("/w " + QString::fromStdString(user) + " " + chatCommand);
+    }
     else
+    {
         QueueChatCommand(chatCommand);
+    }
 }
 
 void CBNET::QueueGetGameList (uint32_t numGames)// phyZZ

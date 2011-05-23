@@ -48,7 +48,7 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QTabWidget" name="tabWidget">
+  <widget class="QTabWidget" name="optionsTabWidget">
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -273,7 +273,7 @@
      <property name="font">
       <font>
        <family>Calibri</family>
-       <pointsize>16</pointsize>
+       <pointsize>18</pointsize>
       </font>
      </property>
      <property name="text">
@@ -505,7 +505,7 @@
      <property name="font">
       <font>
        <family>Calibri</family>
-       <pointsize>16</pointsize>
+       <pointsize>18</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
@@ -647,11 +647,11 @@
      </property>
     </widget>
    </widget>
-   <widget class="QWidget" name="optionalTab">
+   <widget class="QWidget" name="appearanceTab">
     <attribute name="title">
-     <string>Optional</string>
+     <string>Appearance</string>
     </attribute>
-    <widget class="QLabel" name="optionalSettingsHeaderLabel">
+    <widget class="QLabel" name="appearanceHeaderLabel">
      <property name="geometry">
       <rect>
        <x>0</x>
@@ -669,13 +669,213 @@
      <property name="font">
       <font>
        <family>Calibri</family>
-       <pointsize>16</pointsize>
+       <pointsize>18</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
      <property name="text">
-      <string>Optional settings</string>
+      <string>Appearance</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QTabWidget" name="appearanceTabWidget">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>40</y>
+       <width>450</width>
+       <height>460</height>
+      </rect>
+     </property>
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="appearanceOutputareaTab">
+      <attribute name="title">
+       <string>Ouput area</string>
+      </attribute>
+      <widget class="QLabel" name="outputareaForegroundcolorLabel">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>60</y>
+         <width>160</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>9</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Foreground color:</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="outputareaBackgroundcolorLabel">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>100</y>
+         <width>160</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>9</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Background color:</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="outputareaHeaderLabel">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>450</width>
+         <height>40</height>
+        </rect>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <family>Calibri</family>
+         <pointsize>16</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Output area</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="outputareaFontLabel">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>140</y>
+         <width>160</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>9</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Font:</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="outputareaForegroundcolorButton">
+       <property name="geometry">
+        <rect>
+         <x>180</x>
+         <y>60</y>
+         <width>240</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Change foreground color</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="outputareaBackgroundcolorButton">
+       <property name="geometry">
+        <rect>
+         <x>180</x>
+         <y>100</y>
+         <width>240</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Change background color</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="outputareaFontButton">
+       <property name="geometry">
+        <rect>
+         <x>180</x>
+         <y>140</y>
+         <width>240</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Change font</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="appearanceInputareaTab">
+      <attribute name="title">
+       <string>Input area</string>
+      </attribute>
+     </widget>
+     <widget class="QWidget" name="appearanceGamelistTab">
+      <attribute name="title">
+       <string>Gamelist</string>
+      </attribute>
+     </widget>
+     <widget class="QWidget" name="appearanceChannelTab">
+      <attribute name="title">
+       <string>Channel</string>
+      </attribute>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="miscellaneousTab">
+    <attribute name="title">
+     <string>Miscellaneous</string>
+    </attribute>
+    <widget class="QLabel" name="miscellaneousHeaderLabel">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>450</width>
+       <height>40</height>
+      </rect>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <family>Calibri</family>
+       <pointsize>18</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Miscellaneous</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'ConfigGUI.h'
 **
-** Created: Sat 21. May 18:46:01 2011
+** Created: Mon 23. May 20:36:55 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_ConfigGUI[] = {
        5,       // revision
        0,       // classname
        0,    0, // classinfo
-       9,   14, // methods
+      10,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -40,6 +40,7 @@ static const uint qt_meta_data_ConfigGUI[] = {
      142,   29,   10,   10, 0x08,
      168,   10,   10,   10, 0x08,
      194,   29,   10,   10, 0x08,
+     231,   10,   10,   10, 0x08,
 
        0        // eod
 };
@@ -53,6 +54,7 @@ static const char qt_meta_stringdata_ConfigGUI[] = {
     "onChannelChanged(QString)\0"
     "onWar3pathChangeRequest()\0"
     "onServerComboboxItemChanged(QString)\0"
+    "onForegroundcolorButtonClicked()\0"
 };
 
 const QMetaObject ConfigGUI::staticMetaObject = {
@@ -93,9 +95,10 @@ int ConfigGUI::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         case 6: onChannelChanged((*reinterpret_cast< QString(*)>(_a[1]))); break;
         case 7: onWar3pathChangeRequest(); break;
         case 8: onServerComboboxItemChanged((*reinterpret_cast< const QString(*)>(_a[1]))); break;
+        case 9: onForegroundcolorButtonClicked(); break;
         default: ;
         }
-        _id -= 9;
+        _id -= 10;
     }
     return _id;
 }

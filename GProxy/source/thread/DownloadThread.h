@@ -3,6 +3,7 @@
 
 #include "MainGUI.h"
 #include "bnet.h"
+
 #include <QThread>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
@@ -17,6 +18,7 @@ public:
     DownloadThread(MainGUI *p_mainGUI);
     virtual ~DownloadThread();
     void refresh();
+    void stop();
 
 protected:
     void run();

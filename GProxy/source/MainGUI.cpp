@@ -1,12 +1,12 @@
 #include "MainGUI.h"
 #include "gproxy.h"
 #include "bnet.h"
-#include "GProxyUpdateThread.h"
 #include "delegate/ChannellistDelegate.h"
 #include "delegate/GamelistDelegate.h"
 #include "socket.h"
-#include "DownloadThread.h"
+#include "thread/DownloadThread.h"
 #include "widgets/MenuBar.h"
+#include "ConfigGUI.h"
 
 #include <QDesktopWidget>
 #include <QScrollBar>
@@ -25,10 +25,7 @@ MainGUI::MainGUI (CGProxy *p_gproxy)
     gproxy = p_gproxy;
 }
 
-MainGUI::~MainGUI ()
-{
-    gproxy = NULL;
-}
+MainGUI::~MainGUI () { }
 
 CGProxy* MainGUI::getGproxy ()
 {
@@ -201,6 +198,7 @@ void MainGUI::onChannelContextMenu (const QPoint& pos)
                 && item->data(ChannellistDelegate::SLOT_COMPUTER_STATUS).toInt() == 0)
         {
             menu.addAction(QIcon(":/images/Mail.png"), "Whisper");
+            menu.addAction(QIcon(":/images/Add.png"), "Add as friend");
             menu.addAction(QIcon(":/images/Edit.png"), "!stats");
             menu.addAction(QIcon(":/images/Edit Alt.png"), "!statsdota");
         }
@@ -209,6 +207,7 @@ void MainGUI::onChannelContextMenu (const QPoint& pos)
     {
         menu.addAction(QIcon(":/images/Mail.png"), "Whisper");
         menu.addAction(QIcon(":/images/User.png"), "Whois");
+        menu.addAction(QIcon(":/images/Add.png"), "Add as friend");
     }
 
     QAction* action = menu.exec(globalPos);
@@ -222,7 +221,7 @@ void MainGUI::onChannelContextMenu (const QPoint& pos)
         }
         else if (action->text() == "Whois")
         {
-            gproxy->m_BNET->QueueChatCommand(QString("/whois " + user).toStdString());
+            gproxy->m_BNET->QueueChatCommand("/whois " + user, false);
         }
         else if (action->text() == "!stats" || action->text() == "!statsdota")
         {
@@ -247,6 +246,11 @@ void MainGUI::onChannelContextMenu (const QPoint& pos)
 
             gproxy->changeTeam(team);
         }
+        else if (action->text() == "Add as friend")
+        {
+            gproxy->m_BNET->QueueChatCommand("/friends add " + user, false);
+            gproxy->m_BNET->UpdateFriendList();
+        }
         else
         {
             addMessage("[ERROR] Not yet implemented!", false);
@@ -268,6 +272,7 @@ void MainGUI::onFriendsContextMenu (const QPoint& pos)
     menu.addAction(QIcon(":/images/Mail.png"), "Whisper");
     menu.addAction(QIcon(":/images/User.png"), "Whois");
     menu.addAction(QIcon(":/images/Chat Bubble.png"), "Whisper all");
+    menu.addAction(QIcon(":/images/Remove.png"), "Remove friend");
 
     if (gproxy->m_BNET->GetInGame())
     {
@@ -286,7 +291,7 @@ void MainGUI::onFriendsContextMenu (const QPoint& pos)
         }
         else if (action->text() == "Whois")
         {
-            gproxy->m_BNET->QueueChatCommand(QString("/whois " + item->text()).toStdString());
+            gproxy->m_BNET->QueueChatCommand("/whois " + item->text(), false);
         }
         else if (action->text() == "Whisper all")
         {
@@ -297,6 +302,12 @@ void MainGUI::onFriendsContextMenu (const QPoint& pos)
         else if (action->text() == "!stats" || action->text() == "!statsdota")
         {
             gproxy->sendGamemessage(action->text() + " " + item->text());
+        }
+        else if (action->text() == "Remove friend")
+        {
+            gproxy->m_BNET->QueueChatCommand("/friends remove "
+                    + item->text(), false);
+            gproxy->m_BNET->UpdateFriendList();
         }
         else
         {
@@ -328,9 +339,8 @@ void MainGUI::onRefreshButtonClicked ()
 {
     widget.refreshButton->setEnabled(false);
 
-    DownloadThread* dt = new DownloadThread(this);
+    DownloadThread *dt = new DownloadThread(this);
     dt->refresh();
-    delete dt;
 
     widget.refreshButton->setText("Refresh (10)");
     QTimer::singleShot(1000, this, SLOT(updateRefreshButton()));
@@ -401,7 +411,7 @@ void MainGUI::processInput (const QString& input)
     }
     else if (command.startsWith("/friends ") || command.startsWith("/f "))
     {
-        gproxy->m_BNET->QueueChatCommand(input.toStdString());
+        gproxy->m_BNET->QueueChatCommand(input);
         gproxy->m_BNET->UpdateFriendList();
     }
     else if (command == "/filteroff" || command == "/filter off")
@@ -429,13 +439,12 @@ void MainGUI::processInput (const QString& input)
             QString pgn = gproxy->getPrivategamename();
             if (botname.length() > 2)
             {
-                gproxy->m_BNET->QueueChatCommand("/w " + botname.toStdString()
-                        + " !priv " + pgn.toStdString());
+                gproxy->m_BNET->QueueChatCommand("/w " + botname + " !priv " + pgn);
             }
             else
             {
-                gproxy->m_BNET->QueueChatCommand("/w " + gproxy->getBotprefix().toStdString()
-                        + botname.toStdString() + " !priv " + pgn.toStdString());
+                gproxy->m_BNET->QueueChatCommand("/w " + gproxy->getBotprefix()
+                        + botname + " !priv " + pgn);
             }
             gproxy->m_BNET->SetSearchGameName(pgn.toStdString());
             autosearch(true);
@@ -515,7 +524,7 @@ void MainGUI::processInput (const QString& input)
                     "and say [gn: " + gproxy->getPrivategamename() + "].");
             gproxy->m_BNET->QueueChatCommand("[GProxy++][Phyton] Waiting for a bot "
                     "and create a game with the name ["
-                    + gproxy->getPrivategamename().toStdString() + "].");
+                    + gproxy->getPrivategamename() + "].");
         }
         else if (command == "/wg off")
         {
@@ -539,7 +548,7 @@ void MainGUI::processInput (const QString& input)
                     "and say [gn: " + gproxy->getPrivategamename() + "].");
             gproxy->m_BNET->QueueChatCommand("[GProxy++][Phyton] Waiting for a bot "
                     "and create a game with the name ["
-                    + gproxy->getPrivategamename().toStdString() + "].");
+                    + gproxy->getPrivategamename() + "].");
         }
         else if (command == "/waitgame off")
         {
@@ -621,7 +630,7 @@ void MainGUI::processInput (const QString& input)
     {
         if (!gproxy->m_BNET->GetReplyTarget().empty())
         {
-            gproxy->m_BNET->QueueChatCommand(input.mid(3).toStdString(),
+            gproxy->m_BNET->QueueChatCommand(input.mid(3),
                     gproxy->m_BNET->GetReplyTarget(), true);
         }
         else
@@ -686,12 +695,12 @@ void MainGUI::processInput (const QString& input)
                     }
                     else
                     {
-                        gproxy->m_BNET->QueueChatCommand(line.mid(1).toStdString());
+                        gproxy->m_BNET->QueueChatCommand(line.mid(1));
                     }
                 }
                 else if (!line.startsWith("#"))
                 {
-                    gproxy->m_BNET->QueueChatCommand(line.toStdString());
+                    gproxy->m_BNET->QueueChatCommand(line);
                 }
             }
         }
@@ -714,7 +723,7 @@ void MainGUI::processInput (const QString& input)
     }
     else
     {
-        gproxy->m_BNET->QueueChatCommand(input.toStdString());
+        gproxy->m_BNET->QueueChatCommand(input);
     }
 }
 
@@ -1011,7 +1020,9 @@ void MainGUI::setGameslots (vector<CIncomingSlots *> slotList)
         if (!gproxy->isDotaMap())
         {
             if (!vTeamNumbers.contains((*it)->GetTeam()))
+            {
                 vTeamNumbers.push_back((*it)->GetTeam());
+            }
         }
 
         QListWidgetItem *itemSlot = new QListWidgetItem();
@@ -1094,11 +1105,17 @@ void MainGUI::startWarcraft ()
 
 void MainGUI::showErrorMessage (QString errorMessage)
 {
-    addMessage("[Error] " + errorMessage);
+    addMessage("[ERROR] " + errorMessage);
 
     QMessageBox msgBox;
     msgBox.setWindowIcon(QIcon(":/images/Error.png"));
     msgBox.setWindowTitle("Error");
     msgBox.setText(errorMessage);
     msgBox.exec();
+}
+
+void MainGUI::showConfigDialog ()
+{
+    ConfigGUI *config = new ConfigGUI(gproxy->getConfig());
+    config->exec();
 }

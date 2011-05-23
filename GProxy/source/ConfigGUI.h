@@ -40,9 +40,7 @@ private slots:
     void onChannelChanged(QString text);
     void onWar3pathChangeRequest();
     void onServerComboboxItemChanged(const QString &text);
-    //    void onServerCBChanged(QWidget *);
-    //    void onTextfieldTextChanged(QWidget *);
-    //    void onOpenFileDialog(QWidget *);
+    void onForegroundcolorButtonClicked();
 };
 
 #endif	/* _CONFIGGUI_H */

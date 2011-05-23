@@ -7,11 +7,15 @@
 
 #include <QLabel>
 #include <QPushButton>
-#include <QFileDialog>
 #include <QToolTip>
 #include <QPoint>
 #include <QMessageBox>
 #include <QIcon>
+#include <QFileDialog>
+#include <QColorDialog>
+#include <QFontDialog>
+
+// TODO Remove these ugly double constructors
 
 ConfigGUI::ConfigGUI (Config *cfg)
 {
@@ -54,7 +58,7 @@ void ConfigGUI::initValues ()
         QString key = vKey.at(i);
         QString value = vValue.at(i);
 
-        QList<QObject*> tabBarChildren = widget.tabWidget->children().at(0)->children();
+        QList<QObject*> tabBarChildren = widget.optionsTabWidget->children().at(0)->children();
 
         foreach(QObject *tab, tabBarChildren)
         {
@@ -130,11 +134,13 @@ void ConfigGUI::initSlots ()
             this, SLOT(onWar3pathChangeRequest()));
     connect(widget.war3pathButton, SIGNAL(clicked()),
             this, SLOT(onWar3pathChangeRequest()));
+    connect(widget.outputareaForegroundcolorButton, SIGNAL(clicked()),
+            this, SLOT(onForegroundcolorButtonClicked()));
 }
 
 void ConfigGUI::accept ()
 {
-    QList<QObject*> tabBarChildren = widget.tabWidget->children().at(0)->children();
+    QList<QObject*> tabBarChildren = widget.optionsTabWidget->children().at(0)->children();
 
     foreach(QObject *tab, tabBarChildren)
     {
@@ -481,4 +487,10 @@ void ConfigGUI::showErrorMessage (const QString &errorMessage)
     msgBox.setWindowTitle("Error");
     msgBox.setText(errorMessage);
     msgBox.exec();
+}
+
+void ConfigGUI::onForegroundcolorButtonClicked ()
+{
+    cfg->setColor("outputareaForegroundcolor", QColorDialog::getColor(
+            cfg->getColor("outputareaForegroundcolor"), this));
 }

@@ -9,9 +9,16 @@ Config::Config (QString config)
     configFile = new QFile(config);
 }
 
-Config::~Config () { }
+Config::~Config ()
+{
+    if(configFile->isOpen())
+    {
+        configFile->close();
+    }
+    delete configFile;
+}
 
-int Config::loadConfig()
+int Config::loadConfig ()
 {
     if (configFile->open(QFile::ReadWrite))
     {
@@ -21,7 +28,7 @@ int Config::loadConfig()
         addValues(QString(configFile->readAll()));
         configFile->close();
 
-        if(hasRequiredValues())
+        if (hasRequiredValues())
         {
             return 0;
         }
@@ -36,7 +43,7 @@ int Config::loadConfig()
     }
 }
 
-void Config::addKeys()
+void Config::addKeys ()
 {
     vKey.append("# Required config values");
     vKey.append("war3path");
@@ -65,9 +72,15 @@ void Config::addKeys()
     vKey.append("width");
     vKey.append("height");
     vKey.append("botorder");
+    vKey.append("outputareaForegroundcolor");
+    vKey.append("outputareaBackgroundcolor");
+    vKey.append("outputareaFont");
+    vKey.append("inputareaForegroundcolor");
+    vKey.append("inputareaBackgroundcolor");
+    vKey.append("inputareaFont");
 }
 
-void Config::addValues(QString content)
+void Config::addValues (QString content)
 {
     QVector<QString> vTempKey;
     QVector<QString> vTempValue;
@@ -87,58 +100,18 @@ void Config::addValues(QString content)
         vTempValue.append(value);
     }
 
-    for(int i = 0; i < vKey.count(); i++)
+    for (int i = 0; i < vKey.count(); i++)
     {
-        if(!vTempKey.contains(vKey.at(i)))
+        if (!vTempKey.contains(vKey.at(i)))
         {
-            // Add default values
-            if(vKey.at(i) == "war3version")
-            {
-                vValue.append("26");
-            }
-            else if(vKey.at(i) == "server")
-            {
-                vValue.append("europe.battle.net");
-            }
-            else if(vKey.at(i) == "channel")
-            {
-                vValue.append("Clan Graz");
-            }
-            else if(vKey.at(i) == "port")
-            {
-                vValue.append("6125");
-            }
-            else if(vKey.at(i) == "sound")
-            {
-                vValue.append("on");
-            }
-            else if(vKey.at(i) == "privategamename")
-            {
-                vValue.append("inhouse");
-            }
-            else if(vKey.at(i) == "botprefix")
-            {
-                vValue.append("GhostGraz");
-            }
-            else if(vKey.at(i) == "autosearch")
-            {
-                vValue.append("on");
-            }
-            else if(vKey.at(i) == "log")
-            {
-                vValue.append("on");
-            }
-            else // add an empty string (THIS IS NEEDED!)
-            {
-                vValue.append("");
-            }
+            addDefaultValue(vKey.at(i));
             continue;
         }
 
         // Load config values
-        for(int j = 0; j < vTempKey.count(); j++)
+        for (int j = 0; j < vTempKey.count(); j++)
         {
-            if(vKey.at(i) == vTempKey.at(j))
+            if (vKey.at(i) == vTempKey.at(j))
             {
                 vValue.append(vTempValue.at(j));
             }
@@ -146,9 +119,65 @@ void Config::addValues(QString content)
     }
 }
 
-bool Config::hasRequiredValues()
+void Config::addDefaultValue (const QString &key)
 {
-    if(getString("war3path").isEmpty() || getString("cdkeyroc").isEmpty()
+    if (key == "war3version")
+    {
+        vValue.append("26");
+    }
+    else if (key == "server")
+    {
+        vValue.append("europe.battle.net");
+    }
+    else if (key == "channel")
+    {
+        vValue.append("Clan Graz");
+    }
+    else if (key == "port")
+    {
+        vValue.append("6125");
+    }
+    else if (key == "sound")
+    {
+        vValue.append("Enabled");
+    }
+    else if (key == "privategamename")
+    {
+        vValue.append("inhouse");
+    }
+    else if (key == "botprefix")
+    {
+        vValue.append("GhostGraz");
+    }
+    else if (key == "autosearch")
+    {
+        vValue.append("Enabled");
+    }
+    else if (key == "log")
+    {
+        vValue.append("Enabled");
+    }
+    else if(key == "outputareaForegroundcolor")
+    {
+        vValue.append("255,255,255");
+    }
+    else if(key == "outputareaBackgroundcolor")
+    {
+        vValue.append("0,0,0");
+    }
+    else if(key == "outputareaFont")
+    {
+        vValue.append("Arial,9,50,false");
+    }
+    else // add an empty string (THIS IS NEEDED!)
+    {
+        vValue.append("");
+    }
+}
+
+bool Config::hasRequiredValues ()
+{
+    if (getString("war3path").isEmpty() || getString("cdkeyroc").isEmpty()
             || getString("cdkeytft").isEmpty() || getInt("war3version") == 0
             || getString("server").isEmpty() || getString("username").isEmpty()
             || getString("password").isEmpty() || getString("channel").isEmpty()
@@ -162,21 +191,21 @@ bool Config::hasRequiredValues()
     }
 }
 
-QVector<QString> Config::getKeys()
+QVector<QString> Config::getKeys ()
 {
     return vKey;
 }
 
-QVector<QString> Config::getValues()
+QVector<QString> Config::getValues ()
 {
     return vValue;
 }
 
-QString Config::getString (QString key)
+QString Config::getString (const QString &key)
 {
-    for(int i = 0; i < vKey.count(); i++)
+    for (int i = 0; i < vKey.count(); i++)
     {
-        if(vKey.at(i).toLower() == key.toLower())
+        if (vKey.at(i).toLower() == key.toLower())
         {
             return vValue.at(i);
         }
@@ -185,11 +214,11 @@ QString Config::getString (QString key)
     return "";
 }
 
-int Config::getInt (QString key)
+int Config::getInt (const QString &key)
 {
-    for(int i = 0; i < vKey.count(); i++)
+    for (int i = 0; i < vKey.count(); i++)
     {
-        if(vKey.at(i).toLower() == key.toLower())
+        if (vKey.at(i).toLower() == key.toLower())
         {
             return vValue.at(i).toInt();
         }
@@ -198,14 +227,14 @@ int Config::getInt (QString key)
     return 0;
 }
 
-bool Config::getBoolean(QString key)
+bool Config::getBoolean (const QString &key)
 {
-    for(int i = 0; i < vKey.count(); i++)
+    for (int i = 0; i < vKey.count(); i++)
     {
-        if(vKey.at(i).toLower() == key.toLower())
+        if (vKey.at(i).toLower() == key.toLower())
         {
             QString value = vValue.at(i).toLower();
-            if(value == "false" || value == "off"
+            if (value == "false" || value == "off"
                     || value == "no" || value == "n" || value == "disabled")
             {
                 return false;
@@ -220,11 +249,62 @@ bool Config::getBoolean(QString key)
     return true;
 }
 
-bool Config::setString (QString key, QString value)
+QColor Config::getColor (const QString &key)
 {
-    for(int i = 0; i < vKey.count(); i++)
+    for (int i = 0; i < vKey.count(); i++)
     {
-        if(vKey.at(i).toLower() == key.toLower())
+        if (vKey.at(i).toLower() == key.toLower())
+        {
+            QString color = vValue.at(i);
+            QStringList rgbList = color.split(",");
+
+            if (rgbList.count() != 3)
+            {
+                return QColor::Invalid;
+            }
+
+            return QColor(rgbList.at(0).toInt(), rgbList.at(1).toInt(), rgbList.at(2).toInt());
+        }
+    }
+
+    return QColor::Invalid;
+}
+
+QFont Config::getFont (const QString &key)
+{
+    for (int i = 0; i < vKey.count(); i++)
+    {
+        if (vKey.at(i).toLower() == key.toLower())
+        {
+            QString font = vValue.at(i);
+            QStringList fontSettings = font.split(",");
+
+            if (fontSettings.count() != 4)
+            {
+                return QFont();
+            }
+
+            if (fontSettings.at(3) == "true")
+            {
+                return QFont(fontSettings.at(0), fontSettings.at(1).toInt(),
+                        QString(fontSettings.at(2)).toInt(), true);
+            }
+            else
+            {
+                return QFont(fontSettings.at(0), fontSettings.at(1).toInt(),
+                        QString(fontSettings.at(2)).toInt(), false);
+            }
+        }
+    }
+
+    return QFont();
+}
+
+bool Config::setString (const QString &key, const QString &value)
+{
+    for (int i = 0; i < vKey.count(); i++)
+    {
+        if (vKey.at(i).toLower() == key.toLower())
         {
             vValue[i] = value;
             return true;
@@ -234,11 +314,11 @@ bool Config::setString (QString key, QString value)
     return false;
 }
 
-bool Config::setInt (QString key, int value)
+bool Config::setInt (const QString &key, const int &value)
 {
-    for(int i = 0; i < vKey.count(); i++)
+    for (int i = 0; i < vKey.count(); i++)
     {
-        if(vKey.at(i).toLower() == key.toLower())
+        if (vKey.at(i).toLower() == key.toLower())
         {
             vValue[i] = QString::number(value);
             return true;
@@ -248,13 +328,13 @@ bool Config::setInt (QString key, int value)
     return false;
 }
 
-bool Config::setBoolean(QString key, bool value)
+bool Config::setBoolean (const QString &key, const bool &value)
 {
-    for(int i = 0; i < vKey.count(); i++)
+    for (int i = 0; i < vKey.count(); i++)
     {
-        if(vKey.at(i).toLower() == key.toLower())
+        if (vKey.at(i).toLower() == key.toLower())
         {
-            if(value == false)
+            if (value == false)
             {
                 vValue[i] = "false";
             }
@@ -270,7 +350,52 @@ bool Config::setBoolean(QString key, bool value)
     return false;
 }
 
-void Config::commit()
+bool Config::setColor (const QString &key, const QColor &color)
+{
+    if(color.isValid() == false)
+    {
+        return false;
+    }
+
+    for (int i = 0; i < vKey.count(); i++)
+    {
+        if (vKey.at(i).toLower() == key.toLower())
+        {
+            vValue[i] = QString::number(color.red()) + ","
+                    + QString::number(color.green()) + ","
+                    + QString::number(color.blue());
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool Config::setFont (const QString &key, const QFont &font)
+{
+    for (int i = 0; i < vKey.count(); i++)
+    {
+        if (vKey.at(i).toLower() == key.toLower())
+        {
+            if (font.italic())
+            {
+                vValue[i] = font.family() + "," + font.pointSize() + ","
+                        + font.weight() + ",true";
+            }
+            else
+            {
+                vValue[i] = font.family() + "," + font.pointSize() + ","
+                        + font.weight() + ",false";
+            }
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void Config::commit ()
 {
     if (configFile->open(QFile::WriteOnly | QFile::Text))
     {
@@ -278,7 +403,7 @@ void Config::commit()
 
         for (int i = 0; i < vKey.count(); i++)
         {
-            if(vKey.at(i).startsWith("#"))
+            if (vKey.at(i).startsWith("#"))
             {
                 out << "\n" << vKey.at(i) << "\n\n";
             }

@@ -13,10 +13,10 @@
 #include "gameprotocol.h"
 #include "gpsprotocol.h"
 #include "MainGUI.h"
-#include "GProxyUpdateThread.h"
-#include "DownloadThread.h"
 #include "Config.h"
 #include "ConfigGUI.h"
+#include "thread/DownloadThread.h"
+#include "thread/GproxyUpdateThread.h"
 
 #include <signal.h>
 #include <stdlib.h>
@@ -28,8 +28,8 @@
 
 CGProxy* gproxy;
 MainGUI* mainGUI;
-GProxyUpdateThread *gUpdateThread;
-DownloadThread *dt;
+DownloadThread *downloadThread;
+GproxyUpdateThread *gproxyUpdateThread;
 QElapsedTimer timer;
 
 QFile* logFile;
@@ -185,14 +185,7 @@ int main (int argc, char **argv)
 
     mainGUI->init();
 
-    if (config->getBoolean("log"))
-    {
-        logFile = new QFile("gproxy_log.txt");
-        if (!logFile->open(QFile::Append | QFile::Text))
-        {
-            gproxy->showErrorMessage(logFile->errorString());
-        }
-    }
+    gproxy->applyConfig();
 
 #ifdef WIN32
     // initialize winsock
@@ -210,29 +203,11 @@ int main (int argc, char **argv)
     SetPriorityClass(GetCurrentProcess(), ABOVE_NORMAL_PRIORITY_CLASS);
 #endif
 
-    gproxy->setWar3Path(config->getString("war3path"));
-    gproxy->setCDKeyROC(config->getString("cdkeyroc"));
-    gproxy->setCDKeyTFT(config->getString("cdkeytft"));
-    string Server = config->getString("server").toStdString();
-
-    gproxy->setPrivategamename(config->getString("privategamename"));
-    gproxy->setBotprefix(config->getString("botprefix"));
-    bool casearch = config->getBoolean("autosearch");
-    gproxy->m_PlaySound = config->getBoolean("sound");
-    string Username = config->getString("username").toStdString();
-    string Password = config->getString("password").toStdString();
-    string Channel = config->getString("channel").toStdString();
-    uint32_t War3Version = config->getInt("war3version");
-    uint16_t Port = config->getInt("port");
-    BYTEARRAY EXEVersion = UTIL_ExtractNumbers(config->getString("exeversion").toStdString(), 4);
-    BYTEARRAY EXEVersionHash = UTIL_ExtractNumbers(config->getString("exeversionhash").toStdString(), 4);
-    string PasswordHashType = config->getString("passwordhashtype").toStdString();
-
     CONSOLE_Print("", false);
     CONSOLE_Print("  Welcome to GProxy++.", false);
-    CONSOLE_Print("  Server: " + QString::fromStdString(Server), false);
-    CONSOLE_Print("  Username: " + QString::fromStdString(Username), false);
-    CONSOLE_Print("  Channel: " + QString::fromStdString(Channel), false);
+    CONSOLE_Print("  Server: " + gproxy->getServer(), false);
+    CONSOLE_Print("  Username: " + gproxy->getUsername(), false);
+    CONSOLE_Print("  Channel: " + gproxy->getChannel(), false);
     CONSOLE_Print("", false);
     CONSOLE_Print("  Type /help at any time for help.", false);
     CONSOLE_Print("", false);
@@ -241,13 +216,7 @@ int main (int argc, char **argv)
             "<font color=\"deeppink\">Pr0gm4n</font> and "
             "<font color=\"gold\">Manufactoring</font>.");
 
-    gproxy->init(Server, Username, Password, Channel, War3Version, Port, EXEVersion, EXEVersionHash, PasswordHashType, "", "", true, casearch, true, false, 200);
-
-    dt = new DownloadThread(mainGUI);
-    dt->start();
-
-    gUpdateThread = new GProxyUpdateThread(gproxy);
-    gUpdateThread->start();
+    gproxy->init("", "", true, false);
 
     return app.exec();
 }
@@ -258,7 +227,8 @@ int main (int argc, char **argv)
 
 CGProxy::CGProxy () { }
 
-void CGProxy::init (string nServer, string nUsername, string nPassword, string nChannel, uint32_t nWar3Version, uint16_t nPort, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, string cpublic, string cfilter, bool german_languagesupport, bool casearch, bool temp_displayautocreated, bool listing_current_games, int channelWidth)
+void CGProxy::init (string cpublic, string cfilter, bool temp_displayautocreated,
+        bool listing_current_games)
 {
     m_Version = mainGUI->windowTitle().remove(0, 7).toStdString();
     m_LocalServer = new CTCPServer();
@@ -276,12 +246,6 @@ void CGProxy::init (string nServer, string nUsername, string nPassword, string n
     m_War3Path = this->getWar3Path().toStdString();
     m_CDKeyROC = this->getCDKeyROC().toStdString();
     m_CDKeyTFT = this->getCDKeyTFT().toStdString();
-    m_Server = nServer;
-    username = QString::fromStdString(nUsername);
-    m_Password = nPassword;
-    m_Channel = nChannel;
-    m_War3Version = nWar3Version;
-    m_Port = nPort;
     m_LastConnectionAttemptTime = 0;
     m_LastRefreshTime = 0;
     m_RemoteServerPort = 0;
@@ -298,13 +262,15 @@ void CGProxy::init (string nServer, string nUsername, string nPassword, string n
     m_NumEmptyActionsUsed = 0;
     m_LastAckTime = 0;
     m_LastActionTime = 0;
-    m_BNET = new CBNET(this, mainGUI, m_Server, string(), 0, 0, "USA", "United States", username.toStdString(), m_Password, m_Channel, m_War3Version, nEXEVersion, nEXEVersionHash, nPasswordHashType, 200);
-    m_LocalServer->Listen(string(), m_Port);
+    m_BNET = new CBNET(this, mainGUI, server.toStdString(), string(), 0, 0,
+            "USA", "United States", username.toStdString(), password.toStdString(),
+            channel.toStdString(), war3version, exeversion, exeversionhash,
+            passwordhashtype.toStdString(), 200);
+    m_LocalServer->Listen(string(), port);
     cfgfilterfirst = true; // Phyton filter
     cfgfilter = cfilter; // Phyton filter
     cfgpublic = cpublic; // Phyton public
     autosearch = true; //pr0 autosearch
-    cautosearch = casearch; //pr0 cautosearch
     displayautocreated = temp_displayautocreated;
     m_listing_current_games = listing_current_games;
     testvar = false;
@@ -314,14 +280,23 @@ void CGProxy::init (string nServer, string nUsername, string nPassword, string n
     parrot = "";
     dotaMap = false;
 
+    downloadThread = new DownloadThread(mainGUI);
+    downloadThread->start(QThread::LowestPriority);
+
+    gproxyUpdateThread = new GproxyUpdateThread(gproxy);
+    gproxyUpdateThread->start(QThread::HighPriority);
+
     CONSOLE_Print("[GPROXY] Customized GProxy++ Version " + QString::fromStdString(m_Version));
 }
 
 CGProxy::~CGProxy ()
 {
     for (vector<CIncomingGameHost *> ::iterator i = m_Games.begin(); i != m_Games.end(); i++)
+    {
         m_UDPSocket->Broadcast(6112, m_GameProtocol->SEND_W3GS_DECREATEGAME(((CIncomingGameHost *) (*i))->GetUniqueGameID()));
+    }
 
+    delete config;
     delete m_LocalServer;
     delete m_LocalSocket;
     delete m_RemoteSocket;
@@ -329,7 +304,9 @@ CGProxy::~CGProxy ()
     delete m_BNET;
 
     for (vector<CIncomingGameHost *> ::iterator i = m_Games.begin(); i != m_Games.end(); i++)
+    {
         delete *i;
+    }
 
     delete m_GameProtocol;
     delete m_GPSProtocol;
@@ -356,22 +333,61 @@ CGProxy::~CGProxy ()
 
 void CGProxy::cleanup ()
 {
-    CONSOLE_Print("[GPROXY] shutting down running threads");
-    delete gUpdateThread;
-    delete dt;
-    gUpdateThread = NULL;
-    dt = NULL;
-
 #ifdef WIN32
     CONSOLE_Print("[GPROXY] shutting down winsock");
     WSACleanup();
 #endif
 
     CONSOLE_Print("[GPROXY] shutting down");
+    downloadThread->stop();
+    delete downloadThread;
+    gproxyUpdateThread->stop();
+    delete gproxyUpdateThread;
+
+    for (vector<CIncomingSlots *> ::iterator it = slotList.begin(); it != slotList.end(); it++)
+    {
+        delete *it;
+    }
+
+    if(logFile->isOpen())
+    {
+        logFile->close();
+    }
+    delete logFile;
     delete mainGUI;
     mainGUI = NULL;
     delete gproxy;
     gproxy = NULL;
+}
+
+void CGProxy::applyConfig ()
+{
+    if (config->getBoolean("log"))
+    {
+        logFile = new QFile("gproxy_log.txt");
+        if (!logFile->open(QFile::Append | QFile::Text))
+        {
+            gproxy->showErrorMessage(logFile->errorString());
+        }
+    }
+
+    gproxy->setWar3Path(config->getString("war3path"));
+    gproxy->setCDKeyROC(config->getString("cdkeyroc"));
+    gproxy->setCDKeyTFT(config->getString("cdkeytft"));
+    gproxy->setServer(config->getString("server"));
+
+    gproxy->setPrivategamename(config->getString("privategamename"));
+    gproxy->setBotprefix(config->getString("botprefix"));
+    cautosearch = config->getBoolean("autosearch");
+    gproxy->m_PlaySound = config->getBoolean("sound");
+    gproxy->setUsername(config->getString("username"));
+    gproxy->setPassword(config->getString("password"));
+    gproxy->setChannel(config->getString("channel"));
+    gproxy->setWar3version(config->getInt("war3version"));
+    gproxy->setPort(config->getInt("port"));
+    gproxy->setExeversion(UTIL_ExtractNumbers(config->getString("exeversion").toStdString(), 4));
+    gproxy->setExeversionhash(UTIL_ExtractNumbers(config->getString("exeversionhash").toStdString(), 4));
+    gproxy->setPasswordhashtype(config->getString("passwordhashtype"));
 }
 
 void CGProxy::addMessage (QString msg, bool log)
@@ -395,13 +411,13 @@ void CGProxy::addChannelUser (QString username, QString clanTag)
         if (gproxy->getBotprefix().size() > 0 && gproxy->getBotprefix()[0] != "^"[0])
             if (gproxy->getPrivategamename() != "" && tpre != "" && tname.mid(0, tpre.size()) == tpre)
             {
-                gproxy->m_BNET->QueueChatCommand("/w " + username.toStdString()
-                        + " !priv " + gproxy->getPrivategamename().toStdString());
+                gproxy->m_BNET->QueueChatCommand("/w " + username
+                        + " !priv " + gproxy->getPrivategamename());
                 autosearch = true;
                 CheckForGame(gproxy->getPrivategamename().toStdString());
                 if (!gproxy->getVShallCreateQuiet())
                 {
-                    gproxy->m_BNET->QueueChatCommand("gn: " + gproxy->getPrivategamename().toStdString());
+                    gproxy->m_BNET->QueueChatCommand("gn: " + gproxy->getPrivategamename());
                 }
                 gproxy->setVShallCreate(false);
             }
@@ -411,12 +427,12 @@ void CGProxy::addChannelUser (QString username, QString clanTag)
             if (gproxy->getPrivategamename() != "" && tname == tpre.mid(1, tpre.size() - 1))
             {
                 autosearch = true;
-                gproxy->m_BNET->QueueChatCommand("/w " + username.toStdString()
-                        + " !priv " + gproxy->getPrivategamename().toStdString());
+                gproxy->m_BNET->QueueChatCommand("/w " + username
+                        + " !priv " + gproxy->getPrivategamename());
                 CheckForGame(gproxy->getPrivategamename().toStdString());
                 if (!gproxy->getVShallCreateQuiet())
                 {
-                    gproxy->m_BNET->QueueChatCommand("gn: " + gproxy->getPrivategamename().toStdString());
+                    gproxy->m_BNET->QueueChatCommand("gn: " + gproxy->getPrivategamename());
                 }
                 gproxy->setVShallCreate(false);
             }
@@ -904,7 +920,7 @@ bool CGProxy::Update (long usecBlock)
                         GameName = GameName.substr(0, 31);
                 }
 
-                m_UDPSocket->Broadcast(6112, m_GameProtocol->SEND_W3GS_GAMEINFO(m_TFT, m_War3Version, MapGameType, MapFlags, MapWidth, MapHeight, GameName, (*i)->GetHostName(), (*i)->GetElapsedTime(), (*i)->GetMapPath(), (*i)->GetMapCRC(), 12, 12, m_Port, (*i)->GetUniqueGameID(), (*i)->GetUniqueGameID()));
+                m_UDPSocket->Broadcast(6112, m_GameProtocol->SEND_W3GS_GAMEINFO(m_TFT, war3version, MapGameType, MapFlags, MapWidth, MapHeight, GameName, (*i)->GetHostName(), (*i)->GetElapsedTime(), (*i)->GetMapPath(), (*i)->GetMapCRC(), 12, 12, port, (*i)->GetUniqueGameID(), (*i)->GetUniqueGameID()));
                 i++;
             }
 
@@ -1100,11 +1116,11 @@ bool CGProxy::CheckForwarding (string MessageString)
                         }
                         else
                         {
-                            gproxy->m_BNET->QueueChatCommand(tmp.substr(1));
+                            gproxy->m_BNET->QueueChatCommand(QString::fromStdString(tmp.substr(1)));
                         }
                     }
                     else if (messageText[0] != "#"[0])
-                        gproxy->m_BNET->QueueChatCommand(tmp);
+                        gproxy->m_BNET->QueueChatCommand(QString::fromStdString(tmp));
                 }
                 while (!infile.eof());
                 //SendLocalChat("->>>>>>finished sending->>>>>>>>");
@@ -1122,7 +1138,7 @@ bool CGProxy::CheckForwarding (string MessageString)
             {
                 if (!m_BNET->GetReplyTarget().empty())
                 {
-                    m_BNET->QueueChatCommand(MessageString.substr(4), m_BNET->GetReplyTarget(), true);
+                    m_BNET->QueueChatCommand(QString::fromStdString(MessageString.substr(4)), m_BNET->GetReplyTarget(), true);
                     SendLocalChat("Whispered to " + m_BNET->GetReplyTarget() + ": " + MessageString.substr(4));
                 }
                 else
@@ -1149,17 +1165,17 @@ bool CGProxy::CheckForwarding (string MessageString)
         else if (Command.substr(0, 4) == "/wh ")
         {
             string mess = Command.substr(4, Command.size() - 4);
-            m_BNET->QueueChatCommand(mess, m_HostName, true);
+            m_BNET->QueueChatCommand(QString::fromStdString(mess), m_HostName, true);
             SendLocalChat("Whispered to host [" + m_HostName + "] " + mess);
         }
         else if (Command.substr(0, 5) == "/whs ")
         {
             string mess = Command.substr(5, Command.size() - 5);
-            m_BNET->QueueChatCommand("!say " + mess, m_HostName, true);
+            m_BNET->QueueChatCommand("!say " + QString::fromStdString(mess), m_HostName, true);
             SendLocalChat("Whispered to host [" + m_HostName + "] !say " + mess);
         }
         else if (Command.substr(0, 5) == "/cmd ")
-            m_BNET->QueueChatCommand(Command.substr(5, Command.size() - 5));
+            m_BNET->QueueChatCommand(QString::fromStdString(Command.substr(5, Command.size() - 5)));
         else if (Command == "/host")
             SendLocalChat("Hosting player/bot is [" + m_HostName + "]. (use '/wh <message>' to whisper to him)");
         else if (Command == "/status")
@@ -1185,7 +1201,7 @@ bool CGProxy::CheckForwarding (string MessageString)
 
                 if (Messagebegins != -1)
                 {
-                    m_BNET->QueueChatCommand(MessageString);
+                    m_BNET->QueueChatCommand(QString::fromStdString(MessageString));
                     SendLocalChat("Whisper to " + MessageString.substr(3, Messagebegins - 3) + ": " + MessageString.substr(Messagebegins));
                 }
             }
@@ -1208,7 +1224,7 @@ bool CGProxy::CheckForwarding (string MessageString)
 
             if (!gproxy->m_BNET->GetInGame())
             {
-                gproxy->m_BNET->QueueChatCommand(message.toStdString());
+                gproxy->m_BNET->QueueChatCommand(message);
             }
             else
             {
@@ -1231,7 +1247,7 @@ bool CGProxy::CheckForwarding (string MessageString)
 
             if (!gproxy->m_BNET->GetInGame())
             {
-                gproxy->m_BNET->QueueChatCommand(message.toStdString());
+                gproxy->m_BNET->QueueChatCommand(message);
             }
             else
             {
@@ -1261,7 +1277,7 @@ bool CGProxy::CheckForwarding (string MessageString)
 
             if (!gproxy->m_BNET->GetInGame())
             {
-                gproxy->m_BNET->QueueChatCommand(message.toStdString());
+                gproxy->m_BNET->QueueChatCommand(message);
             }
             else
             {
@@ -1284,7 +1300,7 @@ bool CGProxy::CheckForwarding (string MessageString)
 
             if (!gproxy->m_BNET->GetInGame())
             {
-                gproxy->m_BNET->QueueChatCommand(message.toStdString());
+                gproxy->m_BNET->QueueChatCommand(message);
             }
             else
             {
@@ -1399,7 +1415,7 @@ void CGProxy::ProcessLocalPackets ()
                 m_LeaveGameSent = true;
                 m_LocalSocket->Disconnect();
                 slotList.clear();
-                gproxy->m_BNET->QueueChatCommand(string("/whois ").append(gproxy->m_HostName));
+                gproxy->m_BNET->QueueChatCommand("/whois " + QString::fromStdString(gproxy->m_HostName));
             }
             else if (Packet->GetID() == CGameProtocol::W3GS_CHAT_TO_HOST)
             {
@@ -2312,18 +2328,6 @@ bool CGProxy::checkStatus (int statusCode)
             ConfigGUI *configGUI = new ConfigGUI(gproxy->getConfig(), true);
             configGUI->show();
             return true;
-//            if (configGUI->exec() == QDialog::Accepted)
-//            {
-//                CONSOLE_Print("[GPROXY] Configuration file successfully saved and initialized.");
-//                return true;
-//            }
-//            else
-//            {
-//                emit signal_showErrorMessage("Could not save configuration file.\n"
-//                        "Aborted by User interaction."
-//                        "\nShutting down GProxy.");
-//                return false;
-//            }
         }
         case 2:
         {
@@ -2351,11 +2355,6 @@ bool fcfgfilterfirst ()// Phyton filter
 string fcfgfilter ()// Phyton filter
 {
     return gproxy->cfgfilter;
-}
-
-void saychat (string message)// Phyton parrot
-{
-    gproxy->m_BNET->QueueChatCommand(message);
 }
 
 bool getautosearch () //pr0 autosearch
@@ -2409,3 +2408,93 @@ CIncomingSlots::CIncomingSlots (unsigned char nPID, unsigned char ndownloadStatu
 }
 
 CIncomingSlots::~CIncomingSlots () { }
+
+void CGProxy::setServer (const QString &server)
+{
+    this->server = server;
+}
+
+void CGProxy::setUsername (const QString &username)
+{
+    this->username = username;
+}
+
+void CGProxy::setPassword (const QString &password)
+{
+    this->password = password;
+}
+
+void CGProxy::setWar3version (const uint32_t &war3version)
+{
+    this->war3version = war3version;
+}
+
+void CGProxy::setPort (const uint16_t &port)
+{
+    this->port = port;
+}
+
+void CGProxy::setExeversion (const BYTEARRAY &exeversion)
+{
+    this->exeversion = exeversion;
+}
+
+void CGProxy::setExeversionhash (const BYTEARRAY &exeversionhash)
+{
+    this->exeversionhash = exeversionhash;
+}
+
+void CGProxy::setPasswordhashtype (const QString &passwordhashtype)
+{
+    this->passwordhashtype = passwordhashtype;
+}
+
+void CGProxy::setChannel (const QString &channel)
+{
+    this->channel = channel;
+}
+
+QString CGProxy::getServer ()
+{
+    return this->server;
+}
+
+QString CGProxy::getUsername ()
+{
+    return this->username;
+}
+
+QString CGProxy::getPassword ()
+{
+    return this->password;
+}
+
+uint32_t CGProxy::getWar3version ()
+{
+    return this->war3version;
+}
+
+uint16_t CGProxy::getPort ()
+{
+    return this->port;
+}
+
+BYTEARRAY CGProxy::getExeversion ()
+{
+    return this->exeversion;
+}
+
+BYTEARRAY CGProxy::getExeversionhash ()
+{
+    return this->exeversionhash;
+}
+
+QString CGProxy::getPasswordhashtype ()
+{
+    return this->passwordhashtype;
+}
+
+QString CGProxy::getChannel ()
+{
+    return this->channel;
+}

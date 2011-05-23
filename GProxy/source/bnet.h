@@ -214,8 +214,8 @@ public:
 
     void SendJoinChannel(string channel);
     void QueueEnterChat();
-    void QueueChatCommand(string chatCommand);
-    void QueueChatCommand(string chatCommand, string user, bool whisper);
+    void QueueChatCommand(QString chatCommand, bool showMessage = true);
+    void QueueChatCommand(QString chatCommand, string user, bool whisper);
     void QueueGetGameList(uint32_t numGames);
     void QueueGetGameList(string gameName);
     void QueueJoinGame(string gameName);
