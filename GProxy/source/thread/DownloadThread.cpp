@@ -32,12 +32,9 @@ DownloadThread::~DownloadThread ()
 
 void DownloadThread::refresh ()
 {
-    QEventLoop loop;
     QNetworkRequest request(url);
     reply = manager.get(request);
     connect(reply, SIGNAL(finished()), this, SLOT(downloadFinished()));
-    connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
-    loop.exec();
 }
 
 void DownloadThread::run ()

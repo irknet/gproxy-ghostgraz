@@ -3,8 +3,12 @@
 
 #include "ui_MainGUI.h"
 #include "gproxy.h"
-#include <string>
+#include "statspage/Statspage.h"
+#include "Player.h"
+
 #include <QString>
+#include <QDialog>
+#include <QVector>
 
 using namespace std;
 
@@ -14,6 +18,10 @@ class MainGUI : public QMainWindow
 
 private:
     CGProxy *gproxy;
+    QDialog *connectionDialog;
+    Statspage *statspage;
+    QVector<Player*> vPlayers;
+    Player *lastLeaver;
 
 public:
     MainGUI(CGProxy *p_gproxy);
@@ -21,10 +29,14 @@ public:
     void init();
 
     CGProxy* getGproxy();
+    Statspage* getStatspage();
+    Player* getLastLeaver();
     void startWarcraft();
 
 private:
     Ui::MainGUI widget;
+    void initStatspage();
+    void initConnectionDialog();
     void initLayout();
     void initSlots();
     void resizeEvent(QResizeEvent *event);
@@ -58,6 +70,10 @@ public slots:
     void setGameslots(vector<CIncomingSlots *> slotList);
     void showErrorMessage(QString errorMessage);
     void showConfigDialog();
+    void statspageLoginFinished();
+    void playerJoined(const QString &playerName);
+    void playerLeft(const QString &playerName);
+    void receivedPlayerInformation(Player *player);
 };
 
 #endif	/* _MAINGUI_H */

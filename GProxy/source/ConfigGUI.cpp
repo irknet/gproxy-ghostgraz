@@ -33,14 +33,15 @@ void ConfigGUI::init (Config *cfg, bool exitOnClose)
 {
     widget.setupUi(this);
     this->cfg = cfg;
-    this->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint
-            | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    widget.appearanceTab->setEnabled(false);
 
     war3pathTextfield = new ClickableLineEdit((QWidget*) widget.war3pathLabel->parent());
     war3pathTextfield->setObjectName("war3pathTextfield");
     war3pathTextfield->setGeometry(180, 60, 210, 20);
     war3pathTextfield->setFont(QFont("Arial", 9, QFont::Normal));
     war3pathTextfield->setPlaceholderText("Warcraft 3 Install directory");
+    war3pathTextfield->setWhatsThis("The Warcraft 3 install direcoty is needed to connected to battle.net.\n"
+            "It is also needed to start Warcraft 3 with GProxy.");
 
     initValues();
     initSlots();
@@ -89,8 +90,9 @@ void ConfigGUI::initValues ()
                                         NULL, NULL, (LPBYTE) InstallPath, &InstallPathSize);
                                 war3path = InstallPath;
                                 RegCloseKey(hkey);
+
+                                textfield->setText(QString::fromStdString(war3path) + QDir::separator());
                             }
-                            textfield->setText(QString::fromStdString(war3path) + QDir::separator());
 #endif
                         }
                         else
@@ -200,6 +202,13 @@ void ConfigGUI::accept ()
     if (cfg->hasRequiredValues())
     {
         cfg->commit();
+
+        if (exitOnClose)
+        {
+            showErrorMessage("You need to restart GProxy now.\nExiting...");
+            QApplication::quit();
+        }
+
         done(QDialog::Accepted);
     }
     else
@@ -491,6 +500,33 @@ void ConfigGUI::showErrorMessage (const QString &errorMessage)
 
 void ConfigGUI::onForegroundcolorButtonClicked ()
 {
+    //    QDialog *dialog = new QDialog(this);
+    //    dialog->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint
+    //            | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    //    dialog->setWindowTitle("Foreground color");
+    //    dialog->setFixedSize(400, 500);
+    //
+    //    QLabel *label = new QLabel("Server: ", dialog);
+    //    label->setGeometry(10, 5, 40, 20);
+    //
+    //    QLineEdit *textfield = new QLineEdit(dialog);
+    //    textfield->setGeometry(50, 5, 160, 20);
+    //    textfield->setAccessibleName("server");
+    //
+    //    QPushButton *button = new QPushButton("Accept", dialog);
+    //    button->setGeometry(10, 30, 200, 20);
+    //    connect(button, SIGNAL(clicked()), dialog, SLOT(accept()));
+    //
+    //    if (dialog->exec() == QDialog::Accepted && !textfield->text().isEmpty())
+    //    {
+    //        setSelectedCBValue(widget.serverCombobox, textfield->text());
+    //    }
+    //    else
+    //    {
+    //        setSelectedCBValue(widget.serverCombobox,
+    //                widget.serverCombobox->accessibleDescription());
+    //    }
+
     cfg->setColor("outputareaForegroundcolor", QColorDialog::getColor(
             cfg->getColor("outputareaForegroundcolor"), this));
 }

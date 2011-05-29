@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'ConfigGUI.ui'
 **
-** Created: Mon 23. May 20:22:58 2011
+** Created: Sun 29. May 14:42:05 2011
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -73,19 +73,20 @@ public:
     QPushButton *outputareaFontButton;
     QWidget *appearanceInputareaTab;
     QWidget *appearanceGamelistTab;
-    QWidget *appearanceChannelTab;
     QWidget *miscellaneousTab;
     QLabel *miscellaneousHeaderLabel;
     QLabel *soundLabel;
     QLabel *privategamenameLabel;
     QLabel *botprefixLabel;
-    QLabel *autosearchLabel;
     QLabel *loggingLabel;
     QComboBox *soundCombobox;
     QLineEdit *privategamenameTextfield;
     QLineEdit *botprefixTextfield;
-    QComboBox *autosearchCombobox;
     QComboBox *logCombobox;
+    QLabel *ghostgrazPasswordLabel;
+    QLabel *ghostgrazUsernameLabel;
+    QLineEdit *ghostgrazUsernameTextfield;
+    QLineEdit *ghostgrazPasswordTextfield;
 
     void setupUi(QDialog *ConfigGUI)
     {
@@ -104,6 +105,8 @@ public:
         buttonBox = new QDialogButtonBox(ConfigGUI);
         buttonBox->setObjectName(QString::fromUtf8("buttonBox"));
         buttonBox->setGeometry(QRect(0, 520, 450, 30));
+        sizePolicy.setHeightForWidth(buttonBox->sizePolicy().hasHeightForWidth());
+        buttonBox->setSizePolicy(sizePolicy);
         buttonBox->setLocale(QLocale(QLocale::English, QLocale::UnitedStates));
         buttonBox->setOrientation(Qt::Horizontal);
         buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
@@ -111,6 +114,8 @@ public:
         optionsTabWidget = new QTabWidget(ConfigGUI);
         optionsTabWidget->setObjectName(QString::fromUtf8("optionsTabWidget"));
         optionsTabWidget->setGeometry(QRect(0, 0, 450, 520));
+        sizePolicy.setHeightForWidth(optionsTabWidget->sizePolicy().hasHeightForWidth());
+        optionsTabWidget->setSizePolicy(sizePolicy);
         connectionTab = new QWidget();
         connectionTab->setObjectName(QString::fromUtf8("connectionTab"));
         QFont font;
@@ -303,9 +308,6 @@ public:
         appearanceGamelistTab = new QWidget();
         appearanceGamelistTab->setObjectName(QString::fromUtf8("appearanceGamelistTab"));
         appearanceTabWidget->addTab(appearanceGamelistTab, QString());
-        appearanceChannelTab = new QWidget();
-        appearanceChannelTab->setObjectName(QString::fromUtf8("appearanceChannelTab"));
-        appearanceTabWidget->addTab(appearanceChannelTab, QString());
         optionsTabWidget->addTab(appearanceTab, QString());
         miscellaneousTab = new QWidget();
         miscellaneousTab->setObjectName(QString::fromUtf8("miscellaneousTab"));
@@ -318,27 +320,23 @@ public:
         miscellaneousHeaderLabel->setAlignment(Qt::AlignCenter);
         soundLabel = new QLabel(miscellaneousTab);
         soundLabel->setObjectName(QString::fromUtf8("soundLabel"));
-        soundLabel->setGeometry(QRect(10, 60, 160, 20));
+        soundLabel->setGeometry(QRect(10, 140, 160, 20));
         soundLabel->setFont(font);
         privategamenameLabel = new QLabel(miscellaneousTab);
         privategamenameLabel->setObjectName(QString::fromUtf8("privategamenameLabel"));
-        privategamenameLabel->setGeometry(QRect(10, 100, 160, 20));
+        privategamenameLabel->setGeometry(QRect(10, 180, 160, 20));
         privategamenameLabel->setFont(font);
         botprefixLabel = new QLabel(miscellaneousTab);
         botprefixLabel->setObjectName(QString::fromUtf8("botprefixLabel"));
-        botprefixLabel->setGeometry(QRect(10, 140, 160, 20));
+        botprefixLabel->setGeometry(QRect(10, 220, 160, 20));
         botprefixLabel->setFont(font);
-        autosearchLabel = new QLabel(miscellaneousTab);
-        autosearchLabel->setObjectName(QString::fromUtf8("autosearchLabel"));
-        autosearchLabel->setGeometry(QRect(10, 180, 160, 20));
-        autosearchLabel->setFont(font);
         loggingLabel = new QLabel(miscellaneousTab);
         loggingLabel->setObjectName(QString::fromUtf8("loggingLabel"));
-        loggingLabel->setGeometry(QRect(10, 220, 160, 20));
+        loggingLabel->setGeometry(QRect(10, 260, 160, 20));
         loggingLabel->setFont(font);
         soundCombobox = new QComboBox(miscellaneousTab);
         soundCombobox->setObjectName(QString::fromUtf8("soundCombobox"));
-        soundCombobox->setGeometry(QRect(180, 60, 240, 20));
+        soundCombobox->setGeometry(QRect(180, 140, 240, 20));
         QFont font6;
         font6.setFamily(QString::fromUtf8("Arial"));
         font6.setPointSize(9);
@@ -348,22 +346,34 @@ public:
         soundCombobox->setMaxCount(10);
         privategamenameTextfield = new QLineEdit(miscellaneousTab);
         privategamenameTextfield->setObjectName(QString::fromUtf8("privategamenameTextfield"));
-        privategamenameTextfield->setGeometry(QRect(180, 100, 240, 20));
+        privategamenameTextfield->setGeometry(QRect(180, 180, 240, 20));
         privategamenameTextfield->setFont(font4);
         botprefixTextfield = new QLineEdit(miscellaneousTab);
         botprefixTextfield->setObjectName(QString::fromUtf8("botprefixTextfield"));
-        botprefixTextfield->setGeometry(QRect(180, 140, 240, 20));
+        botprefixTextfield->setGeometry(QRect(180, 220, 240, 20));
         botprefixTextfield->setFont(font4);
-        autosearchCombobox = new QComboBox(miscellaneousTab);
-        autosearchCombobox->setObjectName(QString::fromUtf8("autosearchCombobox"));
-        autosearchCombobox->setGeometry(QRect(180, 180, 240, 20));
-        autosearchCombobox->setFont(font6);
-        autosearchCombobox->setMaxCount(10);
         logCombobox = new QComboBox(miscellaneousTab);
         logCombobox->setObjectName(QString::fromUtf8("logCombobox"));
-        logCombobox->setGeometry(QRect(180, 220, 240, 20));
+        logCombobox->setGeometry(QRect(180, 260, 240, 20));
         logCombobox->setFont(font6);
         logCombobox->setMaxCount(10);
+        ghostgrazPasswordLabel = new QLabel(miscellaneousTab);
+        ghostgrazPasswordLabel->setObjectName(QString::fromUtf8("ghostgrazPasswordLabel"));
+        ghostgrazPasswordLabel->setGeometry(QRect(10, 100, 160, 20));
+        ghostgrazPasswordLabel->setFont(font);
+        ghostgrazUsernameLabel = new QLabel(miscellaneousTab);
+        ghostgrazUsernameLabel->setObjectName(QString::fromUtf8("ghostgrazUsernameLabel"));
+        ghostgrazUsernameLabel->setGeometry(QRect(10, 60, 160, 20));
+        ghostgrazUsernameLabel->setFont(font);
+        ghostgrazUsernameTextfield = new QLineEdit(miscellaneousTab);
+        ghostgrazUsernameTextfield->setObjectName(QString::fromUtf8("ghostgrazUsernameTextfield"));
+        ghostgrazUsernameTextfield->setGeometry(QRect(180, 60, 240, 20));
+        ghostgrazUsernameTextfield->setFont(font4);
+        ghostgrazPasswordTextfield = new QLineEdit(miscellaneousTab);
+        ghostgrazPasswordTextfield->setObjectName(QString::fromUtf8("ghostgrazPasswordTextfield"));
+        ghostgrazPasswordTextfield->setGeometry(QRect(180, 100, 240, 20));
+        ghostgrazPasswordTextfield->setFont(font4);
+        ghostgrazPasswordTextfield->setEchoMode(QLineEdit::Password);
         optionsTabWidget->addTab(miscellaneousTab, QString());
 
         retranslateUi(ConfigGUI);
@@ -380,24 +390,77 @@ public:
     void retranslateUi(QDialog *ConfigGUI)
     {
         ConfigGUI->setWindowTitle(QApplication::translate("ConfigGUI", "GProxy Options", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        channelLabel->setWhatsThis(QApplication::translate("ConfigGUI", "This is the first channel that GProxy will join after logging in to battle.net.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
         channelLabel->setText(QApplication::translate("ConfigGUI", "Channel:", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        serverLabel->setWhatsThis(QApplication::translate("ConfigGUI", "Select the battle.net server you want GProxy to connect to.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
         serverLabel->setText(QApplication::translate("ConfigGUI", "Battle.net server:", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        tftKeyLabel->setWhatsThis(QApplication::translate("ConfigGUI", "GProxy needs your cd keys to connect to battle.net.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
         tftKeyLabel->setText(QApplication::translate("ConfigGUI", "The Frozen Throne CD key:", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        war3versionLabel->setWhatsThis(QApplication::translate("ConfigGUI", "This is the Warcraft 3 patch version.\n"
+"If you had to update Warcraft 3, you probably have to increase this number too.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
         war3versionLabel->setText(QApplication::translate("ConfigGUI", "Warcraft 3 patch version:", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        usernameLabel->setWhatsThis(QApplication::translate("ConfigGUI", "Fill in your battle.net username.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
         usernameLabel->setText(QApplication::translate("ConfigGUI", "Username:", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        war3pathLabel->setWhatsThis(QApplication::translate("ConfigGUI", "The Warcraft 3 install direcoty is needed to connected to battle.net.\n"
+"It is also needed to start Warcraft 3 with GProxy.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
         war3pathLabel->setText(QApplication::translate("ConfigGUI", "Warcraft 3 Install directory:", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        rocKeyLabel->setWhatsThis(QApplication::translate("ConfigGUI", "GProxy needs your cd keys to connect to battle.net.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
         rocKeyLabel->setText(QApplication::translate("ConfigGUI", "Reign of Chaos CD key:", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        passwordLabel->setWhatsThis(QApplication::translate("ConfigGUI", "Fill in your battle.net password.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
         passwordLabel->setText(QApplication::translate("ConfigGUI", "Password:", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        portLabel->setWhatsThis(QApplication::translate("ConfigGUI", "This is the port which GProxy will use.\n"
+"If you don't know what a port is I recommend you to not change this number.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
         portLabel->setText(QApplication::translate("ConfigGUI", "Port:", 0, QApplication::UnicodeUTF8));
         connectionHeaderLabel->setText(QApplication::translate("ConfigGUI", "Connection", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        cdkeyrocTextfield->setWhatsThis(QApplication::translate("ConfigGUI", "GProxy needs your cd keys to connect to battle.net.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
         cdkeyrocTextfield->setText(QString());
         cdkeyrocTextfield->setPlaceholderText(QApplication::translate("ConfigGUI", "Reign of Chaos CD key", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        cdkeytftTextfield->setWhatsThis(QApplication::translate("ConfigGUI", "GProxy needs your cd keys to connect to battle.net.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
         cdkeytftTextfield->setPlaceholderText(QApplication::translate("ConfigGUI", "The Frozen Throne CD key", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        usernameTextfield->setWhatsThis(QApplication::translate("ConfigGUI", "Fill in your battle.net username.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
         usernameTextfield->setPlaceholderText(QApplication::translate("ConfigGUI", "Username", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        passwordTextfield->setWhatsThis(QApplication::translate("ConfigGUI", "Fill in your battle.net password.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
         passwordTextfield->setText(QString());
         passwordTextfield->setPlaceholderText(QApplication::translate("ConfigGUI", "Password", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        channelTextfield->setWhatsThis(QApplication::translate("ConfigGUI", "This is the first channel that GProxy will join after logging in to battle.net.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
         channelTextfield->setPlaceholderText(QApplication::translate("ConfigGUI", "Channel", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        war3versionTextfield->setWhatsThis(QApplication::translate("ConfigGUI", "This is the Warcraft 3 patch version.\n"
+"If you had to update Warcraft 3, you probably have to increase this number too.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
         war3versionTextfield->setPlaceholderText(QApplication::translate("ConfigGUI", "Warcraft 3 patch version", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        portTextfield->setWhatsThis(QApplication::translate("ConfigGUI", "This is the port which GProxy will use.\n"
+"If you don't know what a port is I recommend you to not change this number.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
         portTextfield->setPlaceholderText(QApplication::translate("ConfigGUI", "Port", 0, QApplication::UnicodeUTF8));
         serverCombobox->clear();
         serverCombobox->insertItems(0, QStringList()
@@ -407,8 +470,17 @@ public:
          << QApplication::translate("ConfigGUI", "Europe (Northrend)", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ConfigGUI", "PvPGN Server", 0, QApplication::UnicodeUTF8)
         );
+#ifndef QT_NO_WHATSTHIS
+        serverCombobox->setWhatsThis(QApplication::translate("ConfigGUI", "Select the battle.net server you want GProxy to connect to.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
+#ifndef QT_NO_WHATSTHIS
+        war3pathButton->setWhatsThis(QApplication::translate("ConfigGUI", "If you click on this button, a file dialog will be opened to select the Warcraft 3 path.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
         war3pathButton->setText(QApplication::translate("ConfigGUI", "...", 0, QApplication::UnicodeUTF8));
         optionsTabWidget->setTabText(optionsTabWidget->indexOf(connectionTab), QApplication::translate("ConfigGUI", "Connection", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        pvpgnHeaderLabel->setWhatsThis(QApplication::translate("ConfigGUI", "PvPGN (Player vs Player Gaming Network) is a bnetd based gaming network server emulation project. More information can be found at www.google.com ;P", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
         pvpgnHeaderLabel->setText(QApplication::translate("ConfigGUI", "Player vs Player Gaming Network", 0, QApplication::UnicodeUTF8));
         exeversionhashLabel->setText(QApplication::translate("ConfigGUI", "Exe vesion hash:", 0, QApplication::UnicodeUTF8));
         exeversionhashTextfield->setText(QString());
@@ -421,6 +493,10 @@ public:
         passwordhashtypeTextfield->setPlaceholderText(QApplication::translate("ConfigGUI", "Password hash type", 0, QApplication::UnicodeUTF8));
         optionsTabWidget->setTabText(optionsTabWidget->indexOf(pvpgnTab), QApplication::translate("ConfigGUI", "PvPGN", 0, QApplication::UnicodeUTF8));
         appearanceHeaderLabel->setText(QApplication::translate("ConfigGUI", "Appearance", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        appearanceOutputareaTab->setWhatsThis(QApplication::translate("ConfigGUI", "The output area is the big field at the left side of GProxy.\n"
+"Here you can will see all chat messages and much more.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
         outputareaForegroundcolorLabel->setText(QApplication::translate("ConfigGUI", "Foreground color:", 0, QApplication::UnicodeUTF8));
         outputareaBackgroundcolorLabel->setText(QApplication::translate("ConfigGUI", "Background color:", 0, QApplication::UnicodeUTF8));
         outputareaHeaderLabel->setText(QApplication::translate("ConfigGUI", "Output area", 0, QApplication::UnicodeUTF8));
@@ -429,35 +505,87 @@ public:
         outputareaBackgroundcolorButton->setText(QApplication::translate("ConfigGUI", "Change background color", 0, QApplication::UnicodeUTF8));
         outputareaFontButton->setText(QApplication::translate("ConfigGUI", "Change font", 0, QApplication::UnicodeUTF8));
         appearanceTabWidget->setTabText(appearanceTabWidget->indexOf(appearanceOutputareaTab), QApplication::translate("ConfigGUI", "Ouput area", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        appearanceInputareaTab->setWhatsThis(QApplication::translate("ConfigGUI", "The input area is the small textfield at the bottom.\n"
+"Here you can type chat messages and commands.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
         appearanceTabWidget->setTabText(appearanceTabWidget->indexOf(appearanceInputareaTab), QApplication::translate("ConfigGUI", "Input area", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        appearanceGamelistTab->setWhatsThis(QApplication::translate("ConfigGUI", "The (GhostGraz) gamelist contains all games hosted by GhostGraz.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
         appearanceTabWidget->setTabText(appearanceTabWidget->indexOf(appearanceGamelistTab), QApplication::translate("ConfigGUI", "Gamelist", 0, QApplication::UnicodeUTF8));
-        appearanceTabWidget->setTabText(appearanceTabWidget->indexOf(appearanceChannelTab), QApplication::translate("ConfigGUI", "Channel", 0, QApplication::UnicodeUTF8));
         optionsTabWidget->setTabText(optionsTabWidget->indexOf(appearanceTab), QApplication::translate("ConfigGUI", "Appearance", 0, QApplication::UnicodeUTF8));
         miscellaneousHeaderLabel->setText(QApplication::translate("ConfigGUI", "Miscellaneous", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        soundLabel->setWhatsThis(QApplication::translate("ConfigGUI", "If the sound is enabled GProxy will play a sound for some events.\n"
+"For example: Whipser or player left.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
         soundLabel->setText(QApplication::translate("ConfigGUI", "Sound:", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        privategamenameLabel->setWhatsThis(QApplication::translate("ConfigGUI", "The privategamename is needed for the /waitgame feature.\n"
+"This is the name of the game the bot will create.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
         privategamenameLabel->setText(QApplication::translate("ConfigGUI", "Privategamename:", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        botprefixLabel->setWhatsThis(QApplication::translate("ConfigGUI", "The botprefix is needed for the /waitgame feature. Waitgame will wait for a bot which name starts with the botprefix.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
         botprefixLabel->setText(QApplication::translate("ConfigGUI", "Botprefix:", 0, QApplication::UnicodeUTF8));
-        autosearchLabel->setText(QApplication::translate("ConfigGUI", "Autosearch:", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        loggingLabel->setWhatsThis(QApplication::translate("ConfigGUI", "If logging is enabled GProxy will write various messages to the log file.\n"
+"The log file is located in the folder where the .exe is and is named gproxy_log.txt.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
         loggingLabel->setText(QApplication::translate("ConfigGUI", "Log:", 0, QApplication::UnicodeUTF8));
         soundCombobox->clear();
         soundCombobox->insertItems(0, QStringList()
          << QApplication::translate("ConfigGUI", "Enabled", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ConfigGUI", "Disabled", 0, QApplication::UnicodeUTF8)
         );
+#ifndef QT_NO_WHATSTHIS
+        soundCombobox->setWhatsThis(QApplication::translate("ConfigGUI", "If the sound is enabled GProxy will play a sound for some events.\n"
+"For example: Whipser or player left.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
+#ifndef QT_NO_WHATSTHIS
+        privategamenameTextfield->setWhatsThis(QApplication::translate("ConfigGUI", "The privategamename is needed for the /waitgame feature.\n"
+"This is the name of the game the bot will create.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
         privategamenameTextfield->setText(QString());
         privategamenameTextfield->setPlaceholderText(QApplication::translate("ConfigGUI", "Privategamename", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        botprefixTextfield->setWhatsThis(QApplication::translate("ConfigGUI", "The botprefix is needed for the /waitgame feature. Waitgame will wait for a bot which name starts with the botprefix.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
         botprefixTextfield->setText(QString());
         botprefixTextfield->setPlaceholderText(QApplication::translate("ConfigGUI", "Botprefix", 0, QApplication::UnicodeUTF8));
-        autosearchCombobox->clear();
-        autosearchCombobox->insertItems(0, QStringList()
-         << QApplication::translate("ConfigGUI", "Enabled", 0, QApplication::UnicodeUTF8)
-         << QApplication::translate("ConfigGUI", "Disabled", 0, QApplication::UnicodeUTF8)
-        );
         logCombobox->clear();
         logCombobox->insertItems(0, QStringList()
          << QApplication::translate("ConfigGUI", "Enabled", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ConfigGUI", "Disabled", 0, QApplication::UnicodeUTF8)
         );
+#ifndef QT_NO_WHATSTHIS
+        logCombobox->setWhatsThis(QApplication::translate("ConfigGUI", "If logging is enabled GProxy will write various messages to the log file.\n"
+"The log file is located in the folder where the .exe is and is named gproxy_log.txt.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
+#ifndef QT_NO_WHATSTHIS
+        ghostgrazPasswordLabel->setWhatsThis(QApplication::translate("ConfigGUI", "The GhostGraz password is needed for the connection to the statspage.\n"
+"(E.g. retrieve stay ratio)", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
+        ghostgrazPasswordLabel->setText(QApplication::translate("ConfigGUI", "GhostGraz password:", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        ghostgrazUsernameLabel->setWhatsThis(QApplication::translate("ConfigGUI", "The GhostGraz username is needed for the connection to the statspage.\n"
+"(E.g. retrieve stay ratio)", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
+        ghostgrazUsernameLabel->setText(QApplication::translate("ConfigGUI", "GhostGraz username:", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        ghostgrazUsernameTextfield->setWhatsThis(QApplication::translate("ConfigGUI", "The GhostGraz username is needed for the connection to the statspage.\n"
+"(E.g. retrieve stay ratio)", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
+        ghostgrazUsernameTextfield->setText(QString());
+        ghostgrazUsernameTextfield->setPlaceholderText(QApplication::translate("ConfigGUI", "GhostGraz username", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        ghostgrazPasswordTextfield->setWhatsThis(QApplication::translate("ConfigGUI", "The GhostGraz password is needed for the connection to the statspage.\n"
+"(E.g. retrieve stay ratio)", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
+        ghostgrazPasswordTextfield->setText(QString());
+        ghostgrazPasswordTextfield->setPlaceholderText(QApplication::translate("ConfigGUI", "GhostGraz password", 0, QApplication::UnicodeUTF8));
         optionsTabWidget->setTabText(optionsTabWidget->indexOf(miscellaneousTab), QApplication::translate("ConfigGUI", "Miscellaneous", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 

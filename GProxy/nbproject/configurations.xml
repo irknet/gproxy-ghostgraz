@@ -8,6 +8,9 @@
         <itemPath>source/delegate/ChannellistDelegate.h</itemPath>
         <itemPath>source/delegate/GamelistDelegate.h</itemPath>
       </logicalFolder>
+      <logicalFolder name="f4" displayName="statspage" projectFiles="true">
+        <itemPath>source/statspage/Statspage.h</itemPath>
+      </logicalFolder>
       <logicalFolder name="f3" displayName="thread" projectFiles="true">
         <itemPath>source/thread/DownloadThread.h</itemPath>
         <itemPath>source/thread/GproxyUpdateThread.h</itemPath>
@@ -18,7 +21,10 @@
       </logicalFolder>
       <itemPath>source/Config.h</itemPath>
       <itemPath>source/ConfigGUI.h</itemPath>
+      <itemPath>source/GhostGrazLogininformationDialog.h</itemPath>
       <itemPath>source/MainGUI.h</itemPath>
+      <itemPath>source/OutputareaColorDialog.h</itemPath>
+      <itemPath>source/Player.h</itemPath>
       <itemPath>source/bncsutilinterface.h</itemPath>
       <itemPath>source/bnet.h</itemPath>
       <itemPath>source/bnetprotocol.h</itemPath>
@@ -34,7 +40,9 @@
                    displayName="Resource Files"
                    projectFiles="true">
       <itemPath>source/ConfigGUI.ui</itemPath>
+      <itemPath>source/GhostGrazLogininformationDialog.ui</itemPath>
       <itemPath>source/MainGUI.ui</itemPath>
+      <itemPath>source/OutputareaColorDialog.ui</itemPath>
       <itemPath>source/resources.qrc</itemPath>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
@@ -43,6 +51,9 @@
       <logicalFolder name="f1" displayName="delegate" projectFiles="true">
         <itemPath>source/delegate/ChannellistDelegate.cpp</itemPath>
         <itemPath>source/delegate/GamelistDelegate.cpp</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f4" displayName="statspage" projectFiles="true">
+        <itemPath>source/statspage/Statspage.cpp</itemPath>
       </logicalFolder>
       <logicalFolder name="f3" displayName="thread" projectFiles="true">
         <itemPath>source/thread/DownloadThread.cpp</itemPath>
@@ -54,7 +65,10 @@
       </logicalFolder>
       <itemPath>source/Config.cpp</itemPath>
       <itemPath>source/ConfigGUI.cpp</itemPath>
+      <itemPath>source/GhostGrazLogininformationDialog.cpp</itemPath>
       <itemPath>source/MainGUI.cpp</itemPath>
+      <itemPath>source/OutputareaColorDialog.cpp</itemPath>
+      <itemPath>source/Player.cpp</itemPath>
       <itemPath>source/bncsutilinterface.cpp</itemPath>
       <itemPath>source/bnet.cpp</itemPath>
       <itemPath>source/bnetprotocol.cpp</itemPath>
@@ -69,6 +83,14 @@
                    displayName="Test Files"
                    projectFiles="false"
                    kind="TEST_LOGICAL_FOLDER">
+      <logicalFolder name="f1"
+                     displayName="New C++ Simple Test"
+                     projectFiles="true"
+                     kind="TEST">
+        <itemPath>TestClass.cpp</itemPath>
+        <itemPath>TestClass.h</itemPath>
+        <itemPath>tests/newsimpletest.cpp</itemPath>
+      </logicalFolder>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -141,6 +163,21 @@
           </makeArtifact>
         </requiredProjects>
       </compileType>
+      <folder path="TestFiles/f1">
+        <cTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles/f1</output>
+        </linkerTool>
+      </folder>
     </conf>
     <conf name="Release" type="4">
       <toolsSet>
@@ -215,6 +252,21 @@
           </makeArtifact>
         </requiredProjects>
       </compileType>
+      <folder path="TestFiles/f1">
+        <cTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles/f1</output>
+        </linkerTool>
+      </folder>
     </conf>
   </confs>
 </configurationDescriptor>

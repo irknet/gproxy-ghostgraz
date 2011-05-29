@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'MainGUI.h'
 **
-** Created: Mon 23. May 21:27:15 2011
+** Created: Sun 29. May 14:09:50 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_MainGUI[] = {
        5,       // revision
        0,       // classname
        0,    0, // classinfo
-      21,   14, // methods
+      25,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -52,6 +52,10 @@ static const uint qt_meta_data_MainGUI[] = {
      577,  568,    8,    8, 0x0a,
      628,  615,    8,    8, 0x0a,
      654,    8,    8,    8, 0x0a,
+     673,    8,    8,    8, 0x0a,
+     709,  698,    8,    8, 0x0a,
+     731,  698,    8,    8, 0x0a,
+     758,  751,    8,    8, 0x0a,
 
        0        // eod
 };
@@ -74,7 +78,10 @@ static const char qt_meta_stringdata_MainGUI[] = {
     "addGame(QString,QString,QString)\0"
     "slotList\0setGameslots(vector<CIncomingSlots*>)\0"
     "errorMessage\0showErrorMessage(QString)\0"
-    "showConfigDialog()\0"
+    "showConfigDialog()\0statspageLoginFinished()\0"
+    "playerName\0playerJoined(QString)\0"
+    "playerLeft(QString)\0player\0"
+    "receivedPlayerInformation(Player*)\0"
 };
 
 const QMetaObject MainGUI::staticMetaObject = {
@@ -127,9 +134,13 @@ int MainGUI::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         case 18: setGameslots((*reinterpret_cast< vector<CIncomingSlots*>(*)>(_a[1]))); break;
         case 19: showErrorMessage((*reinterpret_cast< QString(*)>(_a[1]))); break;
         case 20: showConfigDialog(); break;
+        case 21: statspageLoginFinished(); break;
+        case 22: playerJoined((*reinterpret_cast< const QString(*)>(_a[1]))); break;
+        case 23: playerLeft((*reinterpret_cast< const QString(*)>(_a[1]))); break;
+        case 24: receivedPlayerInformation((*reinterpret_cast< Player*(*)>(_a[1]))); break;
         default: ;
         }
-        _id -= 21;
+        _id -= 25;
     }
     return _id;
 }

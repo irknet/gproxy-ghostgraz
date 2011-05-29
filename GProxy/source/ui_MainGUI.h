@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainGUI.ui'
 **
-** Created: Mon 23. May 20:22:57 2011
+** Created: Sun 29. May 14:09:30 2011
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -64,7 +64,7 @@ public:
         centralwidget = new QWidget(MainGUI);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         QPalette palette;
-        QBrush brush(QColor(255, 255, 255, 255));
+        QBrush brush(QColor(230, 230, 230, 255));
         brush.setStyle(Qt::SolidPattern);
         palette.setBrush(QPalette::Active, QPalette::Text, brush);
         QBrush brush1(QColor(0, 0, 0, 255));
@@ -75,7 +75,9 @@ public:
         QBrush brush2(QColor(120, 120, 120, 255));
         brush2.setStyle(Qt::SolidPattern);
         palette.setBrush(QPalette::Disabled, QPalette::Text, brush2);
-        palette.setBrush(QPalette::Disabled, QPalette::Base, brush);
+        QBrush brush3(QColor(255, 255, 255, 255));
+        brush3.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Disabled, QPalette::Base, brush3);
         centralwidget->setPalette(palette);
         QFont font;
         font.setFamily(QString::fromUtf8("Courier New"));
@@ -166,7 +168,7 @@ public:
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:'Arial'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Courier New'; font-size:12pt;\"></p></body></html>", 0, QApplication::UnicodeUTF8));
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Terminal'; font-size:12pt; font-weight:600;\"></p></body></html>", 0, QApplication::UnicodeUTF8));
         inputField->setPlainText(QString());
         channelField->setText(QApplication::translate("MainGUI", "Channel", 0, QApplication::UnicodeUTF8));
         refreshButton->setText(QApplication::translate("MainGUI", "Refresh", 0, QApplication::UnicodeUTF8));

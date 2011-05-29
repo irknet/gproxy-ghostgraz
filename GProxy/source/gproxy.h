@@ -37,7 +37,6 @@
 #include <QString>
 #include <QObject>
 
-
 using namespace std;
 
 typedef vector<unsigned char> BYTEARRAY;
@@ -243,7 +242,7 @@ public:
     CGProxy();
     ~CGProxy( );
 
-    void init(string cpublic ,string cfilter, bool temp_displayautocreated, bool listing_current_games);
+    void init(string cpublic ,string cfilter, bool temp_displayautocreated, bool listing_current_games, bool status);
     void cleanup();
     void applyConfig();
 
@@ -259,7 +258,7 @@ public:
     bool AddGame( CIncomingGameHost *game );
     void SendLocalChat( string message );
     void sendGamemessage(QString message, bool alliesOnly = false);
-    bool CheckForwarding ( string MessageString );
+    bool CheckForwarding ( QString message );
     void changeTeam( unsigned char team );
     void SendEmptyAction( );
 
@@ -345,6 +344,8 @@ signals:
     void signal_addFriend(QString, bool, QString);
     void signal_setGameslots(vector<CIncomingSlots*>);
     void signal_showErrorMessage(QString);
+    void signal_playerJoined(const QString &);
+    void signal_playerLeft(const QString &);
 };
 
 

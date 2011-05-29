@@ -17,6 +17,7 @@
 #include "ConfigGUI.h"
 #include "thread/DownloadThread.h"
 #include "thread/GproxyUpdateThread.h"
+#include "statspage/Statspage.h"
 
 #include <signal.h>
 #include <stdlib.h>
@@ -165,7 +166,13 @@ int main (int argc, char **argv)
             mainGUI, SLOT(setGameslots(vector<CIncomingSlots*>)), Qt::QueuedConnection);
 
     QObject::connect(gproxy, SIGNAL(signal_showErrorMessage(QString)),
-            mainGUI, SLOT(showErrorMessage(QString)));
+            mainGUI, SLOT(showErrorMessage(QString)), Qt::QueuedConnection);
+
+    QObject::connect(gproxy, SIGNAL(signal_playerJoined(const QString &)),
+            mainGUI, SLOT(playerJoined(const QString &)), Qt::QueuedConnection);
+
+    QObject::connect(gproxy, SIGNAL(signal_playerLeft(const QString &)),
+            mainGUI, SLOT(playerLeft(const QString &)), Qt::QueuedConnection);
 
     QLocale::setDefault(QLocale::English);
 
@@ -177,11 +184,8 @@ int main (int argc, char **argv)
     Config *config = new Config("gproxy.cfg");
     gproxy->setConfig(config);
 
-    int status = config->loadConfig();
-    if (gproxy->checkStatus(status) == false)
-    {
-        return 1;
-    }
+    int statusCode = config->loadConfig();
+    bool status = gproxy->checkStatus(statusCode);
 
     mainGUI->init();
 
@@ -216,7 +220,7 @@ int main (int argc, char **argv)
             "<font color=\"deeppink\">Pr0gm4n</font> and "
             "<font color=\"gold\">Manufactoring</font>.");
 
-    gproxy->init("", "", true, false);
+    gproxy->init("", "", true, false, status);
 
     return app.exec();
 }
@@ -228,7 +232,7 @@ int main (int argc, char **argv)
 CGProxy::CGProxy () { }
 
 void CGProxy::init (string cpublic, string cfilter, bool temp_displayautocreated,
-        bool listing_current_games)
+        bool listing_current_games, bool status)
 {
     m_Version = mainGUI->windowTitle().remove(0, 7).toStdString();
     m_LocalServer = new CTCPServer();
@@ -284,7 +288,10 @@ void CGProxy::init (string cpublic, string cfilter, bool temp_displayautocreated
     downloadThread->start(QThread::LowestPriority);
 
     gproxyUpdateThread = new GproxyUpdateThread(gproxy);
-    gproxyUpdateThread->start(QThread::HighPriority);
+    if (status == true)
+    {
+        gproxyUpdateThread->start(QThread::HighPriority);
+    }
 
     CONSOLE_Print("[GPROXY] Customized GProxy++ Version " + QString::fromStdString(m_Version));
 }
@@ -349,7 +356,7 @@ void CGProxy::cleanup ()
         delete *it;
     }
 
-    if(logFile->isOpen())
+    if (logFile->isOpen())
     {
         logFile->close();
     }
@@ -1027,7 +1034,7 @@ void CGProxy::ExtractLocalPackets ()
                                     }
                                 }
 
-                                Forward = CheckForwarding(MessageString);
+                                Forward = CheckForwarding(QString::fromStdString(MessageString));
                             }
                         }
                     }
@@ -1061,30 +1068,33 @@ void CGProxy::ExtractLocalPackets ()
     }
 }
 
-bool CGProxy::CheckForwarding (string MessageString)
+bool CGProxy::CheckForwarding (QString message)
 {
-    bool Forward = true;
-    string Command = MessageString;
-    transform(Command.begin(), Command.end(), Command.begin(), (int(*)(int))tolower);
+    bool forward = true;
+    QString command = message.toLower();
 
-    if (Command.size() >= 1 && Command.substr(0, 1) == "/")
+    if (command.length() >= 1 && command.startsWith("/"))
     {
-        Forward = false;
+        forward = false;
 
-        if (Command.substr(0, 3) == "/p " || Command.substr(0, 8) == "/phrase ")
+        if (command.startsWith("/p ") || command.startsWith("/phrase "))
         {
             string filePath = "phrase/";
 
-            if (Command.substr(0, 3) == "/p ")
-                filePath.append(Command.substr(3));
-            else if (Command.substr(0, 8) == "/phrase ")
-                filePath.append(Command.substr(8));
+            if (command.startsWith("/p "))
+            {
+                filePath.append(command.mid(3).toStdString());
+            }
+            else
+            {
+                filePath.append(command.mid(8).toStdString());
+            }
 
             if (!textEndsWith(filePath, ".txt"))
             {
                 filePath.append(".txt");
             }
-            //
+
             char help[100];
             unsigned int i;
             for (i = 0; i < 100; i++)
@@ -1111,7 +1121,7 @@ bool CGProxy::CheckForwarding (string MessageString)
                             }
                             else
                             {
-                                //                                Sleep(50);
+                                // Sleep(50);
                             }
                         }
                         else
@@ -1123,7 +1133,7 @@ bool CGProxy::CheckForwarding (string MessageString)
                         gproxy->m_BNET->QueueChatCommand(QString::fromStdString(tmp));
                 }
                 while (!infile.eof());
-                //SendLocalChat("->>>>>>finished sending->>>>>>>>");
+
                 infile.close();
             }
             else
@@ -1132,22 +1142,27 @@ bool CGProxy::CheckForwarding (string MessageString)
                 SendLocalChat(string() + "File \"" + help + "\" does not exist!");
             }
         }
-        else if (Command.size() >= 5 && Command.substr(0, 4) == "/re ")
+        else if (command.length() >= 5 && command.startsWith("/re "))
         {
             if (m_BNET->GetLoggedIn())
             {
                 if (!m_BNET->GetReplyTarget().empty())
                 {
-                    m_BNET->QueueChatCommand(QString::fromStdString(MessageString.substr(4)), m_BNET->GetReplyTarget(), true);
-                    SendLocalChat("Whispered to " + m_BNET->GetReplyTarget() + ": " + MessageString.substr(4));
+                    m_BNET->QueueChatCommand(message.mid(4), m_BNET->GetReplyTarget(), true);
+                    SendLocalChat("Whispered to " + m_BNET->GetReplyTarget() + ": " + message.mid(4).toStdString());
                 }
                 else
+                {
                     SendLocalChat("Nobody has whispered you yet.");
+                }
             }
             else
+            {
                 SendLocalChat("You are not connected to battle.net.");
+            }
         }
-        else if (Command == "/sc" || Command == "/spoof" || Command == "/spoofcheck" || Command == "/spoof check")
+        else if (command == "/sc" || command == "/spoof"
+                || command == "/spoofcheck" || command == "/spoof check")
         {
             if (m_BNET->GetLoggedIn())
             {
@@ -1157,159 +1172,198 @@ bool CGProxy::CheckForwarding (string MessageString)
                     SendLocalChat("Whispered to " + m_HostName + ": spoofcheck");
                 }
                 else
+                {
                     SendLocalChat("The game has already started.");
+                }
             }
             else
+            {
                 SendLocalChat("You are not connected to battle.net.");
+            }
         }
-        else if (Command.substr(0, 4) == "/wh ")
+        else if (command.startsWith("/wh "))
         {
-            string mess = Command.substr(4, Command.size() - 4);
-            m_BNET->QueueChatCommand(QString::fromStdString(mess), m_HostName, true);
-            SendLocalChat("Whispered to host [" + m_HostName + "] " + mess);
+            QString msg = command.mid(4, command.length() - 4);
+            m_BNET->QueueChatCommand(msg, m_HostName, true);
+            SendLocalChat("Whispered to host [" + m_HostName + "] " + msg.toStdString());
         }
-        else if (Command.substr(0, 5) == "/whs ")
+        else if (command.startsWith("/whs "))
         {
-            string mess = Command.substr(5, Command.size() - 5);
-            m_BNET->QueueChatCommand("!say " + QString::fromStdString(mess), m_HostName, true);
-            SendLocalChat("Whispered to host [" + m_HostName + "] !say " + mess);
+            QString msg = command.mid(5, command.length() - 5);
+            m_BNET->QueueChatCommand("!say " + msg, m_HostName, true);
+            SendLocalChat("Whispered to host [" + m_HostName + "] !say " + msg.toStdString());
         }
-        else if (Command.substr(0, 5) == "/cmd ")
-            m_BNET->QueueChatCommand(QString::fromStdString(Command.substr(5, Command.size() - 5)));
-        else if (Command == "/host")
+        else if (command.startsWith("/cmd "))
+        {
+            m_BNET->QueueChatCommand(command.mid(5, command.length() - 5));
+        }
+        else if (command == "/host")
+        {
             SendLocalChat("Hosting player/bot is [" + m_HostName + "]. (use '/wh <message>' to whisper to him)");
-        else if (Command == "/status")
+        }
+        else if (command == "/status")
         {
             if (m_LocalSocket)
             {
                 if (m_GameIsReliable && m_ReconnectPort > 0)
+                {
                     SendLocalChat("GProxy++ disconnect protection: Enabled");
+                }
                 else
+                {
                     SendLocalChat("GProxy++ disconnect protection: Disabled");
+                }
 
                 if (m_BNET->GetLoggedIn())
+                {
                     SendLocalChat("battle.net: Connected");
+                }
                 else
+                {
                     SendLocalChat("battle.net: Disconnected");
+                }
+
+                if (mainGUI->getStatspage()->isLoggedIn())
+                {
+                    SendLocalChat("GhostGraz statspage: Available");
+                }
+                else
+                {
+                    SendLocalChat("GhostGraz statspage: Not available");
+                }
             }
         }
-        else if (Command.size() >= 4 && Command.substr(0, 3) == "/w ")
+        else if (command.length() >= 4 && command.startsWith("/w "))
         {
             if (m_BNET->GetLoggedIn())
             {
-                int Messagebegins = Command.find_first_of(" ", 4);
+                int messageBeginIndex = command.indexOf(" ", 4);
 
-                if (Messagebegins != -1)
+                if (messageBeginIndex != -1 && messageBeginIndex != 0)
                 {
-                    m_BNET->QueueChatCommand(QString::fromStdString(MessageString));
-                    SendLocalChat("Whisper to " + MessageString.substr(3, Messagebegins - 3) + ": " + MessageString.substr(Messagebegins));
+                    m_BNET->QueueChatCommand(message);
+                    SendLocalChat("Whisper to "
+                            + message.mid(3, messageBeginIndex - 3).toStdString()
+                            + ": " + message.mid(messageBeginIndex).toStdString());
                 }
             }
             else
+            {
                 SendLocalChat("You are not connected to battle.net.");
+            }
         }
-        else if (Command.size() >= 2 && Command.substr(0, 2) == "/s" && Command.substr(0, 3) != "/sd")
+        else if (command.startsWith("/s") && !command.startsWith("/sd")
+                && command != "/statslast" && command != "/sl")
         {
-            QString message;
+            QString msg;
 
-            if (Command.size() == 2)
+            if (command.length() == 2)
             {
-                message = "!stats";
+                msg = "!stats";
             }
             else
             {
-                message = QString("!stats").append(
-                        QString::fromStdString(Command.substr(2)));
+                msg = QString("!stats").append(
+                        message.mid(2));
             }
 
             if (!gproxy->m_BNET->GetInGame())
             {
-                gproxy->m_BNET->QueueChatCommand(message);
+                gproxy->m_BNET->QueueChatCommand(msg);
             }
             else
             {
-                gproxy->sendGamemessage(message);
+                gproxy->sendGamemessage(msg);
             }
         }
-        else if (Command.size() >= 3 && Command.substr(0, 3) == "/sd")
+        else if (command.startsWith("/sd"))
         {
-            QString message;
+            QString msg;
 
-            if (Command.size() == 3)
+            if (command.length() == 3)
             {
-                message = "!statsdota";
+                msg = "!statsdota";
             }
             else
             {
-                message = QString("!statsdota").append(
-                        QString::fromStdString(Command.substr(3)));
+                msg = QString("!statsdota").append(
+                        message.mid(3));
             }
 
             if (!gproxy->m_BNET->GetInGame())
             {
-                gproxy->m_BNET->QueueChatCommand(message);
+                gproxy->m_BNET->QueueChatCommand(msg);
             }
             else
             {
-                gproxy->sendGamemessage(message);
+                gproxy->sendGamemessage(msg);
             }
+        }
+        else if (command == "/statslast" || command == "/sl")
+        {
+            gproxy->sendGamemessage("!stats " + mainGUI->getLastLeaver()->getName());
         }
     }
-    else if (Command.size() >= 1 && Command.substr(0, 1) == "!")
+    else if (command.length() >= 1 && command.startsWith("!"))
     {
-        if (Command.substr(0, 6) == "!stats" || Command.substr(0, 10) == "!statsdota")
+        if (command.startsWith("!stats") || command.startsWith("!statsdota"))
         {
             return true;
         }
-        else if (Command.size() >= 2 && Command.substr(0, 2) == "!s" && Command.substr(0, 3) != "!sd")
+        else if (command.startsWith("!s") && !command.startsWith("!sd")
+                && command != "!statslast" && command != "!sl")
         {
-            QString message;
+            QString msg;
 
-            if (Command == "!s")
+            if (command == "!s")
             {
-                message = "!stats";
+                msg = "!stats";
             }
-            else if (Command.substr(2, 1) == " ")
+            else if (command.mid(2, 1) == " ")
             {
-                message = QString("!stats").append(
-                        QString::fromStdString(Command.substr(2)));
+                msg = QString("!stats").append(
+                        message.mid(2));
             }
 
             if (!gproxy->m_BNET->GetInGame())
             {
-                gproxy->m_BNET->QueueChatCommand(message);
+                gproxy->m_BNET->QueueChatCommand(msg);
             }
             else
             {
-                gproxy->sendGamemessage(message);
+                gproxy->sendGamemessage(msg);
             }
         }
-        else if (Command.size() >= 3 && Command.substr(0, 3) == "!sd")
+        else if (command.startsWith("!sd"))
         {
-            QString message;
+            QString msg;
 
-            if (Command == "!sd")
+            if (command == "!sd")
             {
-                message = "!statsdota";
+                msg = "!statsdota";
             }
-            else if (Command.substr(3, 1) == " ")
+            else if (command.mid(3, 1) == " ")
             {
-                message = QString("!statsdota").append(
-                        QString::fromStdString(Command.substr(3)));
+                msg = QString("!statsdota").append(
+                        message.mid(3));
             }
 
             if (!gproxy->m_BNET->GetInGame())
             {
-                gproxy->m_BNET->QueueChatCommand(message);
+                gproxy->m_BNET->QueueChatCommand(msg);
             }
             else
             {
-                gproxy->sendGamemessage(message);
+                gproxy->sendGamemessage(msg);
             }
+        }
+        else if (command == "!statslast" || command == "!sl")
+        {
+            gproxy->sendGamemessage("!stats " + mainGUI->getLastLeaver()->getName());
         }
     }
 
-    return Forward;
+    return forward;
 }
 
 void CGProxy::ProcessLocalPackets ()
@@ -1582,16 +1636,9 @@ void CGProxy::ProcessRemotePackets ()
             if (Packet->GetID() == CGameProtocol::W3GS_PLAYERLEAVE_OTHERS)
             {
                 BYTEARRAY Data = Packet->GetData();
+                QString playerName = QString::fromStdString(players[((int) Data[4])].GetName());
 
-                /*for( vector<CIncomingSlots *> :: iterator it = slotList.begin( ); it != slotList.end( ); it++ )
-                {
-                        if( (*it)->GetPID() == ((int) Data[4]) )
-                        {
-                                delete *it;
-                                it = slotList.erase(it);
-                                break;
-                        }
-                }*/
+                emit signal_playerLeft(playerName);
 
                 if (gproxy->m_GameStarted)
                 {
@@ -1599,10 +1646,13 @@ void CGProxy::ProcessRemotePackets ()
                     {
                         QSound::play("sounds/leaver_detected.wav");
                     }
-                    CONSOLE_Print("[ALL] " + QString::fromStdString(players[((int) Data[4])].GetName()) + " has left the game.");
+
+                    CONSOLE_Print("[ALL] " + playerName + " has left the game.");
                 }
                 else
-                    CONSOLE_Print("[LOBBY] " + QString::fromStdString(players[((int) Data[4])].GetName()) + " has left the game.");
+                {
+                    CONSOLE_Print("[LOBBY] " + playerName + " has left the game.");
+                }
             }
             if (Packet->GetID() == CGameProtocol::W3GS_SLOTINFOJOIN)
             {
@@ -1672,6 +1722,7 @@ void CGProxy::ProcessRemotePackets ()
                         i += 9;
                     }
 
+                    emit signal_playerJoined(username);
                     emit signal_setGameslots(slotList);
                 }
                 else
@@ -1759,18 +1810,9 @@ void CGProxy::ProcessRemotePackets ()
                 BYTEARRAY Name = UTIL_ExtractCString(data, i);
                 string playersName = UTIL_ToColoredText(string(Name.begin(), Name.end()));
 
-                //playerNames[PID] = playersName;
-
                 players[PID] = CPlayer(playersName);
-                CONSOLE_Print("[LOBBY] " + QString::fromStdString(playersName) + " has joined the game.");
 
-                //                for (vector<CIncomingFriendList *> ::iterator i = vFriendList.begin(); i != vFriendList.end(); i++)
-                //                {
-                //                    if (((CIncomingFriendList *) (*i))->GetAccount().compare(playersName) == 0)
-                //                    {
-                //                        QSound::play("sounds/vip_joins.wav");
-                //                    }
-                //                }
+                emit signal_playerJoined(QString::fromStdString(playersName));
             }
             else if (Packet->GetID() == CGameProtocol::W3GS_MAPCHECK)
             {
@@ -2216,7 +2258,7 @@ void CGProxy::sendGamemessage (QString message, bool alliesOnly)
         packet = gproxy->m_GameProtocol->SEND_W3GS_CHAT_TO_HOST(gproxy->m_ChatPID, toPIDs, 32, extraFlags, message.toStdString());
     }
 
-    if (CheckForwarding(message.toStdString()))
+    if (CheckForwarding(message))
     {
         m_PacketBuffer.push(new CCommandPacket(W3GS_HEADER_CONSTANT, packet[1], packet));
         m_LocalPackets.push(new CCommandPacket(W3GS_HEADER_CONSTANT, packet[1], packet));
@@ -2327,7 +2369,7 @@ bool CGProxy::checkStatus (int statusCode)
         {
             ConfigGUI *configGUI = new ConfigGUI(gproxy->getConfig(), true);
             configGUI->show();
-            return true;
+            return false;
         }
         case 2:
         {

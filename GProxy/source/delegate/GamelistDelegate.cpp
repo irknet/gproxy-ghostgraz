@@ -13,7 +13,7 @@ const
 
     if (gamename.startsWith("in channel") || gamename == "-")
     {
-        brush = QBrush(QColor(255, 255, 255));
+        brush = QBrush(QColor(230, 230, 230));
     }
 
     QRect rect = option.rect;
@@ -62,6 +62,6 @@ QBrush GamelistDelegate::getBrush (int openSlots) const
     }
     else
     {
-        return QBrush(QColor(255, 255, 255));
+        return QBrush(QColor(230, 230, 230));
     }
 }

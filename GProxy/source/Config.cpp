@@ -62,10 +62,11 @@ void Config::addKeys ()
     vKey.append("passwordhashtype");
 
     vKey.append("# Optional config values");
+    vKey.append("ghostgrazUsername");
+    vKey.append("ghostgrazPassword");
     vKey.append("sound");
     vKey.append("privategamename");
     vKey.append("botprefix");
-    vKey.append("autosearch");
     vKey.append("log");
 
     vKey.append("# Application config values");
@@ -148,10 +149,6 @@ void Config::addDefaultValue (const QString &key)
     else if (key == "botprefix")
     {
         vValue.append("GhostGraz");
-    }
-    else if (key == "autosearch")
-    {
-        vValue.append("Enabled");
     }
     else if (key == "log")
     {

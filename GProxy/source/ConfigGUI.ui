@@ -35,6 +35,12 @@
      <height>30</height>
     </rect>
    </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <property name="locale">
     <locale language="English" country="UnitedStates"/>
    </property>
@@ -56,6 +62,12 @@
      <width>450</width>
      <height>520</height>
     </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
    </property>
    <property name="currentIndex">
     <number>0</number>
@@ -89,6 +101,9 @@
        <bold>true</bold>
       </font>
      </property>
+     <property name="whatsThis">
+      <string>This is the first channel that GProxy will join after logging in to battle.net.</string>
+     </property>
      <property name="text">
       <string>Channel:</string>
      </property>
@@ -109,6 +124,9 @@
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="whatsThis">
+      <string>Select the battle.net server you want GProxy to connect to.</string>
      </property>
      <property name="text">
       <string>Battle.net server:</string>
@@ -131,6 +149,9 @@
        <bold>true</bold>
       </font>
      </property>
+     <property name="whatsThis">
+      <string>GProxy needs your cd keys to connect to battle.net.</string>
+     </property>
      <property name="text">
       <string>The Frozen Throne CD key:</string>
      </property>
@@ -151,6 +172,10 @@
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="whatsThis">
+      <string>This is the Warcraft 3 patch version.
+If you had to update Warcraft 3, you probably have to increase this number too.</string>
      </property>
      <property name="text">
       <string>Warcraft 3 patch version:</string>
@@ -173,6 +198,9 @@
        <bold>true</bold>
       </font>
      </property>
+     <property name="whatsThis">
+      <string>Fill in your battle.net username.</string>
+     </property>
      <property name="text">
       <string>Username:</string>
      </property>
@@ -193,6 +221,10 @@
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="whatsThis">
+      <string>The Warcraft 3 install direcoty is needed to connected to battle.net.
+It is also needed to start Warcraft 3 with GProxy.</string>
      </property>
      <property name="text">
       <string>Warcraft 3 Install directory:</string>
@@ -215,6 +247,9 @@
        <bold>true</bold>
       </font>
      </property>
+     <property name="whatsThis">
+      <string>GProxy needs your cd keys to connect to battle.net.</string>
+     </property>
      <property name="text">
       <string>Reign of Chaos CD key:</string>
      </property>
@@ -236,6 +271,9 @@
        <bold>true</bold>
       </font>
      </property>
+     <property name="whatsThis">
+      <string>Fill in your battle.net password.</string>
+     </property>
      <property name="text">
       <string>Password:</string>
      </property>
@@ -256,6 +294,10 @@
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="whatsThis">
+      <string>This is the port which GProxy will use.
+If you don't know what a port is I recommend you to not change this number.</string>
      </property>
      <property name="text">
       <string>Port:</string>
@@ -298,6 +340,9 @@
        <bold>false</bold>
       </font>
      </property>
+     <property name="whatsThis">
+      <string>GProxy needs your cd keys to connect to battle.net.</string>
+     </property>
      <property name="text">
       <string/>
      </property>
@@ -320,6 +365,9 @@
        <bold>false</bold>
       </font>
      </property>
+     <property name="whatsThis">
+      <string>GProxy needs your cd keys to connect to battle.net.</string>
+     </property>
      <property name="placeholderText">
       <string>The Frozen Throne CD key</string>
      </property>
@@ -339,6 +387,9 @@
        <bold>false</bold>
       </font>
      </property>
+     <property name="whatsThis">
+      <string>Fill in your battle.net username.</string>
+     </property>
      <property name="placeholderText">
       <string>Username</string>
      </property>
@@ -357,6 +408,9 @@
        <weight>50</weight>
        <bold>false</bold>
       </font>
+     </property>
+     <property name="whatsThis">
+      <string>Fill in your battle.net password.</string>
      </property>
      <property name="text">
       <string/>
@@ -383,6 +437,9 @@
        <bold>false</bold>
       </font>
      </property>
+     <property name="whatsThis">
+      <string>This is the first channel that GProxy will join after logging in to battle.net.</string>
+     </property>
      <property name="placeholderText">
       <string>Channel</string>
      </property>
@@ -401,6 +458,10 @@
        <weight>50</weight>
        <bold>false</bold>
       </font>
+     </property>
+     <property name="whatsThis">
+      <string>This is the Warcraft 3 patch version.
+If you had to update Warcraft 3, you probably have to increase this number too.</string>
      </property>
      <property name="placeholderText">
       <string>Warcraft 3 patch version</string>
@@ -421,6 +482,10 @@
        <bold>false</bold>
       </font>
      </property>
+     <property name="whatsThis">
+      <string>This is the port which GProxy will use.
+If you don't know what a port is I recommend you to not change this number.</string>
+     </property>
      <property name="placeholderText">
       <string>Port</string>
      </property>
@@ -439,6 +504,9 @@
        <weight>50</weight>
        <bold>false</bold>
       </font>
+     </property>
+     <property name="whatsThis">
+      <string>Select the battle.net server you want GProxy to connect to.</string>
      </property>
      <property name="maxCount">
       <number>6</number>
@@ -478,6 +546,9 @@
        <height>20</height>
       </rect>
      </property>
+     <property name="whatsThis">
+      <string>If you click on this button, a file dialog will be opened to select the Warcraft 3 path.</string>
+     </property>
      <property name="text">
       <string>...</string>
      </property>
@@ -509,6 +580,9 @@
        <weight>75</weight>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="whatsThis">
+      <string>PvPGN (Player vs Player Gaming Network) is a bnetd based gaming network server emulation project. More information can be found at www.google.com ;P</string>
      </property>
      <property name="text">
       <string>Player vs Player Gaming Network</string>
@@ -694,6 +768,10 @@
       <number>0</number>
      </property>
      <widget class="QWidget" name="appearanceOutputareaTab">
+      <property name="whatsThis">
+       <string>The output area is the big field at the left side of GProxy.
+Here you can will see all chat messages and much more.</string>
+      </property>
       <attribute name="title">
        <string>Ouput area</string>
       </attribute>
@@ -831,18 +909,20 @@
       </widget>
      </widget>
      <widget class="QWidget" name="appearanceInputareaTab">
+      <property name="whatsThis">
+       <string>The input area is the small textfield at the bottom.
+Here you can type chat messages and commands.</string>
+      </property>
       <attribute name="title">
        <string>Input area</string>
       </attribute>
      </widget>
      <widget class="QWidget" name="appearanceGamelistTab">
+      <property name="whatsThis">
+       <string>The (GhostGraz) gamelist contains all games hosted by GhostGraz.</string>
+      </property>
       <attribute name="title">
        <string>Gamelist</string>
-      </attribute>
-     </widget>
-     <widget class="QWidget" name="appearanceChannelTab">
-      <attribute name="title">
-       <string>Channel</string>
       </attribute>
      </widget>
     </widget>
@@ -885,48 +965,6 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>60</y>
-       <width>160</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>Arial</family>
-       <pointsize>9</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Sound:</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="privategamenameLabel">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>100</y>
-       <width>160</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>Arial</family>
-       <pointsize>9</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Privategamename:</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="botprefixLabel">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
        <y>140</y>
        <width>160</width>
        <height>20</height>
@@ -940,11 +978,15 @@
        <bold>true</bold>
       </font>
      </property>
+     <property name="whatsThis">
+      <string>If the sound is enabled GProxy will play a sound for some events.
+For example: Whipser or player left.</string>
+     </property>
      <property name="text">
-      <string>Botprefix:</string>
+      <string>Sound:</string>
      </property>
     </widget>
-    <widget class="QLabel" name="autosearchLabel">
+    <widget class="QLabel" name="privategamenameLabel">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -961,11 +1003,15 @@
        <bold>true</bold>
       </font>
      </property>
+     <property name="whatsThis">
+      <string>The privategamename is needed for the /waitgame feature.
+This is the name of the game the bot will create.</string>
+     </property>
      <property name="text">
-      <string>Autosearch:</string>
+      <string>Privategamename:</string>
      </property>
     </widget>
-    <widget class="QLabel" name="loggingLabel">
+    <widget class="QLabel" name="botprefixLabel">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -982,6 +1028,34 @@
        <bold>true</bold>
       </font>
      </property>
+     <property name="whatsThis">
+      <string>The botprefix is needed for the /waitgame feature. Waitgame will wait for a bot which name starts with the botprefix.</string>
+     </property>
+     <property name="text">
+      <string>Botprefix:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="loggingLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>260</y>
+       <width>160</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>9</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="whatsThis">
+      <string>If logging is enabled GProxy will write various messages to the log file.
+The log file is located in the folder where the .exe is and is named gproxy_log.txt.</string>
+     </property>
      <property name="text">
       <string>Log:</string>
      </property>
@@ -990,7 +1064,7 @@
      <property name="geometry">
       <rect>
        <x>180</x>
-       <y>60</y>
+       <y>140</y>
        <width>240</width>
        <height>20</height>
       </rect>
@@ -1002,6 +1076,10 @@
        <weight>50</weight>
        <bold>false</bold>
       </font>
+     </property>
+     <property name="whatsThis">
+      <string>If the sound is enabled GProxy will play a sound for some events.
+For example: Whipser or player left.</string>
      </property>
      <property name="maxCount">
       <number>10</number>
@@ -1021,7 +1099,7 @@
      <property name="geometry">
       <rect>
        <x>180</x>
-       <y>100</y>
+       <y>180</y>
        <width>240</width>
        <height>20</height>
       </rect>
@@ -1031,6 +1109,10 @@
        <family>Arial</family>
        <pointsize>9</pointsize>
       </font>
+     </property>
+     <property name="whatsThis">
+      <string>The privategamename is needed for the /waitgame feature.
+This is the name of the game the bot will create.</string>
      </property>
      <property name="text">
       <string/>
@@ -1043,59 +1125,6 @@
      <property name="geometry">
       <rect>
        <x>180</x>
-       <y>140</y>
-       <width>240</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>Arial</family>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="placeholderText">
-      <string>Botprefix</string>
-     </property>
-    </widget>
-    <widget class="QComboBox" name="autosearchCombobox">
-     <property name="geometry">
-      <rect>
-       <x>180</x>
-       <y>180</y>
-       <width>240</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>Arial</family>
-       <pointsize>9</pointsize>
-       <weight>50</weight>
-       <bold>false</bold>
-      </font>
-     </property>
-     <property name="maxCount">
-      <number>10</number>
-     </property>
-     <item>
-      <property name="text">
-       <string>Enabled</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Disabled</string>
-      </property>
-     </item>
-    </widget>
-    <widget class="QComboBox" name="logCombobox">
-     <property name="geometry">
-      <rect>
-       <x>180</x>
        <y>220</y>
        <width>240</width>
        <height>20</height>
@@ -1105,9 +1134,38 @@
       <font>
        <family>Arial</family>
        <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="whatsThis">
+      <string>The botprefix is needed for the /waitgame feature. Waitgame will wait for a bot which name starts with the botprefix.</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="placeholderText">
+      <string>Botprefix</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="logCombobox">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>260</y>
+       <width>240</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>9</pointsize>
        <weight>50</weight>
        <bold>false</bold>
       </font>
+     </property>
+     <property name="whatsThis">
+      <string>If logging is enabled GProxy will write various messages to the log file.
+The log file is located in the folder where the .exe is and is named gproxy_log.txt.</string>
      </property>
      <property name="maxCount">
       <number>10</number>
@@ -1122,6 +1180,111 @@
        <string>Disabled</string>
       </property>
      </item>
+    </widget>
+    <widget class="QLabel" name="ghostgrazPasswordLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>100</y>
+       <width>160</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>9</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="whatsThis">
+      <string>The GhostGraz password is needed for the connection to the statspage.
+(E.g. retrieve stay ratio)</string>
+     </property>
+     <property name="text">
+      <string>GhostGraz password:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="ghostgrazUsernameLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>60</y>
+       <width>160</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>9</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="whatsThis">
+      <string>The GhostGraz username is needed for the connection to the statspage.
+(E.g. retrieve stay ratio)</string>
+     </property>
+     <property name="text">
+      <string>GhostGraz username:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="ghostgrazUsernameTextfield">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>60</y>
+       <width>240</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="whatsThis">
+      <string>The GhostGraz username is needed for the connection to the statspage.
+(E.g. retrieve stay ratio)</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="placeholderText">
+      <string>GhostGraz username</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="ghostgrazPasswordTextfield">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>100</y>
+       <width>240</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="whatsThis">
+      <string>The GhostGraz password is needed for the connection to the statspage.
+(E.g. retrieve stay ratio)</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="echoMode">
+      <enum>QLineEdit::Password</enum>
+     </property>
+     <property name="placeholderText">
+      <string>GhostGraz password</string>
+     </property>
     </widget>
    </widget>
   </widget>

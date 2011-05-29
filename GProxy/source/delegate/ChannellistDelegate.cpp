@@ -18,7 +18,7 @@ const
     QColor color = index.data(ChannellistDelegate::COLOR_USER).value<QColor>();
     if (!color.isValid())
     {
-        color = QColor(255, 255, 255);
+        color = QColor(230, 230, 230);
     }
 
     painter->setPen(color);
@@ -134,7 +134,7 @@ QBrush ChannellistDelegate::getBrush (const int &colorID) const
         }
         default:
         {
-            return QBrush(QColor(255, 255, 255));
+            return QBrush(QColor(230, 230, 230));
         }
     }
 }

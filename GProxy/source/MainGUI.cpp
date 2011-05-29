@@ -7,6 +7,7 @@
 #include "thread/DownloadThread.h"
 #include "widgets/MenuBar.h"
 #include "ConfigGUI.h"
+#include "GhostGrazLogininformationDialog.h"
 
 #include <QDesktopWidget>
 #include <QScrollBar>
@@ -18,14 +19,21 @@
 #include <QTimer>
 #include <QFile>
 #include <QDateTime>
+#include <QClipboard>
 
 MainGUI::MainGUI (CGProxy *p_gproxy)
 {
     widget.setupUi(this);
     gproxy = p_gproxy;
+    lastLeaver = new Player();
+    lastLeaver->setName(gproxy->getUsername());
 }
 
-MainGUI::~MainGUI () { }
+MainGUI::~MainGUI ()
+{
+    delete statspage;
+    vPlayers.clear();
+}
 
 CGProxy* MainGUI::getGproxy ()
 {
@@ -68,8 +76,41 @@ void MainGUI::init ()
     widget.channelList->setItemDelegate(new ChannellistDelegate(gproxy));
     widget.gameList->setItemDelegate(new GamelistDelegate());
 
+    initStatspage();
     initLayout();
     initSlots();
+}
+
+void MainGUI::initConnectionDialog () {
+    //    connectionDialog = new QDialog(this);
+    //    connectionDialog->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint
+    //            | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    //    connectionDialog->setWindowTitle("Connecting...");
+    //    connectionDialog->setFixedSize(400, 300);
+    //    QLabel *connectionInfo = new QLabel(connectionDialog);
+    //    connectionInfo->setGeometry(0, 0, connectionDialog->width(), connectionDialog->height());
+}
+
+void MainGUI::initStatspage ()
+{
+    statspage = new Statspage();
+
+    Config* config = gproxy->getConfig();
+    QString ghostgrazUsername = config->getString("ghostgrazUsername");
+    QString ghostgrazPassword = config->getString("ghostgrazPassword");
+
+    if (ghostgrazUsername.isEmpty() && ghostgrazPassword.isEmpty()
+            && config->hasRequiredValues())
+    {
+        GhostGrazLogininformationDialog *dialog =
+                new GhostGrazLogininformationDialog(gproxy->getConfig(), statspage);
+        dialog->setModal(true);
+        dialog->show();
+    }
+    else
+    {
+        statspage->login(ghostgrazUsername, ghostgrazPassword);
+    }
 }
 
 void MainGUI::initLayout ()
@@ -128,6 +169,10 @@ void MainGUI::initSlots ()
             this, SLOT(onOutputFieldSliderMoved()));
     connect(widget.refreshButton, SIGNAL(clicked()),
             this, SLOT(onRefreshButtonClicked()));
+    connect(statspage, SIGNAL(loginFinished()),
+            this, SLOT(statspageLoginFinished()));
+    connect(statspage, SIGNAL(receivedPlayerInformation(Player *)),
+            this, SLOT(receivedPlayerInformation(Player *)));
 }
 
 void MainGUI::resizeEvent (QResizeEvent *event)
@@ -199,6 +244,7 @@ void MainGUI::onChannelContextMenu (const QPoint& pos)
         {
             menu.addAction(QIcon(":/images/Mail.png"), "Whisper");
             menu.addAction(QIcon(":/images/Add.png"), "Add as friend");
+            menu.addAction(QIcon(":/images/Applications.png"), "Copy name");
             menu.addAction(QIcon(":/images/Edit.png"), "!stats");
             menu.addAction(QIcon(":/images/Edit Alt.png"), "!statsdota");
         }
@@ -207,6 +253,7 @@ void MainGUI::onChannelContextMenu (const QPoint& pos)
     {
         menu.addAction(QIcon(":/images/Mail.png"), "Whisper");
         menu.addAction(QIcon(":/images/User.png"), "Whois");
+        menu.addAction(QIcon(":/images/Applications.png"), "Copy name");
         menu.addAction(QIcon(":/images/Add.png"), "Add as friend");
     }
 
@@ -245,6 +292,10 @@ void MainGUI::onChannelContextMenu (const QPoint& pos)
             }
 
             gproxy->changeTeam(team);
+        }
+        else if (action->text() == "Copy name")
+        {
+            QApplication::clipboard()->setText(user);
         }
         else if (action->text() == "Add as friend")
         {
@@ -637,7 +688,7 @@ void MainGUI::processInput (const QString& input)
             addMessage("[BNET] nobody has whispered you yet");
     }
 #ifdef WIN32
-    else if (command == "/start") // TODO: Qt version of /start (terminate windows dependency)
+    else if (command == "/start")
     {
         startWarcraft();
     }
@@ -645,7 +696,7 @@ void MainGUI::processInput (const QString& input)
     else if (command == "/version")
     {
         addMessage("[GPROXY] Customized GProxy++ Version " + QString::fromStdString(gproxy->m_Version));
-        addMessage("[GPROXY] <font color=\"white\">"
+        addMessage("[GPROXY] <font color=\"#e6e6e6\">"
                 "This mod is by <font color=\"darkgreen\">Phyton</font>, "
                 "<font color=\"deeppink\">Pr0gm4n</font> and "
                 "<font color=\"gold\">Manufactoring</font>.</font>");
@@ -712,9 +763,14 @@ void MainGUI::processInput (const QString& input)
     }
     else if (gproxy->m_BNET->GetInGame())
     {
-        if (command.startsWith("/all "))
+        if(command == "/statslast" || command == "/sl"
+                || command == "!statslast" || command == "!sl")
         {
-            gproxy->sendGamemessage(input.mid(3), true);
+            gproxy->sendGamemessage("!stats "+lastLeaver->getName());
+        }
+        else if (command.startsWith("/allies "))
+        {
+            gproxy->sendGamemessage(input.mid(8), true);
         }
         else
         {
@@ -777,7 +833,7 @@ void MainGUI::addColor (QString &message)
             message.insert(message.indexOf("]"), "</font>");
         }
 
-        message.prepend("<font color=\"White\">");
+        message.prepend("<font color=\"#e6e6e6\">");
         message.append("</font>");
     }
     else if (message.startsWith("[QUEUED]"))
@@ -794,7 +850,7 @@ void MainGUI::addColor (QString &message)
             message.insert(message.indexOf("]"), "</font>");
         }
 
-        message.prepend("<font color=\"White\">");
+        message.prepend("<font color=\"#e6e6e6\">");
         message.append("</font>");
     }
     else if (message.startsWith("[INFO]"))
@@ -837,9 +893,14 @@ void MainGUI::addColor (QString &message)
         message.prepend("<font color=\"Red\">");
         message.append("</font>");
     }
+    else if (message.startsWith("[WARNING]"))
+    {
+        message.prepend("<font color=\"OrangeRed\">");
+        message.append("</font>");
+    }
     else
     {
-        message.prepend("<font color=\"White\">");
+        message.prepend("<font color=\"#e6e6e6\">");
         message.append("</font>");
     }
 }
@@ -1118,4 +1179,87 @@ void MainGUI::showConfigDialog ()
 {
     ConfigGUI *config = new ConfigGUI(gproxy->getConfig());
     config->exec();
+}
+
+void MainGUI::statspageLoginFinished ()
+{
+    if (statspage->isLoggedIn())
+    {
+        addMessage("[GPROXY] Statspage available.");
+    }
+    else
+    {
+        addMessage("[ERROR] Statspage unavailable. You might have entered wrong username or password.");
+    }
+}
+
+void MainGUI::playerJoined (const QString& playerName)
+{
+    addMessage("[LOBBY] " + playerName + " has joined the game.");
+    vPlayers.append(new Player(playerName));
+    statspage->getPlayerInformation(playerName);
+
+    for (int i = 0; i < widget.friendList->count(); i++)
+    {
+        if (widget.friendList->item(i)->text() == playerName)
+        {
+            QSound::play("sounds/vip_joins.wav");
+            break;
+        }
+    }
+}
+
+void MainGUI::playerLeft (const QString& playerName)
+{
+    for (int i = 0; i < vPlayers.count(); i++)
+    {
+        if (vPlayers.at(i)->getName() == playerName)
+        {
+            lastLeaver = vPlayers.at(i);
+            vPlayers.remove(i);
+            break;
+        }
+    }
+}
+
+void MainGUI::receivedPlayerInformation (Player *player)
+{
+
+    foreach(Player *p, vPlayers)
+    {
+        if (p->getName() == player->getName())
+        {
+            p = player;
+            if (player->getGamesPlayed() < 20)
+            {
+                addMessage("[WARNING] " + player->getName()
+                        + " has only played " + QString::number(player->getGamesPlayed())
+                        + " games until now. (Stay ratio: "
+                        + QString::number(player->getStayPercent(), 'f', 2) + "%)");
+                gproxy->SendLocalChat("WARNING: " + player->getName().toStdString()
+                        + " has only played " + QString::number(player->getGamesPlayed()).toStdString()
+                        + " games until now. (Stay ratio: "
+                        + QString::number(player->getStayPercent(), 'f', 2).toStdString() + "%)");
+            }
+            else if (player->getStayPercent() < 80)
+            {
+                addMessage("[WARNING] " + player->getName()
+                        + " has a stay ratio below 80%. ("
+                        + QString::number(player->getStayPercent(), 'f', 2) + "%)");
+                gproxy->SendLocalChat("WARNING: " + player->getName().toStdString()
+                        + " has a stay ratio below 80%. ("
+                        + QString::number(player->getStayPercent(), 'f', 2).toStdString() + "%)");
+            }
+        }
+    }
+}
+
+Statspage* MainGUI::getStatspage ()
+{
+    return statspage;
+}
+
+Player* MainGUI::getLastLeaver ()
+{
+    return lastLeaver;
 }

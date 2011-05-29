@@ -13,5 +13,6 @@
     <file>images/Chat Bubble.png</file>
     <file>images/Add.png</file>
     <file>images/Remove.png</file>
+    <file>images/Applications.png</file>
   </qresource>
 </RCC>
