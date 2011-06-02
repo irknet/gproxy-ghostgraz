@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'OutputareaColorDialog.ui'
 **
-** Created: Sun 29. May 10:03:01 2011
+** Created: Thu 2. Jun 19:54:56 2011
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!

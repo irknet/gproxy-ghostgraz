@@ -1145,7 +1145,7 @@ CIncomingChatEvent :: CIncomingChatEvent( CBNETProtocol :: IncomingChatEvent nCh
 	m_ChatEvent = nChatEvent;
 	m_Ping = nPing;
 	m_User = QString::fromStdString(nUser);
-	m_Message = QString::fromStdString(nMessage);
+	m_Message = QString::fromUtf8(nMessage.c_str());
 }
 
 CIncomingChatEvent :: ~CIncomingChatEvent( )

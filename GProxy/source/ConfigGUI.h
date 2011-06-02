@@ -3,7 +3,6 @@
 
 #include "ui_ConfigGUI.h"
 #include "Config.h"
-#include "widgets/ClickableLineEdit.h"
 
 #include <QLineEdit>
 #include <QComboBox>

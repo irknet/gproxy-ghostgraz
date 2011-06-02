@@ -158,25 +158,13 @@ void MainGUI::initLayout ()
 
 void MainGUI::initSlots ()
 {
-    connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(onClose()));
-    connect(widget.inputField, SIGNAL(textChanged()),
-            this, SLOT(onInputFieldTextChanged()));
-    connect(widget.channelField, SIGNAL(textChanged(const QString&)),
-            this, SLOT(onChannelChanged()));
-    connect(widget.channelList, SIGNAL(customContextMenuRequested(const QPoint&)),
-            this, SLOT(onChannelContextMenu(const QPoint&)));
-    connect(widget.friendList, SIGNAL(customContextMenuRequested(const QPoint&)),
-            this, SLOT(onFriendsContextMenu(const QPoint&)));
-    connect(widget.gameList, SIGNAL(itemClicked(QListWidgetItem*)),
-            this, SLOT(onGameListItemClicked(QListWidgetItem*)));
+    connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(onClose()), Qt::QueuedConnection);
     connect(widget.outputField->verticalScrollBar(), SIGNAL(rangeChanged(int, int)),
-            this, SLOT(onOutputFieldSliderMoved()));
-    connect(widget.refreshButton, SIGNAL(clicked()),
-            this, SLOT(onRefreshButtonClicked()));
+            this, SLOT(onOutputFieldSliderMoved()), Qt::QueuedConnection);
     connect(statspage, SIGNAL(loginFinished()),
-            this, SLOT(statspageLoginFinished()));
+            this, SLOT(statspageLoginFinished()), Qt::QueuedConnection);
     connect(statspage, SIGNAL(receivedPlayerInformation(Player *)),
-            this, SLOT(receivedPlayerInformation(Player *)));
+            this, SLOT(receivedPlayerInformation(Player *)), Qt::QueuedConnection);
 }
 
 void MainGUI::resizeEvent (QResizeEvent *event)
@@ -371,14 +359,30 @@ void MainGUI::onFriendsContextMenu (const QPoint& pos)
     }
 }
 
-void MainGUI::onGameListItemClicked (QListWidgetItem* item)
+void MainGUI::onGameListItemClicked (QMouseEvent *mouseEvent)
 {
-    QString gamename = item->data(GamelistDelegate::GAMENAME).toString();
-    gproxy->m_BNET->SetSearchGameName(gamename.toStdString());
-    autosearch(false);
-    addMessage("[BNET] looking for a game named \"" + gamename
-            + "\" for up to two minutes");
     widget.inputField->setFocus();
+
+    QListWidgetItem *item = widget.gameList->itemAt(mouseEvent->pos());
+    if (!item)
+    {
+        return;
+    }
+
+    QString gamename = item->data(GamelistDelegate::GAMENAME).toString();
+
+    if (mouseEvent->button() == Qt::LeftButton && !gamename.isEmpty()
+            && gamename != "-" && gamename != "in channel ghostgraz")
+    {
+        gproxy->m_BNET->SetSearchGameName(gamename.toStdString());
+        autosearch(false);
+        addMessage("[BNET] looking for a game named \"" + gamename
+                + "\" for up to two minutes");
+    }
+    else if (mouseEvent->button() == Qt::RightButton)
+    {
+        QApplication::clipboard()->setText(gamename);
+    }
 }
 
 void MainGUI::onOutputFieldSliderMoved ()
@@ -1266,4 +1270,39 @@ Statspage* MainGUI::getStatspage ()
 Player* MainGUI::getLastLeaver ()
 {
     return lastLeaver;
+}
+
+void MainGUI::onChannellistItemClicked (QMouseEvent *mouseEvent)
+{
+    widget.inputField->setFocus();
+
+    QListWidgetItem *item = widget.channelList->itemAt(mouseEvent->pos());
+    if (!item)
+    {
+        return;
+    }
+
+    if (mouseEvent->button() == Qt::LeftButton)
+    {
+        widget.inputField->setPlainText("/w "
+                + item->data(ChannellistDelegate::USER).toString() + " ");
+        widget.inputField->moveCursor(QTextCursor::End);
+    }
+}
+
+void MainGUI::onFriendlistItemClicked (QMouseEvent *mouseEvent)
+{
+    widget.inputField->setFocus();
+
+    QListWidgetItem *item = widget.friendList->itemAt(mouseEvent->pos());
+    if (!item)
+    {
+        return;
+    }
+
+    if (mouseEvent->button() == Qt::LeftButton)
+    {
+        widget.inputField->setPlainText("/w " + item->text() + " ");
+        widget.inputField->moveCursor(QTextCursor::End);
+    }
 }

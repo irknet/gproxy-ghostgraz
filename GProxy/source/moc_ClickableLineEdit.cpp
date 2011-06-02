@@ -1,13 +1,13 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'ClickableLineEdit.h'
 **
-** Created: Sun 29. May 10:04:08 2011
+** Created: Thu 2. Jun 19:55:50 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include "widgets/ClickableLineEdit.h"
+#include "widget/ClickableLineEdit.h"
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'ClickableLineEdit.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 62

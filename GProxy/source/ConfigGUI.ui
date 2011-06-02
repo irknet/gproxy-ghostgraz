@@ -1319,7 +1319,7 @@ The log file is located in the folder where the .exe is and is named gproxy_log.
   <customwidget>
    <class>ClickableLineEdit</class>
    <extends>QLineEdit</extends>
-   <header>widgets/ClickableLineEdit.h</header>
+   <header>widget/ClickableLineEdit.h</header>
   </customwidget>
  </customwidgets>
  <resources>

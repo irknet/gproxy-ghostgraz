@@ -9,6 +9,7 @@
 #include <QString>
 #include <QDialog>
 #include <QVector>
+#include <QMouseEvent>
 
 using namespace std;
 
@@ -52,11 +53,13 @@ private slots:
     void onChannelChanged();
     void onChannelContextMenu(const QPoint&);
     void onFriendsContextMenu(const QPoint&);
-    void onGameListItemClicked(QListWidgetItem*);
+    void onGameListItemClicked(QMouseEvent*);
     void onOutputFieldSliderMoved();
     void onRefreshButtonClicked();
     void updateRefreshButton();
     void startWarcraft();
+    void onChannellistItemClicked(QMouseEvent*);
+    void onFriendlistItemClicked(QMouseEvent*);
 
 public slots:
     void addMessage(QString message, bool log = true);

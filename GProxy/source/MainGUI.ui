@@ -161,7 +161,7 @@ p, li { white-space: pre-wrap; }
      <string/>
     </property>
    </widget>
-   <widget class="QListWidget" name="channelList">
+   <widget class="ClickableListWidget" name="channelList">
     <property name="geometry">
      <rect>
       <x>900</x>
@@ -180,7 +180,7 @@ p, li { white-space: pre-wrap; }
      <enum>QAbstractItemView::SingleSelection</enum>
     </property>
    </widget>
-   <widget class="QListWidget" name="friendList">
+   <widget class="ClickableListWidget" name="friendList">
     <property name="geometry">
      <rect>
       <x>900</x>
@@ -199,7 +199,7 @@ p, li { white-space: pre-wrap; }
      <enum>QAbstractItemView::NoSelection</enum>
     </property>
    </widget>
-   <widget class="QListWidget" name="gameList">
+   <widget class="ClickableListWidget" name="gameList">
     <property name="geometry">
      <rect>
       <x>665</x>
@@ -367,6 +367,16 @@ p, li { white-space: pre-wrap; }
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ClickableListWidget</class>
+   <extends>QListWidget</extends>
+   <header>widget/ClickableListWidget.h</header>
+   <slots>
+    <signal>clicked(QMouseEvent*)</signal>
+   </slots>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="resources.qrc"/>
  </resources>
@@ -403,8 +413,144 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>gameList</sender>
+   <signal>clicked(QMouseEvent*)</signal>
+   <receiver>MainGUI</receiver>
+   <slot>onGameListItemClicked(QMouseEvent*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>780</x>
+     <y>311</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>542</x>
+     <y>277</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>inputField</sender>
+   <signal>textChanged()</signal>
+   <receiver>MainGUI</receiver>
+   <slot>onInputFieldTextChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>330</x>
+     <y>557</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>542</x>
+     <y>277</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>channelField</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>MainGUI</receiver>
+   <slot>onChannelChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>990</x>
+     <y>31</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>542</x>
+     <y>277</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>channelList</sender>
+   <signal>customContextMenuRequested(QPoint)</signal>
+   <receiver>MainGUI</receiver>
+   <slot>onChannelContextMenu(QPoint)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>990</x>
+     <y>191</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>542</x>
+     <y>277</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>friendList</sender>
+   <signal>customContextMenuRequested(QPoint)</signal>
+   <receiver>MainGUI</receiver>
+   <slot>onFriendsContextMenu(QPoint)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>990</x>
+     <y>461</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>542</x>
+     <y>277</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>refreshButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainGUI</receiver>
+   <slot>onRefreshButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>780</x>
+     <y>32</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>542</x>
+     <y>277</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>channelList</sender>
+   <signal>clicked(QMouseEvent*)</signal>
+   <receiver>MainGUI</receiver>
+   <slot>onChannellistItemClicked(QMouseEvent*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>990</x>
+     <y>191</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>542</x>
+     <y>277</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>friendList</sender>
+   <signal>clicked(QMouseEvent*)</signal>
+   <receiver>MainGUI</receiver>
+   <slot>onFriendlistItemClicked(QMouseEvent*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>990</x>
+     <y>461</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>542</x>
+     <y>277</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>showConfigDialog()</slot>
+  <slot>onGameListItemClicked(QMouseEvent*)</slot>
+  <slot>onInputFieldTextChanged()</slot>
+  <slot>onChannelChanged()</slot>
+  <slot>onRefreshButtonClicked()</slot>
+  <slot>onChannelContextMenu(QPoint)</slot>
+  <slot>onFriendsContextMenu(QPoint)</slot>
+  <slot>onChannellistItemClicked(QMouseEvent*)</slot>
+  <slot>onFriendlistItemClicked(QMouseEvent*)</slot>
  </slots>
 </ui>

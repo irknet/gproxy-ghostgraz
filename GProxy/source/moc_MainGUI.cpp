@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'MainGUI.h'
 **
-** Created: Thu 2. Jun 13:38:56 2011
+** Created: Thu 2. Jun 22:27:14 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_MainGUI[] = {
        5,       // revision
        0,       // classname
        0,    0, // classinfo
-      26,   14, // methods
+      28,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -37,26 +37,28 @@ static const uint qt_meta_data_MainGUI[] = {
       64,    8,    8,    8, 0x08,
       93,    8,    8,    8, 0x08,
      122,    8,    8,    8, 0x08,
-     162,    8,    8,    8, 0x08,
-     189,    8,    8,    8, 0x08,
-     214,    8,    8,    8, 0x08,
-     236,    8,    8,    8, 0x08,
-     264,  252,    8,    8, 0x0a,
-     297,  289,    8,    8, 0x2a,
-     325,  317,    8,    8, 0x0a,
-     365,  348,    8,    8, 0x0a,
-     406,  397,    8,    8, 0x0a,
-     433,    8,    8,    8, 0x0a,
-     476,  451,    8,    8, 0x0a,
-     508,    8,    8,    8, 0x0a,
-     551,  524,    8,    8, 0x0a,
-     593,  584,    8,    8, 0x0a,
-     644,  631,    8,    8, 0x0a,
-     670,    8,    8,    8, 0x0a,
-     689,    8,    8,    8, 0x0a,
-     725,  714,    8,    8, 0x0a,
-     747,  714,    8,    8, 0x0a,
-     774,  767,    8,    8, 0x0a,
+     158,    8,    8,    8, 0x08,
+     185,    8,    8,    8, 0x08,
+     210,    8,    8,    8, 0x08,
+     232,    8,    8,    8, 0x08,
+     248,    8,    8,    8, 0x08,
+     287,    8,    8,    8, 0x08,
+     337,  325,    8,    8, 0x0a,
+     370,  362,    8,    8, 0x2a,
+     398,  390,    8,    8, 0x0a,
+     438,  421,    8,    8, 0x0a,
+     479,  470,    8,    8, 0x0a,
+     506,    8,    8,    8, 0x0a,
+     549,  524,    8,    8, 0x0a,
+     581,    8,    8,    8, 0x0a,
+     624,  597,    8,    8, 0x0a,
+     666,  657,    8,    8, 0x0a,
+     717,  704,    8,    8, 0x0a,
+     743,    8,    8,    8, 0x0a,
+     762,    8,    8,    8, 0x0a,
+     798,  787,    8,    8, 0x0a,
+     820,  787,    8,    8, 0x0a,
+     847,  840,    8,    8, 0x0a,
 
        0        // eod
 };
@@ -65,12 +67,13 @@ static const char qt_meta_stringdata_MainGUI[] = {
     "MainGUI\0\0onClose()\0onInputFieldTextChanged()\0"
     "onChannelChanged()\0onChannelContextMenu(QPoint)\0"
     "onFriendsContextMenu(QPoint)\0"
-    "onGameListItemClicked(QListWidgetItem*)\0"
+    "onGameListItemClicked(QMouseEvent*)\0"
     "onOutputFieldSliderMoved()\0"
     "onRefreshButtonClicked()\0updateRefreshButton()\0"
-    "startWarcraft()\0message,log\0"
-    "addMessage(QString,bool)\0message\0"
-    "addMessage(QString)\0channel\0"
+    "startWarcraft()\0onChannellistItemClicked(QMouseEvent*)\0"
+    "onFriendlistItemClicked(QMouseEvent*)\0"
+    "message,log\0addMessage(QString,bool)\0"
+    "message\0addMessage(QString)\0channel\0"
     "changeChannel(QString)\0username,clanTag\0"
     "addChannelUser(QString,QString)\0"
     "username\0removeChannelUser(QString)\0"
@@ -120,30 +123,32 @@ int MainGUI::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         case 2: onChannelChanged(); break;
         case 3: onChannelContextMenu((*reinterpret_cast< const QPoint(*)>(_a[1]))); break;
         case 4: onFriendsContextMenu((*reinterpret_cast< const QPoint(*)>(_a[1]))); break;
-        case 5: onGameListItemClicked((*reinterpret_cast< QListWidgetItem*(*)>(_a[1]))); break;
+        case 5: onGameListItemClicked((*reinterpret_cast< QMouseEvent*(*)>(_a[1]))); break;
         case 6: onOutputFieldSliderMoved(); break;
         case 7: onRefreshButtonClicked(); break;
         case 8: updateRefreshButton(); break;
         case 9: startWarcraft(); break;
-        case 10: addMessage((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2]))); break;
-        case 11: addMessage((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 12: changeChannel((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 13: addChannelUser((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2]))); break;
-        case 14: removeChannelUser((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 15: clearFriendlist(); break;
-        case 16: addFriend((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2])),(*reinterpret_cast< QString(*)>(_a[3]))); break;
-        case 17: clearGamelist(); break;
-        case 18: addGame((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2])),(*reinterpret_cast< QString(*)>(_a[3]))); break;
-        case 19: setGameslots((*reinterpret_cast< vector<CIncomingSlots*>(*)>(_a[1]))); break;
-        case 20: showErrorMessage((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 21: showConfigDialog(); break;
-        case 22: statspageLoginFinished(); break;
-        case 23: playerJoined((*reinterpret_cast< const QString(*)>(_a[1]))); break;
-        case 24: playerLeft((*reinterpret_cast< const QString(*)>(_a[1]))); break;
-        case 25: receivedPlayerInformation((*reinterpret_cast< Player*(*)>(_a[1]))); break;
+        case 10: onChannellistItemClicked((*reinterpret_cast< QMouseEvent*(*)>(_a[1]))); break;
+        case 11: onFriendlistItemClicked((*reinterpret_cast< QMouseEvent*(*)>(_a[1]))); break;
+        case 12: addMessage((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2]))); break;
+        case 13: addMessage((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 14: changeChannel((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 15: addChannelUser((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2]))); break;
+        case 16: removeChannelUser((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 17: clearFriendlist(); break;
+        case 18: addFriend((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2])),(*reinterpret_cast< QString(*)>(_a[3]))); break;
+        case 19: clearGamelist(); break;
+        case 20: addGame((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2])),(*reinterpret_cast< QString(*)>(_a[3]))); break;
+        case 21: setGameslots((*reinterpret_cast< vector<CIncomingSlots*>(*)>(_a[1]))); break;
+        case 22: showErrorMessage((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 23: showConfigDialog(); break;
+        case 24: statspageLoginFinished(); break;
+        case 25: playerJoined((*reinterpret_cast< const QString(*)>(_a[1]))); break;
+        case 26: playerLeft((*reinterpret_cast< const QString(*)>(_a[1]))); break;
+        case 27: receivedPlayerInformation((*reinterpret_cast< Player*(*)>(_a[1]))); break;
         default: ;
         }
-        _id -= 26;
+        _id -= 28;
     }
     return _id;
 }

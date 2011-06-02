@@ -86,8 +86,6 @@ void DownloadThread::run ()
 
 void DownloadThread::downloadFinished (QNetworkReply *reply)
 {
-    reply->deleteLater();
-
     if (reply->error())
     {
         return;

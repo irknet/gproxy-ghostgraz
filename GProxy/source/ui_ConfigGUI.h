@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'ConfigGUI.ui'
 **
-** Created: Thu 2. Jun 11:51:14 2011
+** Created: Thu 2. Jun 19:54:56 2011
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -24,7 +24,7 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QTabWidget>
 #include <QtGui/QWidget>
-#include "widgets/ClickableLineEdit.h"
+#include "widget/ClickableLineEdit.h"
 
 QT_BEGIN_NAMESPACE
 

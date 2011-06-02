@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainGUI.ui'
 **
-** Created: Thu 2. Jun 13:20:35 2011
+** Created: Thu 2. Jun 22:25:15 2011
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -16,7 +16,6 @@
 #include <QtGui/QButtonGroup>
 #include <QtGui/QHeaderView>
 #include <QtGui/QLineEdit>
-#include <QtGui/QListWidget>
 #include <QtGui/QMainWindow>
 #include <QtGui/QMenu>
 #include <QtGui/QMenuBar>
@@ -24,6 +23,7 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QTextEdit>
 #include <QtGui/QWidget>
+#include "widget/ClickableListWidget.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -35,9 +35,9 @@ public:
     QWidget *centralwidget;
     QTextEdit *outputField;
     QPlainTextEdit *inputField;
-    QListWidget *channelList;
-    QListWidget *friendList;
-    QListWidget *gameList;
+    ClickableListWidget *channelList;
+    ClickableListWidget *friendList;
+    ClickableListWidget *gameList;
     QLineEdit *channelField;
     QPushButton *refreshButton;
     QMenuBar *menuBar;
@@ -109,19 +109,19 @@ public:
         font2.setPointSize(10);
         inputField->setFont(font2);
         inputField->setStyleSheet(QString::fromUtf8(""));
-        channelList = new QListWidget(centralwidget);
+        channelList = new ClickableListWidget(centralwidget);
         channelList->setObjectName(QString::fromUtf8("channelList"));
         channelList->setGeometry(QRect(900, 20, 181, 301));
         channelList->setContextMenuPolicy(Qt::CustomContextMenu);
         channelList->setEditTriggers(QAbstractItemView::NoEditTriggers);
         channelList->setSelectionMode(QAbstractItemView::SingleSelection);
-        friendList = new QListWidget(centralwidget);
+        friendList = new ClickableListWidget(centralwidget);
         friendList->setObjectName(QString::fromUtf8("friendList"));
         friendList->setGeometry(QRect(900, 330, 181, 221));
         friendList->setContextMenuPolicy(Qt::CustomContextMenu);
         friendList->setEditTriggers(QAbstractItemView::NoEditTriggers);
         friendList->setSelectionMode(QAbstractItemView::NoSelection);
-        gameList = new QListWidget(centralwidget);
+        gameList = new ClickableListWidget(centralwidget);
         gameList->setObjectName(QString::fromUtf8("gameList"));
         gameList->setGeometry(QRect(665, 30, 231, 521));
         gameList->setContextMenuPolicy(Qt::NoContextMenu);
@@ -167,6 +167,14 @@ public:
         retranslateUi(MainGUI);
         QObject::connect(actionOptions, SIGNAL(triggered()), MainGUI, SLOT(showConfigDialog()));
         QObject::connect(actionExit, SIGNAL(triggered()), MainGUI, SLOT(close()));
+        QObject::connect(gameList, SIGNAL(clicked(QMouseEvent*)), MainGUI, SLOT(onGameListItemClicked(QMouseEvent*)));
+        QObject::connect(inputField, SIGNAL(textChanged()), MainGUI, SLOT(onInputFieldTextChanged()));
+        QObject::connect(channelField, SIGNAL(textChanged(QString)), MainGUI, SLOT(onChannelChanged()));
+        QObject::connect(channelList, SIGNAL(customContextMenuRequested(QPoint)), MainGUI, SLOT(onChannelContextMenu(QPoint)));
+        QObject::connect(friendList, SIGNAL(customContextMenuRequested(QPoint)), MainGUI, SLOT(onFriendsContextMenu(QPoint)));
+        QObject::connect(refreshButton, SIGNAL(clicked()), MainGUI, SLOT(onRefreshButtonClicked()));
+        QObject::connect(channelList, SIGNAL(clicked(QMouseEvent*)), MainGUI, SLOT(onChannellistItemClicked(QMouseEvent*)));
+        QObject::connect(friendList, SIGNAL(clicked(QMouseEvent*)), MainGUI, SLOT(onFriendlistItemClicked(QMouseEvent*)));
 
         QMetaObject::connectSlotsByName(MainGUI);
     } // setupUi
