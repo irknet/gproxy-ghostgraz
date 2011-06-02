@@ -35,14 +35,6 @@ void ConfigGUI::init (Config *cfg, bool exitOnClose)
     this->cfg = cfg;
     widget.appearanceTab->setEnabled(false);
 
-    war3pathTextfield = new ClickableLineEdit((QWidget*) widget.war3pathLabel->parent());
-    war3pathTextfield->setObjectName("war3pathTextfield");
-    war3pathTextfield->setGeometry(180, 60, 210, 20);
-    war3pathTextfield->setFont(QFont("Arial", 9, QFont::Normal));
-    war3pathTextfield->setPlaceholderText("Warcraft 3 Install directory");
-    war3pathTextfield->setWhatsThis("The Warcraft 3 install direcoty is needed to connected to battle.net.\n"
-            "It is also needed to start Warcraft 3 with GProxy.");
-
     initValues();
     initSlots();
 
@@ -132,10 +124,6 @@ void ConfigGUI::initSlots ()
             this, SLOT(onChannelChanged(QString)));
     connect(widget.serverCombobox, SIGNAL(activated(const QString &)),
             this, SLOT(onServerComboboxItemChanged(const QString &)));
-    connect(war3pathTextfield, SIGNAL(clicked()),
-            this, SLOT(onWar3pathChangeRequest()));
-    connect(widget.war3pathButton, SIGNAL(clicked()),
-            this, SLOT(onWar3pathChangeRequest()));
     connect(widget.outputareaForegroundcolorButton, SIGNAL(clicked()),
             this, SLOT(onForegroundcolorButtonClicked()));
 }
@@ -480,11 +468,11 @@ void ConfigGUI::onWar3pathChangeRequest ()
     QFileDialog fileDialog(this);
     fileDialog.setWindowTitle("Choose your Warcraft III Install directory");
     fileDialog.setFileMode(QFileDialog::DirectoryOnly);
-    fileDialog.setDirectory(war3pathTextfield->text());
+    fileDialog.setDirectory(widget.war3pathTextfield->text());
 
     if (fileDialog.exec() == QDialog::Accepted)
     {
-        war3pathTextfield->setText(QDir::toNativeSeparators(fileDialog.selectedFiles().at(0))
+        widget.war3pathTextfield->setText(QDir::toNativeSeparators(fileDialog.selectedFiles().at(0))
                 + QDir::separator());
     }
 }

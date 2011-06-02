@@ -115,40 +115,42 @@ void MainGUI::initStatspage ()
 
 void MainGUI::initLayout ()
 {
-    unsigned int inputFieldHeight = 60;
-    unsigned int channelFieldHeight = 25;
+    int inputFieldHeight = 60;
+    int channelfieldWidth = 200;
+    int channelfieldHeight = 25;
+    int gamelistWidth = 220;
 
-    widget.refreshButton->setMinimumSize(200, channelFieldHeight);
-    widget.refreshButton->setMaximumSize(200, channelFieldHeight);
-    widget.refreshButton->move(width() - 400, 0);
+    widget.refreshButton->setMinimumSize(gamelistWidth, channelfieldHeight);
+    widget.refreshButton->setMaximumSize(gamelistWidth, channelfieldHeight);
+    widget.refreshButton->move(width() - channelfieldWidth - gamelistWidth, 0);
 
-    widget.channelField->setMinimumSize(200, channelFieldHeight);
-    widget.channelField->setMaximumSize(200, channelFieldHeight);
-    widget.channelField->move(width() - 200, 0);
+    widget.channelField->setMinimumSize(channelfieldWidth, channelfieldHeight);
+    widget.channelField->setMaximumSize(channelfieldWidth, channelfieldHeight);
+    widget.channelField->move(width() - channelfieldWidth, 0);
 
-    widget.channelList->setMinimumSize(200,
-            (height() - inputFieldHeight - channelFieldHeight) / 2);
-    widget.channelList->setMaximumSize(200,
-            (height() - inputFieldHeight - channelFieldHeight) / 2);
-    widget.channelList->move(width() - 200, channelFieldHeight);
+    widget.channelList->setMinimumSize(channelfieldWidth,
+            (height() - inputFieldHeight - channelfieldHeight) / 2);
+    widget.channelList->setMaximumSize(channelfieldWidth,
+            (height() - inputFieldHeight - channelfieldHeight) / 2);
+    widget.channelList->move(width() - channelfieldWidth, channelfieldHeight);
 
-    widget.friendList->setMinimumSize(200,
-            (height() - inputFieldHeight - channelFieldHeight) / 2);
-    widget.friendList->setMaximumSize(200,
-            (height() - inputFieldHeight - channelFieldHeight) / 2);
-    widget.friendList->move(width() - 200, channelFieldHeight +
-            (height() - inputFieldHeight - channelFieldHeight) / 2);
+    widget.friendList->setMinimumSize(channelfieldWidth,
+            (height() - inputFieldHeight - channelfieldHeight) / 2);
+    widget.friendList->setMaximumSize(channelfieldWidth,
+            (height() - inputFieldHeight - channelfieldHeight) / 2);
+    widget.friendList->move(width() - channelfieldWidth, channelfieldHeight +
+            (height() - inputFieldHeight - channelfieldHeight) / 2);
 
-    widget.gameList->setMinimumSize(200, height() - inputFieldHeight - channelFieldHeight);
-    widget.gameList->setMaximumSize(200, height() - inputFieldHeight - channelFieldHeight);
-    widget.gameList->move(width() - 400, channelFieldHeight);
+    widget.gameList->setMinimumSize(gamelistWidth, height() - inputFieldHeight - channelfieldHeight);
+    widget.gameList->setMaximumSize(gamelistWidth, height() - inputFieldHeight - channelfieldHeight);
+    widget.gameList->move(width() - channelfieldWidth - gamelistWidth, channelfieldHeight);
 
     widget.inputField->setMinimumSize(width(), inputFieldHeight);
     widget.inputField->setMaximumSize(width(), inputFieldHeight);
     widget.inputField->move(0, height() - inputFieldHeight);
 
-    widget.outputField->setMinimumSize(width() - 400, height() - inputFieldHeight);
-    widget.outputField->setMaximumSize(width() - 400, height() - inputFieldHeight);
+    widget.outputField->setMinimumSize(width() - channelfieldWidth - gamelistWidth, height() - inputFieldHeight);
+    widget.outputField->setMaximumSize(width() - channelfieldWidth - gamelistWidth, height() - inputFieldHeight);
     widget.outputField->move(0, 0);
 }
 

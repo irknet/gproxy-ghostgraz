@@ -21,7 +21,6 @@ public:
 private:
     Ui::ConfigGUI widget;
     Config *cfg;
-    ClickableLineEdit *war3pathTextfield;
     bool exitOnClose;
 
     void init(Config *cfg, bool exitOnClose);

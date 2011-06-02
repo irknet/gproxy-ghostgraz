@@ -553,6 +553,32 @@ If you don't know what a port is I recommend you to not change this number.</str
       <string>...</string>
      </property>
     </widget>
+    <widget class="ClickableLineEdit" name="war3pathTextfield">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>60</y>
+       <width>210</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="whatsThis">
+      <string>The Warcraft 3 install direcoty is needed to connected to battle.net.
+It is also needed to start Warcraft 3 with GProxy.</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="placeholderText">
+      <string>Warcraft 3 Install directory</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QWidget" name="pvpgnTab">
     <attribute name="title">
@@ -1289,6 +1315,13 @@ The log file is located in the folder where the .exe is and is named gproxy_log.
    </widget>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ClickableLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>widgets/ClickableLineEdit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="resources.qrc"/>
  </resources>
@@ -1325,5 +1358,40 @@ The log file is located in the folder where the .exe is and is named gproxy_log.
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>war3pathTextfield</sender>
+   <signal>clicked()</signal>
+   <receiver>ConfigGUI</receiver>
+   <slot>onWar3pathChangeRequest()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>286</x>
+     <y>91</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>224</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>war3pathButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ConfigGUI</receiver>
+   <slot>onWar3pathChangeRequest()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>406</x>
+     <y>91</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>224</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
+ <slots>
+  <slot>onWar3pathChangeRequest()</slot>
+ </slots>
 </ui>

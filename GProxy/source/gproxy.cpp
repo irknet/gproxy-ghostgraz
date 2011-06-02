@@ -1252,51 +1252,26 @@ bool CGProxy::CheckForwarding (QString message)
                 SendLocalChat("You are not connected to battle.net.");
             }
         }
-        else if (command.startsWith("/s") && !command.startsWith("/sd")
-                && command != "/statslast" && command != "/sl")
+        else if (command == "/s" || command.startsWith("/s "))
         {
-            QString msg;
-
-            if (command.length() == 2)
+            if (command == "/s")
             {
-                msg = "!stats";
+                gproxy->sendGamemessage("!stats");
             }
             else
             {
-                msg = QString("!stats").append(
-                        message.mid(2));
-            }
-
-            if (!gproxy->m_BNET->GetInGame())
-            {
-                gproxy->m_BNET->QueueChatCommand(msg);
-            }
-            else
-            {
-                gproxy->sendGamemessage(msg);
+                gproxy->sendGamemessage("!stats "+message.mid(3));
             }
         }
-        else if (command.startsWith("/sd"))
+        else if (command == "/sd" || command.startsWith("/sd "))
         {
-            QString msg;
-
-            if (command.length() == 3)
+            if (command == "/sd")
             {
-                msg = "!statsdota";
+                gproxy->sendGamemessage("!statsdota");
             }
             else
             {
-                msg = QString("!statsdota").append(
-                        message.mid(3));
-            }
-
-            if (!gproxy->m_BNET->GetInGame())
-            {
-                gproxy->m_BNET->QueueChatCommand(msg);
-            }
-            else
-            {
-                gproxy->sendGamemessage(msg);
+                gproxy->sendGamemessage("!statsdota "+message.mid(4));
             }
         }
         else if (command == "/statslast" || command == "/sl")
@@ -1310,51 +1285,26 @@ bool CGProxy::CheckForwarding (QString message)
         {
             return true;
         }
-        else if (command.startsWith("!s") && !command.startsWith("!sd")
-                && command != "!statslast" && command != "!sl")
+        else if (command == "!s" || command.startsWith("!s "))
         {
-            QString msg;
-
             if (command == "!s")
             {
-                msg = "!stats";
-            }
-            else if (command.mid(2, 1) == " ")
-            {
-                msg = QString("!stats").append(
-                        message.mid(2));
-            }
-
-            if (!gproxy->m_BNET->GetInGame())
-            {
-                gproxy->m_BNET->QueueChatCommand(msg);
+                gproxy->sendGamemessage("!stats");
             }
             else
             {
-                gproxy->sendGamemessage(msg);
+                gproxy->sendGamemessage("!stats "+message.mid(3));
             }
         }
-        else if (command.startsWith("!sd"))
+        else if (command == "!sd" || command.startsWith("!sd "))
         {
-            QString msg;
-
             if (command == "!sd")
             {
-                msg = "!statsdota";
+                gproxy->sendGamemessage("!statsdota");
             }
             else if (command.mid(3, 1) == " ")
             {
-                msg = QString("!statsdota").append(
-                        message.mid(3));
-            }
-
-            if (!gproxy->m_BNET->GetInGame())
-            {
-                gproxy->m_BNET->QueueChatCommand(msg);
-            }
-            else
-            {
-                gproxy->sendGamemessage(msg);
+                gproxy->sendGamemessage("!statsdota "+message.mid(4));
             }
         }
         else if (command == "!statslast" || command == "!sl")

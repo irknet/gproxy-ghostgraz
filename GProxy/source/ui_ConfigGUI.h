@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'ConfigGUI.ui'
 **
-** Created: Sun 29. May 14:42:05 2011
+** Created: Thu 2. Jun 11:51:14 2011
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -24,6 +24,7 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QTabWidget>
 #include <QtGui/QWidget>
+#include "widgets/ClickableLineEdit.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -52,6 +53,7 @@ public:
     QLineEdit *portTextfield;
     QComboBox *serverCombobox;
     QPushButton *war3pathButton;
+    ClickableLineEdit *war3pathTextfield;
     QWidget *pvpgnTab;
     QLabel *pvpgnHeaderLabel;
     QLabel *exeversionhashLabel;
@@ -208,6 +210,10 @@ public:
         war3pathButton = new QPushButton(connectionTab);
         war3pathButton->setObjectName(QString::fromUtf8("war3pathButton"));
         war3pathButton->setGeometry(QRect(390, 60, 30, 20));
+        war3pathTextfield = new ClickableLineEdit(connectionTab);
+        war3pathTextfield->setObjectName(QString::fromUtf8("war3pathTextfield"));
+        war3pathTextfield->setGeometry(QRect(180, 60, 210, 20));
+        war3pathTextfield->setFont(font2);
         optionsTabWidget->addTab(connectionTab, QString());
         pvpgnTab = new QWidget();
         pvpgnTab->setObjectName(QString::fromUtf8("pvpgnTab"));
@@ -379,6 +385,8 @@ public:
         retranslateUi(ConfigGUI);
         QObject::connect(buttonBox, SIGNAL(accepted()), ConfigGUI, SLOT(accept()));
         QObject::connect(buttonBox, SIGNAL(rejected()), ConfigGUI, SLOT(reject()));
+        QObject::connect(war3pathTextfield, SIGNAL(clicked()), ConfigGUI, SLOT(onWar3pathChangeRequest()));
+        QObject::connect(war3pathButton, SIGNAL(clicked()), ConfigGUI, SLOT(onWar3pathChangeRequest()));
 
         optionsTabWidget->setCurrentIndex(0);
         appearanceTabWidget->setCurrentIndex(0);
@@ -477,6 +485,12 @@ public:
         war3pathButton->setWhatsThis(QApplication::translate("ConfigGUI", "If you click on this button, a file dialog will be opened to select the Warcraft 3 path.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_WHATSTHIS
         war3pathButton->setText(QApplication::translate("ConfigGUI", "...", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        war3pathTextfield->setWhatsThis(QApplication::translate("ConfigGUI", "The Warcraft 3 install direcoty is needed to connected to battle.net.\n"
+"It is also needed to start Warcraft 3 with GProxy.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
+        war3pathTextfield->setText(QString());
+        war3pathTextfield->setPlaceholderText(QApplication::translate("ConfigGUI", "Warcraft 3 Install directory", 0, QApplication::UnicodeUTF8));
         optionsTabWidget->setTabText(optionsTabWidget->indexOf(connectionTab), QApplication::translate("ConfigGUI", "Connection", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_WHATSTHIS
         pvpgnHeaderLabel->setWhatsThis(QApplication::translate("ConfigGUI", "PvPGN (Player vs Player Gaming Network) is a bnetd based gaming network server emulation project. More information can be found at www.google.com ;P", 0, QApplication::UnicodeUTF8));
