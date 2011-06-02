@@ -31,7 +31,6 @@ public:
     CGProxy* getGproxy();
     Statspage* getStatspage();
     Player* getLastLeaver();
-    void startWarcraft();
 
 private:
     Ui::MainGUI widget;
@@ -57,6 +56,7 @@ private slots:
     void onOutputFieldSliderMoved();
     void onRefreshButtonClicked();
     void updateRefreshButton();
+    void startWarcraft();
 
 public slots:
     void addMessage(QString message, bool log = true);

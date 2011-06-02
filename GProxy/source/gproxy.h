@@ -346,6 +346,7 @@ signals:
     void signal_showErrorMessage(QString);
     void signal_playerJoined(const QString &);
     void signal_playerLeft(const QString &);
+    void signal_stopDownloadThread();
 };
 
 

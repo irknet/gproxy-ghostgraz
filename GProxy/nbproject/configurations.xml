@@ -17,7 +17,6 @@
       </logicalFolder>
       <logicalFolder name="f1" displayName="widgets" projectFiles="true">
         <itemPath>source/widgets/ClickableLineEdit.h</itemPath>
-        <itemPath>source/widgets/MenuBar.h</itemPath>
       </logicalFolder>
       <itemPath>source/Config.h</itemPath>
       <itemPath>source/ConfigGUI.h</itemPath>
@@ -29,7 +28,6 @@
       <itemPath>source/bnet.h</itemPath>
       <itemPath>source/bnetprotocol.h</itemPath>
       <itemPath>source/commandpacket.h</itemPath>
-      <itemPath>source/config_.h</itemPath>
       <itemPath>source/gameprotocol.h</itemPath>
       <itemPath>source/gproxy.h</itemPath>
       <itemPath>source/gpsprotocol.h</itemPath>
@@ -61,7 +59,6 @@
       </logicalFolder>
       <logicalFolder name="f2" displayName="widgets" projectFiles="true">
         <itemPath>source/widgets/ClickableLineEdit.cpp</itemPath>
-        <itemPath>source/widgets/MenuBar.cpp</itemPath>
       </logicalFolder>
       <itemPath>source/Config.cpp</itemPath>
       <itemPath>source/ConfigGUI.cpp</itemPath>
@@ -87,8 +84,8 @@
                      displayName="New C++ Simple Test"
                      projectFiles="true"
                      kind="TEST">
-        <itemPath>TestClass.cpp</itemPath>
-        <itemPath>TestClass.h</itemPath>
+        <itemPath>tests/TestClass.cpp</itemPath>
+        <itemPath>tests/TestClass.h</itemPath>
         <itemPath>tests/newsimpletest.cpp</itemPath>
       </logicalFolder>
     </logicalFolder>
@@ -167,10 +164,12 @@
         <cTool>
           <incDir>
             <pElem>.</pElem>
+            <pElem>.</pElem>
           </incDir>
         </cTool>
         <ccTool>
           <incDir>
+            <pElem>.</pElem>
             <pElem>.</pElem>
           </incDir>
         </ccTool>
@@ -256,10 +255,12 @@
         <cTool>
           <incDir>
             <pElem>.</pElem>
+            <pElem>.</pElem>
           </incDir>
         </cTool>
         <ccTool>
           <incDir>
+            <pElem>.</pElem>
             <pElem>.</pElem>
           </incDir>
         </ccTool>

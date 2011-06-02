@@ -7,7 +7,7 @@ Statspage::Statspage ()
 
 Statspage::~Statspage ()
 {
-    delete manager;
+    manager->deleteLater();
 }
 
 void Statspage::getPlayerInformation (const QString& playerName)

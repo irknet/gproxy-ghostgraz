@@ -361,10 +361,9 @@ void CGProxy::cleanup ()
         logFile->close();
     }
     delete logFile;
+
     delete mainGUI;
-    mainGUI = NULL;
     delete gproxy;
-    gproxy = NULL;
 }
 
 void CGProxy::applyConfig ()

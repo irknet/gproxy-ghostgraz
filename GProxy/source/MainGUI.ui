@@ -329,6 +329,34 @@ p, li { white-space: pre-wrap; }
     </property>
    </widget>
   </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1085</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionOptions"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <addaction name="menuFile"/>
+  </widget>
+  <action name="actionOptions">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/images/Tool.png</normaloff>:/images/Tool.png</iconset>
+   </property>
+   <property name="text">
+    <string>Options</string>
+   </property>
+  </action>
   <action name="actionExit">
    <property name="icon">
     <iconset resource="resources.qrc">
@@ -338,28 +366,30 @@ p, li { white-space: pre-wrap; }
     <string>Exit</string>
    </property>
   </action>
-  <action name="actionConfig">
-   <property name="icon">
-    <iconset resource="resources.qrc">
-     <normaloff>:/images/Tool.png</normaloff>:/images/Tool.png</iconset>
-   </property>
-   <property name="text">
-    <string>Config</string>
-   </property>
-  </action>
-  <action name="actionAction">
-   <property name="text">
-    <string>action</string>
-   </property>
-  </action>
  </widget>
  <resources>
   <include location="resources.qrc"/>
  </resources>
  <connections>
   <connection>
+   <sender>actionOptions</sender>
+   <signal>triggered()</signal>
+   <receiver>MainGUI</receiver>
+   <slot>showConfigDialog()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>542</x>
+     <y>277</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>actionExit</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainGUI</receiver>
    <slot>close()</slot>
    <hints>
@@ -368,10 +398,13 @@ p, li { white-space: pre-wrap; }
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>540</x>
-     <y>288</y>
+     <x>542</x>
+     <y>277</y>
     </hint>
    </hints>
   </connection>
  </connections>
+ <slots>
+  <slot>showConfigDialog()</slot>
+ </slots>
 </ui>

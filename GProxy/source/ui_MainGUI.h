@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainGUI.ui'
 **
-** Created: Sun 29. May 14:09:30 2011
+** Created: Thu 2. Jun 13:20:35 2011
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -18,6 +18,8 @@
 #include <QtGui/QLineEdit>
 #include <QtGui/QListWidget>
 #include <QtGui/QMainWindow>
+#include <QtGui/QMenu>
+#include <QtGui/QMenuBar>
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QPushButton>
 #include <QtGui/QTextEdit>
@@ -28,9 +30,8 @@ QT_BEGIN_NAMESPACE
 class Ui_MainGUI
 {
 public:
+    QAction *actionOptions;
     QAction *actionExit;
-    QAction *actionConfig;
-    QAction *actionAction;
     QWidget *centralwidget;
     QTextEdit *outputField;
     QPlainTextEdit *inputField;
@@ -39,6 +40,8 @@ public:
     QListWidget *gameList;
     QLineEdit *channelField;
     QPushButton *refreshButton;
+    QMenuBar *menuBar;
+    QMenu *menuFile;
 
     void setupUi(QMainWindow *MainGUI)
     {
@@ -49,18 +52,16 @@ public:
         QIcon icon;
         icon.addFile(QString::fromUtf8(":/images/GProxy.gif"), QSize(), QIcon::Normal, QIcon::Off);
         MainGUI->setWindowIcon(icon);
+        actionOptions = new QAction(MainGUI);
+        actionOptions->setObjectName(QString::fromUtf8("actionOptions"));
+        QIcon icon1;
+        icon1.addFile(QString::fromUtf8(":/images/Tool.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionOptions->setIcon(icon1);
         actionExit = new QAction(MainGUI);
         actionExit->setObjectName(QString::fromUtf8("actionExit"));
-        QIcon icon1;
-        icon1.addFile(QString::fromUtf8(":/images/Cancel.png"), QSize(), QIcon::Normal, QIcon::Off);
-        actionExit->setIcon(icon1);
-        actionConfig = new QAction(MainGUI);
-        actionConfig->setObjectName(QString::fromUtf8("actionConfig"));
         QIcon icon2;
-        icon2.addFile(QString::fromUtf8(":/images/Tool.png"), QSize(), QIcon::Normal, QIcon::Off);
-        actionConfig->setIcon(icon2);
-        actionAction = new QAction(MainGUI);
-        actionAction->setObjectName(QString::fromUtf8("actionAction"));
+        icon2.addFile(QString::fromUtf8(":/images/Cancel.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionExit->setIcon(icon2);
         centralwidget = new QWidget(MainGUI);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         QPalette palette;
@@ -151,9 +152,21 @@ public:
         refreshButton->setObjectName(QString::fromUtf8("refreshButton"));
         refreshButton->setGeometry(QRect(670, 0, 221, 23));
         MainGUI->setCentralWidget(centralwidget);
+        menuBar = new QMenuBar(MainGUI);
+        menuBar->setObjectName(QString::fromUtf8("menuBar"));
+        menuBar->setGeometry(QRect(0, 0, 1085, 21));
+        menuFile = new QMenu(menuBar);
+        menuFile->setObjectName(QString::fromUtf8("menuFile"));
+        MainGUI->setMenuBar(menuBar);
+
+        menuBar->addAction(menuFile->menuAction());
+        menuFile->addAction(actionOptions);
+        menuFile->addSeparator();
+        menuFile->addAction(actionExit);
 
         retranslateUi(MainGUI);
-        QObject::connect(actionExit, SIGNAL(activated()), MainGUI, SLOT(close()));
+        QObject::connect(actionOptions, SIGNAL(triggered()), MainGUI, SLOT(showConfigDialog()));
+        QObject::connect(actionExit, SIGNAL(triggered()), MainGUI, SLOT(close()));
 
         QMetaObject::connectSlotsByName(MainGUI);
     } // setupUi
@@ -161,9 +174,8 @@ public:
     void retranslateUi(QMainWindow *MainGUI)
     {
         MainGUI->setWindowTitle(QApplication::translate("MainGUI", "GProxy GhostGraz v2.0", 0, QApplication::UnicodeUTF8));
+        actionOptions->setText(QApplication::translate("MainGUI", "Options", 0, QApplication::UnicodeUTF8));
         actionExit->setText(QApplication::translate("MainGUI", "Exit", 0, QApplication::UnicodeUTF8));
-        actionConfig->setText(QApplication::translate("MainGUI", "Config", 0, QApplication::UnicodeUTF8));
-        actionAction->setText(QApplication::translate("MainGUI", "action", 0, QApplication::UnicodeUTF8));
         outputField->setHtml(QApplication::translate("MainGUI", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
@@ -172,6 +184,7 @@ public:
         inputField->setPlainText(QString());
         channelField->setText(QApplication::translate("MainGUI", "Channel", 0, QApplication::UnicodeUTF8));
         refreshButton->setText(QApplication::translate("MainGUI", "Refresh", 0, QApplication::UnicodeUTF8));
+        menuFile->setTitle(QApplication::translate("MainGUI", "File", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

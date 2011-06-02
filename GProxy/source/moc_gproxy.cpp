@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'gproxy.h'
 **
-** Created: Sun 29. May 13:21:31 2011
+** Created: Thu 2. Jun 13:38:51 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,12 +23,12 @@ static const uint qt_meta_data_CGProxy[] = {
        5,       // revision
        0,       // classname
        0,    0, // classinfo
-      10,   14, // methods
+      11,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-      10,       // signalCount
+      11,       // signalCount
 
  // signals: signature, parameters, type, tag, flags
       11,    9,    8,    8, 0x05,
@@ -41,6 +41,7 @@ static const uint qt_meta_data_CGProxy[] = {
      258,    8,    8,    8, 0x05,
      291,    8,    8,    8, 0x05,
      320,    8,    8,    8, 0x05,
+     347,    8,    8,    8, 0x05,
 
        0        // eod
 };
@@ -56,6 +57,7 @@ static const char qt_meta_stringdata_CGProxy[] = {
     "signal_showErrorMessage(QString)\0"
     "signal_playerJoined(QString)\0"
     "signal_playerLeft(QString)\0"
+    "signal_stopDownloadThread()\0"
 };
 
 const QMetaObject CGProxy::staticMetaObject = {
@@ -97,9 +99,10 @@ int CGProxy::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         case 7: signal_showErrorMessage((*reinterpret_cast< QString(*)>(_a[1]))); break;
         case 8: signal_playerJoined((*reinterpret_cast< const QString(*)>(_a[1]))); break;
         case 9: signal_playerLeft((*reinterpret_cast< const QString(*)>(_a[1]))); break;
+        case 10: signal_stopDownloadThread(); break;
         default: ;
         }
-        _id -= 10;
+        _id -= 11;
     }
     return _id;
 }
@@ -171,5 +174,11 @@ void CGProxy::signal_playerLeft(const QString & _t1)
 {
     void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
     QMetaObject::activate(this, &staticMetaObject, 9, _a);
+}
+
+// SIGNAL 10
+void CGProxy::signal_stopDownloadThread()
+{
+    QMetaObject::activate(this, &staticMetaObject, 10, 0);
 }
 QT_END_MOC_NAMESPACE

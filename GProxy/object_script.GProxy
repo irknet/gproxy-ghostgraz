@@ -6,7 +6,6 @@ INPUT(
 ./build/Debug/Qt_MinGW-Windows/newsimpletest.o
 ./build/Debug/Qt_MinGW-Windows/Statspage.o
 ./build/Debug/Qt_MinGW-Windows/bnetprotocol.o
-./build/Debug/Qt_MinGW-Windows/TestClass.o
 ./build/Debug/Qt_MinGW-Windows/bnet.o
 ./build/Debug/Qt_MinGW-Windows/Player.o
 ./build/Debug/Qt_MinGW-Windows/ConfigGUI.o
@@ -17,7 +16,7 @@ INPUT(
 ./build/Debug/Qt_MinGW-Windows/ChannellistDelegate.o
 ./build/Debug/Qt_MinGW-Windows/OutputareaColorDialog.o
 ./build/Debug/Qt_MinGW-Windows/MainGUI.o
-./build/Debug/Qt_MinGW-Windows/MenuBar.o
+./build/Debug/Qt_MinGW-Windows/TestClass.o
 ./build/Debug/Qt_MinGW-Windows/commandpacket.o
 ./build/Debug/Qt_MinGW-Windows/gpsprotocol.o
 ./build/Debug/Qt_MinGW-Windows/gproxy.o
@@ -33,7 +32,6 @@ INPUT(
 ./build/Debug/Qt_MinGW-Windows/moc_TestClass.o
 ./build/Debug/Qt_MinGW-Windows/moc_MainGUI.o
 ./build/Debug/Qt_MinGW-Windows/moc_ChannellistDelegate.o
-./build/Debug/Qt_MinGW-Windows/moc_MenuBar.o
 ./build/Debug/Qt_MinGW-Windows/moc_OutputareaColorDialog.o
 ./build/Debug/Qt_MinGW-Windows/moc_DownloadThread.o
 ./build/Debug/Qt_MinGW-Windows/moc_GamelistDelegate.o

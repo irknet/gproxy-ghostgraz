@@ -2,8 +2,12 @@
 
 DownloadThread::DownloadThread (MainGUI *p_mainGUI)
 {
+    stopped = false;
     mainGUI = p_mainGUI;
     url = QUrl("http://0.static.ghostgraz.com/currentgames.txt");
+    manager = new QNetworkAccessManager(this);
+
+    this->setTerminationEnabled(true);
 
     QObject::connect(this, SIGNAL(signal_clearGamelist()),
             mainGUI, SLOT(clearGamelist()), Qt::QueuedConnection);
@@ -27,14 +31,15 @@ DownloadThread::DownloadThread (MainGUI *p_mainGUI)
 
 DownloadThread::~DownloadThread ()
 {
-    delete reply;
+    manager->deleteLater();
 }
 
 void DownloadThread::refresh ()
 {
     QNetworkRequest request(url);
-    reply = manager.get(request);
-    connect(reply, SIGNAL(finished()), this, SLOT(downloadFinished()));
+    manager->get(request);
+    connect(manager, SIGNAL(finished(QNetworkReply*)), this,
+            SLOT(downloadFinished(QNetworkReply*)), Qt::QueuedConnection);
 }
 
 void DownloadThread::run ()
@@ -43,30 +48,52 @@ void DownloadThread::run ()
     {
         while (mainGUI->getGproxy()->m_GameStarted)
         {
-            this->sleep(5);
+            for (int i = 0; i < 5; i++)
+            {
+                if(stopped)
+                {
+                    return;
+                }
+                else
+                {
+                    this->sleep(1);
+                }
+            }
         }
 
         QEventLoop loop;
         QNetworkRequest request(url);
-        reply = manager.get(request);
-        connect(reply, SIGNAL(finished()), this, SLOT(downloadFinished()), Qt::QueuedConnection);
-        connect(reply, SIGNAL(finished()), &loop, SLOT(quit()), Qt::QueuedConnection);
+        manager->get(request);
+        connect(manager, SIGNAL(finished(QNetworkReply*)),
+                this, SLOT(downloadFinished(QNetworkReply*)), Qt::QueuedConnection);
+        connect(manager, SIGNAL(finished(QNetworkReply*)),
+                &loop, SLOT(quit()), Qt::QueuedConnection);
         loop.exec();
 
-        this->sleep(5);
+        for (int i = 0; i < 5; i++)
+        {
+            if(stopped)
+            {
+                return;
+            }
+            else
+            {
+                this->sleep(1);
+            }
+        }
     }
 }
 
-void DownloadThread::downloadFinished ()
+void DownloadThread::downloadFinished (QNetworkReply *reply)
 {
+    reply->deleteLater();
+
     if (reply->error())
     {
-        reply = NULL;
         return;
     }
 
     QStringList lines = QString(reply->readAll()).split(QRegExp("\n"));
-    reply = NULL;
 
     if (lines.count() < 3)
     {
@@ -115,7 +142,6 @@ QVector<QStringList> DownloadThread::sortGamelist (QVector<QStringList> vGamelis
 
     foreach(QString bot, vBotorder)
     {
-
         foreach(QStringList game, vGamelist)
         {
             if (game.at(0) == bot)
@@ -132,6 +158,6 @@ QVector<QStringList> DownloadThread::sortGamelist (QVector<QStringList> vGamelis
 
 void DownloadThread::stop ()
 {
-    this->terminate();
+    stopped = true;
     this->wait(5000);
 }

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'DownloadThread.h'
 **
-** Created: Sun 29. May 10:04:04 2011
+** Created: Thu 2. Jun 16:17:11 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -35,7 +35,7 @@ static const uint qt_meta_data_DownloadThread[] = {
       42,   39,   15,   15, 0x05,
 
  // slots: signature, parameters, type, tag, flags
-      82,   15,   15,   15, 0x08,
+      88,   82,   15,   15, 0x08,
 
        0        // eod
 };
@@ -43,7 +43,7 @@ static const uint qt_meta_data_DownloadThread[] = {
 static const char qt_meta_stringdata_DownloadThread[] = {
     "DownloadThread\0\0signal_clearGamelist()\0"
     ",,\0signal_addGame(QString,QString,QString)\0"
-    "downloadFinished()\0"
+    "reply\0downloadFinished(QNetworkReply*)\0"
 };
 
 const QMetaObject DownloadThread::staticMetaObject = {
@@ -77,7 +77,7 @@ int DownloadThread::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         switch (_id) {
         case 0: signal_clearGamelist(); break;
         case 1: signal_addGame((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2])),(*reinterpret_cast< QString(*)>(_a[3]))); break;
-        case 2: downloadFinished(); break;
+        case 2: downloadFinished((*reinterpret_cast< QNetworkReply*(*)>(_a[1]))); break;
         default: ;
         }
         _id -= 3;

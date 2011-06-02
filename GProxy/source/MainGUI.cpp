@@ -5,7 +5,6 @@
 #include "delegate/GamelistDelegate.h"
 #include "socket.h"
 #include "thread/DownloadThread.h"
-#include "widgets/MenuBar.h"
 #include "ConfigGUI.h"
 #include "GhostGrazLogininformationDialog.h"
 
@@ -72,9 +71,12 @@ void MainGUI::init ()
                 (screenHeight - this->height()) / 2 - 50, appWidth, appHeight);
     }
 
-    this->setMenuBar(new MenuBar(this));
     widget.channelList->setItemDelegate(new ChannellistDelegate(gproxy));
     widget.gameList->setItemDelegate(new GamelistDelegate());
+
+    QAction *startWarcraftAction = widget.menuBar->addAction("Start Warcraft");
+    connect(startWarcraftAction, SIGNAL(activated()),
+            this, SLOT(startWarcraft()));
 
     initStatspage();
     initLayout();
@@ -765,10 +767,10 @@ void MainGUI::processInput (const QString& input)
     }
     else if (gproxy->m_BNET->GetInGame())
     {
-        if(command == "/statslast" || command == "/sl"
+        if (command == "/statslast" || command == "/sl"
                 || command == "!statslast" || command == "!sl")
         {
-            gproxy->sendGamemessage("!stats "+lastLeaver->getName());
+            gproxy->sendGamemessage("!stats " + lastLeaver->getName());
         }
         else if (command.startsWith("/allies "))
         {

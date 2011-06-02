@@ -24,16 +24,16 @@ protected:
     void run();
 
 private:
+    bool stopped;
     MainGUI *mainGUI;
     QUrl url;
-    QNetworkAccessManager manager;
-    QNetworkReply *reply;
+    QNetworkAccessManager *manager;
     QVector<QString> vBotorder;
 
     QVector<QStringList> sortGamelist(QVector<QStringList> vGamelist);
 
 private slots:
-    void downloadFinished();
+    void downloadFinished(QNetworkReply *reply);
 
 signals:
     void signal_clearGamelist();
