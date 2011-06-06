@@ -20,6 +20,8 @@
 #include "util.h"
 #include "bnetprotocol.h"
 
+#include <QTextCodec>
+
 
 uint32_t CIncomingChatEvent::GetPingPhy()
 {
@@ -199,7 +201,14 @@ CIncomingChatEvent *CBNETProtocol :: RECEIVE_SID_CHATEVENT( BYTEARRAY data )
 		BYTEARRAY EventID = BYTEARRAY( data.begin( ) + 4, data.begin( ) + 8 );
 		BYTEARRAY Ping = BYTEARRAY( data.begin( ) + 12, data.begin( ) + 16 );
 		BYTEARRAY User = UTIL_ExtractCString( data, 28 );
-		BYTEARRAY Message = UTIL_ExtractCString( data, User.size( ) + 29 );
+		BYTEARRAY MessageArray = UTIL_ExtractCString( data, User.size( ) + 29 );
+
+                QByteArray encodedString;
+                for (BYTEARRAY::iterator i = MessageArray.begin(); i != MessageArray.end(); i++)
+                {
+                    encodedString += *i;
+                }
+                QString message = QTextCodec::codecForName("UTF-8")->toUnicode(encodedString);
 
 		switch( UTIL_ByteArrayToUInt32( EventID, false ) )
 		{
@@ -221,7 +230,7 @@ CIncomingChatEvent *CBNETProtocol :: RECEIVE_SID_CHATEVENT( BYTEARRAY data )
 			return new CIncomingChatEvent(	(CBNETProtocol :: IncomingChatEvent)UTIL_ByteArrayToUInt32( EventID, false ),
 												UTIL_ByteArrayToUInt32( Ping, false ),
 												string( User.begin( ), User.end( ) ),
-												string( Message.begin( ), Message.end( ) ) );
+												message );
 		}
 
 	}
@@ -1140,12 +1149,12 @@ string CIncomingGameHost :: GetIPString( )
 // CIncomingChatEvent
 //
 
-CIncomingChatEvent :: CIncomingChatEvent( CBNETProtocol :: IncomingChatEvent nChatEvent, uint32_t nPing, string nUser, string nMessage )
+CIncomingChatEvent :: CIncomingChatEvent( CBNETProtocol :: IncomingChatEvent nChatEvent, uint32_t nPing, string nUser, QString nMessage )
 {
 	m_ChatEvent = nChatEvent;
 	m_Ping = nPing;
 	m_User = QString::fromStdString(nUser);
-	m_Message = QString::fromUtf8(nMessage.c_str());
+	m_Message = nMessage;
 }
 
 CIncomingChatEvent :: ~CIncomingChatEvent( )

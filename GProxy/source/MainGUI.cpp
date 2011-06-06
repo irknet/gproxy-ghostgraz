@@ -24,14 +24,11 @@ MainGUI::MainGUI (CGProxy *p_gproxy)
 {
     widget.setupUi(this);
     gproxy = p_gproxy;
-    lastLeaver = new Player();
-    lastLeaver->setName(gproxy->getUsername());
 }
 
 MainGUI::~MainGUI ()
 {
     delete statspage;
-    vPlayers.clear();
 }
 
 CGProxy* MainGUI::getGproxy ()
@@ -113,6 +110,11 @@ void MainGUI::initStatspage ()
     {
         statspage->login(ghostgrazUsername, ghostgrazPassword);
     }
+
+    QObject::connect(statspage, SIGNAL(loginFinished()),
+            this, SLOT(statspageLoginFinished()));
+    QObject::connect(statspage, SIGNAL(playerInformationReplyFinished(Player *)),
+            this, SLOT(receivedPlayerInformation(Player *)));
 }
 
 void MainGUI::initLayout ()
@@ -161,10 +163,6 @@ void MainGUI::initSlots ()
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(onClose()), Qt::QueuedConnection);
     connect(widget.outputField->verticalScrollBar(), SIGNAL(rangeChanged(int, int)),
             this, SLOT(onOutputFieldSliderMoved()), Qt::QueuedConnection);
-    connect(statspage, SIGNAL(loginFinished()),
-            this, SLOT(statspageLoginFinished()), Qt::QueuedConnection);
-    connect(statspage, SIGNAL(receivedPlayerInformation(Player *)),
-            this, SLOT(receivedPlayerInformation(Player *)), Qt::QueuedConnection);
 }
 
 void MainGUI::resizeEvent (QResizeEvent *event)
@@ -774,7 +772,7 @@ void MainGUI::processInput (const QString& input)
         if (command == "/statslast" || command == "/sl"
                 || command == "!statslast" || command == "!sl")
         {
-            gproxy->sendGamemessage("!stats " + lastLeaver->getName());
+            gproxy->sendGamemessage("!stats " + gproxy->getLastLeaver()->getName());
         }
         else if (command.startsWith("/allies "))
         {
@@ -1189,22 +1187,8 @@ void MainGUI::showConfigDialog ()
     config->exec();
 }
 
-void MainGUI::statspageLoginFinished ()
-{
-    if (statspage->isLoggedIn())
-    {
-        addMessage("[GPROXY] Statspage available.");
-    }
-    else
-    {
-        addMessage("[ERROR] Statspage unavailable. You might have entered wrong username or password.");
-    }
-}
-
 void MainGUI::playerJoined (const QString& playerName)
 {
-    addMessage("[LOBBY] " + playerName + " has joined the game.");
-    vPlayers.append(new Player(playerName));
     statspage->getPlayerInformation(playerName);
 
     for (int i = 0; i < widget.friendList->count(); i++)
@@ -1215,61 +1199,6 @@ void MainGUI::playerJoined (const QString& playerName)
             break;
         }
     }
-}
-
-void MainGUI::playerLeft (const QString& playerName)
-{
-    for (int i = 0; i < vPlayers.count(); i++)
-    {
-        if (vPlayers.at(i)->getName() == playerName)
-        {
-            lastLeaver = vPlayers.at(i);
-            vPlayers.remove(i);
-            break;
-        }
-    }
-}
-
-void MainGUI::receivedPlayerInformation (Player *player)
-{
-
-    foreach(Player *p, vPlayers)
-    {
-        if (p->getName() == player->getName())
-        {
-            p = player;
-            if (player->getGamesPlayed() < 20)
-            {
-                addMessage("[WARNING] " + player->getName()
-                        + " has only played " + QString::number(player->getGamesPlayed())
-                        + " games until now. (Stay ratio: "
-                        + QString::number(player->getStayPercent(), 'f', 2) + "%)");
-                gproxy->SendLocalChat("WARNING: " + player->getName().toStdString()
-                        + " has only played " + QString::number(player->getGamesPlayed()).toStdString()
-                        + " games until now. (Stay ratio: "
-                        + QString::number(player->getStayPercent(), 'f', 2).toStdString() + "%)");
-            }
-            else if (player->getStayPercent() < 80)
-            {
-                addMessage("[WARNING] " + player->getName()
-                        + " has a stay ratio below 80%. ("
-                        + QString::number(player->getStayPercent(), 'f', 2) + "%)");
-                gproxy->SendLocalChat("WARNING: " + player->getName().toStdString()
-                        + " has a stay ratio below 80%. ("
-                        + QString::number(player->getStayPercent(), 'f', 2).toStdString() + "%)");
-            }
-        }
-    }
-}
-
-Statspage* MainGUI::getStatspage ()
-{
-    return statspage;
-}
-
-Player* MainGUI::getLastLeaver ()
-{
-    return lastLeaver;
 }
 
 void MainGUI::onChannellistItemClicked (QMouseEvent *mouseEvent)
@@ -1284,9 +1213,50 @@ void MainGUI::onChannellistItemClicked (QMouseEvent *mouseEvent)
 
     if (mouseEvent->button() == Qt::LeftButton)
     {
-        widget.inputField->setPlainText("/w "
-                + item->data(ChannellistDelegate::USER).toString() + " ");
-        widget.inputField->moveCursor(QTextCursor::End);
+        QString user = item->data(ChannellistDelegate::USER).toString();
+        int slotStatus = item->data(ChannellistDelegate::SLOT_STATUS).toInt();
+        int computerStatus = item->data(ChannellistDelegate::SLOT_COMPUTER_STATUS).toInt();
+
+        if (gproxy->m_BNET->GetInGame())
+        {
+            if (user == "The Sentinel" || user == "The Scourge"
+                    || user.startsWith("Team "))
+            {
+                int team;
+
+                if (user == "The Sentinel")
+                {
+                    team = 0;
+                }
+                else if (user == "The Scourge")
+                {
+                    team = 1;
+                }
+                else
+                {
+                    team = user.mid(5).toInt();
+                }
+
+                gproxy->changeTeam(team);
+            }
+            else if (slotStatus == 0)
+            {
+                if (gproxy->isDotaMap())
+                {
+                    // Swap to color
+                }
+            }
+            else if (slotStatus == 2 && computerStatus == 0)
+            {
+                widget.inputField->setPlainText("/w " + user + " ");
+                widget.inputField->moveCursor(QTextCursor::End);
+            }
+        }
+        else
+        {
+            widget.inputField->setPlainText("/w " + user + " ");
+            widget.inputField->moveCursor(QTextCursor::End);
+        }
     }
 }
 
@@ -1305,4 +1275,50 @@ void MainGUI::onFriendlistItemClicked (QMouseEvent *mouseEvent)
         widget.inputField->setPlainText("/w " + item->text() + " ");
         widget.inputField->moveCursor(QTextCursor::End);
     }
+}
+
+void MainGUI::statspageLoginFinished ()
+{
+    if (statspage->isLoggedIn())
+    {
+        CONSOLE_Print("[GPROXY] Statspage available.");
+    }
+    else
+    {
+        CONSOLE_Print("[ERROR] Statspage unavailable. "
+                "You might have entered wrong username or password.");
+    }
+}
+
+void MainGUI::receivedPlayerInformation(Player *player)
+{
+    QVector<Player*> players = gproxy->getPlayers();
+    for(int i = 0; i < players.count(); i++)
+    {
+        if (players.at(i)->getName() == player->getName())
+        {
+            player->setPlayerId(players.at(i)->getPlayerId());
+            delete players[i];
+            players.remove(i);
+            players.append(player);
+
+            if (player->getStayPercent() < 80)
+            {
+                addMessage("[WARNING] " + player->getName()
+                        + " has a stay ratio below 80%. ("
+                        + QString::number(player->getStayPercent(), 'f', 2) + "%)");
+                gproxy->SendLocalChat("WARNING: " + player->getName().toStdString()
+                        + " has a stay ratio below 80%. ("
+                        + QString::number(player->getStayPercent(), 'f', 2).toStdString() + "%)");
+            }
+
+            break;
+        }
+    }
+    gproxy->setPlayers(players);
+}
+
+Statspage* MainGUI::getStatspage()
+{
+    return statspage;
 }

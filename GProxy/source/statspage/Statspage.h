@@ -21,7 +21,7 @@ public:
 
 signals:
     void loginFinished();
-    void receivedPlayerInformation(Player *);
+    void playerInformationReplyFinished(Player *);
 
 private:
     QNetworkAccessManager *manager;

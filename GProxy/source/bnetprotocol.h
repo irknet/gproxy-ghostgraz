@@ -245,7 +245,7 @@ private:
 public:
 
 	uint32_t GetPingPhy();//phy
-	CIncomingChatEvent( CBNETProtocol :: IncomingChatEvent nChatEvent, uint32_t nPing, string nUser, string nMessage );
+	CIncomingChatEvent( CBNETProtocol :: IncomingChatEvent nChatEvent, uint32_t nPing, string nUser, QString nMessage );
 	~CIncomingChatEvent( );
 
 	CBNETProtocol :: IncomingChatEvent GetChatEvent( )	{ return m_ChatEvent; }

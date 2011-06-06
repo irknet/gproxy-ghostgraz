@@ -21,17 +21,13 @@ private:
     CGProxy *gproxy;
     QDialog *connectionDialog;
     Statspage *statspage;
-    QVector<Player*> vPlayers;
-    Player *lastLeaver;
 
 public:
     MainGUI(CGProxy *p_gproxy);
     virtual ~MainGUI();
     void init();
-
     CGProxy* getGproxy();
     Statspage* getStatspage();
-    Player* getLastLeaver();
 
 private:
     Ui::MainGUI widget;
@@ -60,6 +56,8 @@ private slots:
     void startWarcraft();
     void onChannellistItemClicked(QMouseEvent*);
     void onFriendlistItemClicked(QMouseEvent*);
+    void statspageLoginFinished();
+    void receivedPlayerInformation(Player *);
 
 public slots:
     void addMessage(QString message, bool log = true);
@@ -73,10 +71,7 @@ public slots:
     void setGameslots(vector<CIncomingSlots *> slotList);
     void showErrorMessage(QString errorMessage);
     void showConfigDialog();
-    void statspageLoginFinished();
     void playerJoined(const QString &playerName);
-    void playerLeft(const QString &playerName);
-    void receivedPlayerInformation(Player *player);
 };
 
 #endif	/* _MAINGUI_H */

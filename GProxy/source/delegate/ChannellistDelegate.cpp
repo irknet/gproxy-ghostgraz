@@ -57,6 +57,21 @@ const
                         user = "Computer(Hard)";
                     }
                 }
+                else
+                {
+                    QVector<Player*> players = gproxy->getPlayers();
+                    foreach(Player *player, players)
+                    {
+                        if(player->getName() == user)
+                        {
+                            if(player->getStayPercent() < 80 && !gproxy->m_GameStarted)
+                            {
+                                painter->setPen(QColor(255, 69, 0));
+                            }
+                            break;
+                        }
+                    }
+                }
             }
 
             int colorID = index.data(ChannellistDelegate::SLOT_COLOR).toInt();

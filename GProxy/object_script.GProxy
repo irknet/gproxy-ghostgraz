@@ -9,6 +9,7 @@ INPUT(
 ./build/Release/Qt_MinGW-Windows/ClickableLineEdit.o
 ./build/Release/Qt_MinGW-Windows/bnetprotocol.o
 ./build/Release/Qt_MinGW-Windows/bnet.o
+./build/Release/Qt_MinGW-Windows/SleepThread.o
 ./build/Release/Qt_MinGW-Windows/Player.o
 ./build/Release/Qt_MinGW-Windows/ConfigGUI.o
 ./build/Release/Qt_MinGW-Windows/util.o

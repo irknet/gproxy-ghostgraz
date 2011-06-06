@@ -14,6 +14,7 @@
       <logicalFolder name="f3" displayName="thread" projectFiles="true">
         <itemPath>source/thread/DownloadThread.h</itemPath>
         <itemPath>source/thread/GproxyUpdateThread.h</itemPath>
+        <itemPath>source/thread/SleepThread.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="widget" projectFiles="true">
         <itemPath>source/widget/ClickableLineEdit.h</itemPath>
@@ -57,6 +58,7 @@
       <logicalFolder name="f3" displayName="thread" projectFiles="true">
         <itemPath>source/thread/DownloadThread.cpp</itemPath>
         <itemPath>source/thread/GproxyUpdateThread.cpp</itemPath>
+        <itemPath>source/thread/SleepThread.cpp</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="widget" projectFiles="true">
         <itemPath>source/widget/ClickableLineEdit.cpp</itemPath>
@@ -168,10 +170,12 @@
             <pElem>.</pElem>
             <pElem>.</pElem>
             <pElem>.</pElem>
+            <pElem>.</pElem>
           </incDir>
         </cTool>
         <ccTool>
           <incDir>
+            <pElem>.</pElem>
             <pElem>.</pElem>
             <pElem>.</pElem>
             <pElem>.</pElem>
@@ -261,10 +265,12 @@
             <pElem>.</pElem>
             <pElem>.</pElem>
             <pElem>.</pElem>
+            <pElem>.</pElem>
           </incDir>
         </cTool>
         <ccTool>
           <incDir>
+            <pElem>.</pElem>
             <pElem>.</pElem>
             <pElem>.</pElem>
             <pElem>.</pElem>

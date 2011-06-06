@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'gproxy.h'
 **
-** Created: Thu 2. Jun 19:55:42 2011
+** Created: Sun 5. Jun 11:02:49 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,12 +23,12 @@ static const uint qt_meta_data_CGProxy[] = {
        5,       // revision
        0,       // classname
        0,    0, // classinfo
-      11,   14, // methods
+      10,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-      11,       // signalCount
+      10,       // signalCount
 
  // signals: signature, parameters, type, tag, flags
       11,    9,    8,    8, 0x05,
@@ -41,7 +41,6 @@ static const uint qt_meta_data_CGProxy[] = {
      258,    8,    8,    8, 0x05,
      291,    8,    8,    8, 0x05,
      320,    8,    8,    8, 0x05,
-     347,    8,    8,    8, 0x05,
 
        0        // eod
 };
@@ -56,7 +55,6 @@ static const char qt_meta_stringdata_CGProxy[] = {
     "signal_setGameslots(vector<CIncomingSlots*>)\0"
     "signal_showErrorMessage(QString)\0"
     "signal_playerJoined(QString)\0"
-    "signal_playerLeft(QString)\0"
     "signal_stopDownloadThread()\0"
 };
 
@@ -98,11 +96,10 @@ int CGProxy::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         case 6: signal_setGameslots((*reinterpret_cast< vector<CIncomingSlots*>(*)>(_a[1]))); break;
         case 7: signal_showErrorMessage((*reinterpret_cast< QString(*)>(_a[1]))); break;
         case 8: signal_playerJoined((*reinterpret_cast< const QString(*)>(_a[1]))); break;
-        case 9: signal_playerLeft((*reinterpret_cast< const QString(*)>(_a[1]))); break;
-        case 10: signal_stopDownloadThread(); break;
+        case 9: signal_stopDownloadThread(); break;
         default: ;
         }
-        _id -= 11;
+        _id -= 10;
     }
     return _id;
 }
@@ -170,15 +167,8 @@ void CGProxy::signal_playerJoined(const QString & _t1)
 }
 
 // SIGNAL 9
-void CGProxy::signal_playerLeft(const QString & _t1)
-{
-    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
-    QMetaObject::activate(this, &staticMetaObject, 9, _a);
-}
-
-// SIGNAL 10
 void CGProxy::signal_stopDownloadThread()
 {
-    QMetaObject::activate(this, &staticMetaObject, 10, 0);
+    QMetaObject::activate(this, &staticMetaObject, 9, 0);
 }
 QT_END_MOC_NAMESPACE

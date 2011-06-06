@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'Statspage.h'
 **
-** Created: Thu 2. Jun 19:55:51 2011
+** Created: Sat 4. Jun 18:07:57 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -35,16 +35,16 @@ static const uint qt_meta_data_Statspage[] = {
       27,   10,   10,   10, 0x05,
 
  // slots: signature, parameters, type, tag, flags
-      62,   10,   10,   10, 0x08,
-      97,   10,   10,   10, 0x08,
-     132,   10,   10,   10, 0x08,
+      67,   10,   10,   10, 0x08,
+     102,   10,   10,   10, 0x08,
+     137,   10,   10,   10, 0x08,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_Statspage[] = {
     "Statspage\0\0loginFinished()\0"
-    "receivedPlayerInformation(Player*)\0"
+    "playerInformationReplyFinished(Player*)\0"
     "forumReplyFinished(QNetworkReply*)\0"
     "loginReplyFinished(QNetworkReply*)\0"
     "playerReplyFinished(QNetworkReply*)\0"
@@ -80,7 +80,7 @@ int Statspage::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
         case 0: loginFinished(); break;
-        case 1: receivedPlayerInformation((*reinterpret_cast< Player*(*)>(_a[1]))); break;
+        case 1: playerInformationReplyFinished((*reinterpret_cast< Player*(*)>(_a[1]))); break;
         case 2: forumReplyFinished((*reinterpret_cast< QNetworkReply*(*)>(_a[1]))); break;
         case 3: loginReplyFinished((*reinterpret_cast< QNetworkReply*(*)>(_a[1]))); break;
         case 4: playerReplyFinished((*reinterpret_cast< QNetworkReply*(*)>(_a[1]))); break;
@@ -98,7 +98,7 @@ void Statspage::loginFinished()
 }
 
 // SIGNAL 1
-void Statspage::receivedPlayerInformation(Player * _t1)
+void Statspage::playerInformationReplyFinished(Player * _t1)
 {
     void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
     QMetaObject::activate(this, &staticMetaObject, 1, _a);

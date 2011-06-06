@@ -23,6 +23,7 @@
 #include <stdint.h>
 
 #include "Config.h"
+#include "Player.h"
 
 #include <fstream>
 #include <iostream>
@@ -36,6 +37,7 @@
 #include <vector>
 #include <QString>
 #include <QObject>
+#include <QVector>
 
 using namespace std;
 
@@ -44,12 +46,6 @@ typedef vector<unsigned char> BYTEARRAY;
 // time
 unsigned long getElapsedSeconds();
 unsigned long getElapsedMilliseconds();
-
-#ifdef WIN32
- #define MILLISLEEP( x ) Sleep( x )
-#else
- #define MILLISLEEP( x ) usleep( ( x ) * 1000 )
-#endif
 
 // network
 
@@ -122,23 +118,6 @@ public:
 	void SetName			( string nname )		{ name =			nname; }
 };
 
-class CPlayer
-{
-private:
-	string name;
-	unsigned int stayPercent;
-
-public:
-	CPlayer( ) { }
-	CPlayer( string nname ) { name = nname; }
-	~CPlayer( ) { }
-
-	string GetName( ) { return name; }
-	unsigned int GetStayPercent( ) { return stayPercent; }
-	void SetName( string nname ) { name = nname; }
-	void SetStayPercent( unsigned int nstayPercent ) { stayPercent = nstayPercent; }
-};
-
 // output
 
 void LOG_Print( QString message );
@@ -184,7 +163,7 @@ class CGProxy : public QObject
     Q_OBJECT
 
 public:
-    // TODO Make these public attributes private and create setters and getters.
+    // TODO Make these attributes private and create setters and getters.
     string m_Version;
     CTCPServer *m_LocalServer;
     CTCPSocket *m_LocalSocket;
@@ -271,6 +250,7 @@ public:
     void setExeversionhash(const BYTEARRAY &exeversionhash);
     void setPasswordhashtype(const QString &passwordhashtype);
     void setChannel(const QString &channel);
+    void setPlayers(const QVector<Player*> &players);
 
     QString getServer();
     QString getUsername();
@@ -281,6 +261,8 @@ public:
     BYTEARRAY getExeversionhash();
     QString getPasswordhashtype();
     QString getChannel();
+    QVector<Player*> getPlayers();
+    Player* getLastLeaver();
 
     void setPrivategamename(QString privategamename) { this->privategamename = privategamename; }
     void setBotprefix(QString botprefix) { this->botprefix = botprefix; }
@@ -334,6 +316,8 @@ private:
     QString cdKeyROC;
     QString cdKeyTFT;
     bool dotaMap;
+    QVector<Player*> players;
+    Player *lastLeaver;
 
 signals:
     void signal_addMessage(QString, bool);
@@ -345,7 +329,6 @@ signals:
     void signal_setGameslots(vector<CIncomingSlots*>);
     void signal_showErrorMessage(QString);
     void signal_playerJoined(const QString &);
-    void signal_playerLeft(const QString &);
     void signal_stopDownloadThread();
 };
 

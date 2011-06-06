@@ -13,6 +13,7 @@ public:
     double getStayPercent();
 
 private:
+    int playerId;
     QString name;
     int kills;
     int deaths;
@@ -31,6 +32,8 @@ private:
 
 public:
     // Start getters and setters
+    int getPlayerId();
+    void setPlayerId(int playerId);
     int getAssits();
     void setAssits(int assits);
     int getCourierKills();

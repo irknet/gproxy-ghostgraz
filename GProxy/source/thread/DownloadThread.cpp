@@ -7,8 +7,6 @@ DownloadThread::DownloadThread (MainGUI *p_mainGUI)
     url = QUrl("http://0.static.ghostgraz.com/currentgames.txt");
     manager = new QNetworkAccessManager(this);
 
-    this->setTerminationEnabled(true);
-
     QObject::connect(this, SIGNAL(signal_clearGamelist()),
             mainGUI, SLOT(clearGamelist()), Qt::QueuedConnection);
 

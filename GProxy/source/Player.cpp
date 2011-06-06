@@ -21,6 +21,16 @@ double Player::getStayPercent()
     }
 }
 
+int Player::getPlayerId()
+{
+    return playerId;
+}
+
+void Player::setPlayerId(int playerId)
+{
+    this->playerId = playerId;
+}
+
 int Player::getAssits ()
 {
     return assits;

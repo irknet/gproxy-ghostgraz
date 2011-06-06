@@ -42,7 +42,9 @@ void Statspage::forumReplyFinished (QNetworkReply *reply)
 
     QByteArray parameters;
     parameters.append("user=" + username + "&");
-    parameters.append("passwrd=" + password);
+    parameters.append("passwrd=" + password + "&");
+    parameters.append("cookielength=9999&");
+    parameters.append("cookieneverexp=on");
 
     QNetworkRequest loginRequest(QUrl("http://forum.ghostgraz.com/login2/"));
     manager->post(loginRequest, parameters);
@@ -64,7 +66,7 @@ void Statspage::loginReplyFinished (QNetworkReply *reply)
     }
 
     connect(manager, SIGNAL(finished(QNetworkReply *)),
-                this, SLOT(playerReplyFinished(QNetworkReply *)));
+            this, SLOT(playerReplyFinished(QNetworkReply *)));
 
     reply->deleteLater();
 
@@ -105,7 +107,7 @@ void Statspage::playerReplyFinished (QNetworkReply *reply)
 
     reply->deleteLater();
 
-    emit receivedPlayerInformation(player);
+    emit playerInformationReplyFinished(player);
 }
 
 QString Statspage::getInfo (const QString &content, const QString &infoText)
