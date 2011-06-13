@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainGUI.ui'
 **
-** Created: Thu 2. Jun 22:25:15 2011
+** Created: Mon 13. Jun 09:12:52 2011
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -181,7 +181,7 @@ public:
 
     void retranslateUi(QMainWindow *MainGUI)
     {
-        MainGUI->setWindowTitle(QApplication::translate("MainGUI", "GProxy GhostGraz v2.0", 0, QApplication::UnicodeUTF8));
+        MainGUI->setWindowTitle(QApplication::translate("MainGUI", "GProxy GhostGraz v2.2", 0, QApplication::UnicodeUTF8));
         actionOptions->setText(QApplication::translate("MainGUI", "Options", 0, QApplication::UnicodeUTF8));
         actionExit->setText(QApplication::translate("MainGUI", "Exit", 0, QApplication::UnicodeUTF8));
         outputField->setHtml(QApplication::translate("MainGUI", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"

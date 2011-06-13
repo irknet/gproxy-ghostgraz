@@ -42,11 +42,11 @@ CGameProtocol :: ~CGameProtocol( )
 // SEND FUNCTIONS //
 ////////////////////
 
-BYTEARRAY CGameProtocol :: SEND_W3GS_CHAT_FROM_HOST( unsigned char fromPID, BYTEARRAY toPIDs, unsigned char flag, BYTEARRAY flagExtra, string message )
+BYTEARRAY CGameProtocol :: SEND_W3GS_CHAT_FROM_HOST( unsigned char fromPID, BYTEARRAY toPIDs, unsigned char flag, BYTEARRAY flagExtra, QString message )
 {
 	BYTEARRAY packet;
 
-	if( !toPIDs.empty( ) && !message.empty( ) && message.size( ) < 255 )
+	if( !toPIDs.empty( ) && !message.isEmpty( ) && message.size( ) < 255 )
 	{
 		packet.push_back( W3GS_HEADER_CONSTANT );		// W3GS header constant
 		packet.push_back( W3GS_CHAT_FROM_HOST );		// W3GS_CHAT_FROM_HOST
@@ -57,7 +57,14 @@ BYTEARRAY CGameProtocol :: SEND_W3GS_CHAT_FROM_HOST( unsigned char fromPID, BYTE
 		packet.push_back( fromPID );					// sender
 		packet.push_back( flag );						// flag
 		UTIL_AppendByteArrayFast( packet, flagExtra );	// extra flag
-		UTIL_AppendByteArrayFast( packet, message );	// message
+
+                QByteArray messageBytes = message.toUtf8();
+                for(int i = 0; i < messageBytes.length(); i++)
+                {
+                    packet.push_back(messageBytes.at(i));
+                }
+                packet.push_back(0);
+
 		AssignLength( packet );
 	}
 	else
@@ -68,11 +75,11 @@ BYTEARRAY CGameProtocol :: SEND_W3GS_CHAT_FROM_HOST( unsigned char fromPID, BYTE
 	return packet;
 }
 
-BYTEARRAY CGameProtocol :: SEND_W3GS_CHAT_TO_HOST( unsigned char fromPID, BYTEARRAY toPIDs, unsigned char flag, BYTEARRAY flagExtra, string message )
+BYTEARRAY CGameProtocol :: SEND_W3GS_CHAT_TO_HOST( unsigned char fromPID, BYTEARRAY toPIDs, unsigned char flag, BYTEARRAY flagExtra, QString message )
 {
 	BYTEARRAY packet;
 
-	if( !toPIDs.empty( ) && !message.empty( ) && message.size( ) < 255 )
+	if( !toPIDs.empty( ) && !message.isEmpty( ) && message.size( ) < 255 )
 	{
 		packet.push_back( W3GS_HEADER_CONSTANT );		// W3GS header constant
 		packet.push_back( W3GS_CHAT_TO_HOST );			// W3GS_CHAT_TO_HOST
@@ -83,7 +90,14 @@ BYTEARRAY CGameProtocol :: SEND_W3GS_CHAT_TO_HOST( unsigned char fromPID, BYTEAR
 		packet.push_back( fromPID );					// sender
 		packet.push_back( flag );						// flag
 		UTIL_AppendByteArrayFast( packet, flagExtra );	// extra flag
-		UTIL_AppendByteArrayFast( packet, message );	// message
+
+                QByteArray messageBytes = message.toUtf8();
+                for(int i = 0; i < messageBytes.length(); i++)
+                {
+                    packet.push_back(messageBytes.at(i));
+                }
+                packet.push_back(0);
+
 		AssignLength( packet );
 	}
 	else

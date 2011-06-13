@@ -764,7 +764,7 @@ void MainGUI::processInput (const QString& input)
         else
         {
             CONSOLE_Print("[ERROR] File \"" + filePath + "\" does not exist!");
-            gproxy->SendLocalChat(string() + "File \"" + filePath.toStdString() + "\" does not exist!");
+            gproxy->SendLocalChat("File \"" + filePath + "\" does not exist!");
         }
     }
     else if (gproxy->m_BNET->GetInGame())
@@ -800,7 +800,7 @@ void MainGUI::addMessage (QString message, bool log)
 
     QString dateTime = QLocale().toString(QDateTime::currentDateTime(), "[hh:mm:ss] ");
     message.insert(message.indexOf(">") + 1, dateTime);
-
+    
     widget.outputField->append(message);
 }
 
@@ -1161,7 +1161,8 @@ void MainGUI::startWarcraft ()
         exePath = gproxy->getWar3Path() + "Warcraft III.exe";
     }
 
-    QProcess *wc3Process = new QProcess(this);
+    QProcess *wc3Process = new QProcess();
+    // The empty QStringList is needed due to a bug with Qt.
     wc3Process->start(exePath, QStringList());
 
     if (!wc3Process->waitForStarted(1000))
@@ -1307,9 +1308,9 @@ void MainGUI::receivedPlayerInformation(Player *player)
                 addMessage("[WARNING] " + player->getName()
                         + " has a stay ratio below 80%. ("
                         + QString::number(player->getStayPercent(), 'f', 2) + "%)");
-                gproxy->SendLocalChat("WARNING: " + player->getName().toStdString()
+                gproxy->SendLocalChat("WARNING: " + player->getName()
                         + " has a stay ratio below 80%. ("
-                        + QString::number(player->getStayPercent(), 'f', 2).toStdString() + "%)");
+                        + QString::number(player->getStayPercent(), 'f', 2) + "%)");
             }
 
             break;

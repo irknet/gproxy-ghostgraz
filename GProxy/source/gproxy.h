@@ -120,7 +120,7 @@ public:
 
 // output
 
-void LOG_Print( QString message );
+void LOG_Print( const QString& message );
 void CONSOLE_Print( QString message, bool log = true );
 void CheckForGame( string gamename );//phy core
 string parrot();//phy parrot
@@ -165,17 +165,17 @@ class CGProxy : public QObject
 public:
     // TODO Make these attributes private and create setters and getters.
     string m_Version;
-    CTCPServer *m_LocalServer;
-    CTCPSocket *m_LocalSocket;
-    CTCPClient *m_RemoteSocket;
-    CUDPSocket *m_UDPSocket;
+    CTCPServer* m_LocalServer;
+    CTCPSocket* m_LocalSocket;
+    CTCPClient* m_RemoteSocket;
+    CUDPSocket* m_UDPSocket;
     CBNET* m_BNET;
-    vector<CIncomingGameHost *> m_Games;
+    vector<CIncomingGameHost*> m_Games;
     CGameProtocol* m_GameProtocol;
     CGPSProtocol* m_GPSProtocol;
-    queue<CCommandPacket *> m_LocalPackets;
-    queue<CCommandPacket *> m_RemotePackets;
-    queue<CCommandPacket *> m_PacketBuffer;
+    queue<CCommandPacket*> m_LocalPackets;
+    queue<CCommandPacket*> m_RemotePackets;
+    queue<CCommandPacket*> m_PacketBuffer;
     vector<unsigned char> m_Laggers;
     uint32_t m_TotalPacketsReceivedFromLocal;
     uint32_t m_TotalPacketsReceivedFromRemote;
@@ -234,23 +234,23 @@ public:
     void ExtractRemotePackets( );
     void ProcessRemotePackets( );
 
-    bool AddGame( CIncomingGameHost *game );
-    void SendLocalChat( string message );
+    bool AddGame( CIncomingGameHost* game );
+    void SendLocalChat( QString message );
     void sendGamemessage(QString message, bool alliesOnly = false);
     bool CheckForwarding ( QString message );
     void changeTeam( unsigned char team );
     void SendEmptyAction( );
 
-    void setServer(const QString &server);
-    void setUsername(const QString &username);
-    void setPassword(const QString &password);
-    void setWar3version(const uint32_t &war3version);
-    void setPort(const uint16_t &port);
-    void setExeversion(const BYTEARRAY &exeversion);
-    void setExeversionhash(const BYTEARRAY &exeversionhash);
-    void setPasswordhashtype(const QString &passwordhashtype);
-    void setChannel(const QString &channel);
-    void setPlayers(const QVector<Player*> &players);
+    void setServer(const QString& server);
+    void setUsername(const QString& username);
+    void setPassword(const QString& password);
+    void setWar3version(const uint32_t& war3version);
+    void setPort(const uint16_t& port);
+    void setExeversion(const BYTEARRAY& exeversion);
+    void setExeversionhash(const BYTEARRAY& exeversionhash);
+    void setPasswordhashtype(const QString& passwordhashtype);
+    void setChannel(const QString& channel);
+    void setPlayers(const QVector<Player*>& players);
 
     QString getServer();
     QString getUsername();
@@ -291,7 +291,7 @@ public:
     void changeChannel(QString channel);
     void addChannelUser(QString username, QString clanTag);
     void removeChannelUser(QString username);
-    void friendUpdate(vector<CIncomingFriendList *> friendList);
+    void friendUpdate(vector<CIncomingFriendList*> friendList);
     void clearFriendlist();
     void addFriend(QString username, bool online, QString location);
     void showErrorMessage(QString errorMessage);
@@ -317,7 +317,7 @@ private:
     QString cdKeyTFT;
     bool dotaMap;
     QVector<Player*> players;
-    Player *lastLeaver;
+    Player* lastLeaver;
 
 signals:
     void signal_addMessage(QString, bool);
@@ -328,7 +328,7 @@ signals:
     void signal_addFriend(QString, bool, QString);
     void signal_setGameslots(vector<CIncomingSlots*>);
     void signal_showErrorMessage(QString);
-    void signal_playerJoined(const QString &);
+    void signal_playerJoined(const QString&);
     void signal_stopDownloadThread();
 };
 

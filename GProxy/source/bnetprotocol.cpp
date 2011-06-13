@@ -201,14 +201,7 @@ CIncomingChatEvent *CBNETProtocol :: RECEIVE_SID_CHATEVENT( BYTEARRAY data )
 		BYTEARRAY EventID = BYTEARRAY( data.begin( ) + 4, data.begin( ) + 8 );
 		BYTEARRAY Ping = BYTEARRAY( data.begin( ) + 12, data.begin( ) + 16 );
 		BYTEARRAY User = UTIL_ExtractCString( data, 28 );
-		BYTEARRAY MessageArray = UTIL_ExtractCString( data, User.size( ) + 29 );
-
-                QByteArray encodedString;
-                for (BYTEARRAY::iterator i = MessageArray.begin(); i != MessageArray.end(); i++)
-                {
-                    encodedString += *i;
-                }
-                QString message = QTextCodec::codecForName("UTF-8")->toUnicode(encodedString);
+                QString message = UTIL_ExtractQString( data, User.size( ) + 29 );
 
 		switch( UTIL_ByteArrayToUInt32( EventID, false ) )
 		{
@@ -549,6 +542,16 @@ CIncomingClanList *CBNETProtocol :: RECEIVE_SID_CLANMEMBERSTATUSCHANGE( BYTEARRA
 	return NULL;
 }
 
+BYTEARRAY CBNETProtocol::RECEIVE_SID_MESSAGEBOX (BYTEARRAY data)
+{
+    if (ValidateLength(data) && data.size() >= 5)
+    {
+        return BYTEARRAY( data.begin( ) + 4, data.end( ) );
+    }
+
+    return BYTEARRAY();
+}
+
 ////////////////////
 // SEND FUNCTIONS //
 ////////////////////
@@ -665,18 +668,24 @@ BYTEARRAY CBNETProtocol :: SEND_SID_JOINCHANNEL( string channel )
 	return packet;
 }
 
-BYTEARRAY CBNETProtocol :: SEND_SID_CHATCOMMAND( string command )//phy here
+BYTEARRAY CBNETProtocol::SEND_SID_CHATCOMMAND (QString command)
 {
-	BYTEARRAY packet;
-	packet.push_back( BNET_HEADER_CONSTANT );		// BNET header constant
-	packet.push_back( SID_CHATCOMMAND );			// SID_CHATCOMMAND
-	packet.push_back( 0 );							// packet length will be assigned later
-	packet.push_back( 0 );							// packet length will be assigned later
-	UTIL_AppendByteArrayFast( packet, command );	// Message
-	AssignLength( packet );
-	// DEBUG_Print( "SENT SID_CHATCOMMAND" );
-	// DEBUG_Print( packet );
-	return packet;
+    BYTEARRAY packet;
+    packet.push_back(BNET_HEADER_CONSTANT);
+    packet.push_back(SID_CHATCOMMAND);
+    packet.push_back(0);
+    packet.push_back(0);
+
+    QByteArray message = command.toUtf8();
+    for(int i = 0; i < message.length(); i++)
+    {
+        packet.push_back(message.at(i));
+    }
+    packet.push_back(0);
+
+    AssignLength(packet);
+
+    return packet;
 }
 
 BYTEARRAY CBNETProtocol :: SEND_SID_CHECKAD( )

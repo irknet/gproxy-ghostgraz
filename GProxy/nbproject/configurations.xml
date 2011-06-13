@@ -25,6 +25,7 @@
       <itemPath>source/GhostGrazLogininformationDialog.h</itemPath>
       <itemPath>source/MainGUI.h</itemPath>
       <itemPath>source/OutputareaColorDialog.h</itemPath>
+      <itemPath>source/Packet.h</itemPath>
       <itemPath>source/Player.h</itemPath>
       <itemPath>source/bncsutilinterface.h</itemPath>
       <itemPath>source/bnet.h</itemPath>
@@ -69,6 +70,7 @@
       <itemPath>source/GhostGrazLogininformationDialog.cpp</itemPath>
       <itemPath>source/MainGUI.cpp</itemPath>
       <itemPath>source/OutputareaColorDialog.cpp</itemPath>
+      <itemPath>source/Packet.cpp</itemPath>
       <itemPath>source/Player.cpp</itemPath>
       <itemPath>source/bncsutilinterface.cpp</itemPath>
       <itemPath>source/bnet.cpp</itemPath>
@@ -171,10 +173,16 @@
             <pElem>.</pElem>
             <pElem>.</pElem>
             <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
           </incDir>
         </cTool>
         <ccTool>
           <incDir>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
             <pElem>.</pElem>
             <pElem>.</pElem>
             <pElem>.</pElem>
@@ -193,7 +201,8 @@
       </toolsSet>
       <qt>
         <destdir>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}</destdir>
-        <version>2.0.0</version>
+        <target>GProxy</target>
+        <version>2.2</version>
         <buildMode>1</buildMode>
         <modules>core gui network</modules>
         <mocDir>source</mocDir>
@@ -266,10 +275,16 @@
             <pElem>.</pElem>
             <pElem>.</pElem>
             <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
           </incDir>
         </cTool>
         <ccTool>
           <incDir>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
             <pElem>.</pElem>
             <pElem>.</pElem>
             <pElem>.</pElem>

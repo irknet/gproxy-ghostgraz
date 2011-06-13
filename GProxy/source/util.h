@@ -19,6 +19,7 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include <QString>
 #include <string>
 
 using namespace std;
@@ -41,6 +42,7 @@ void UTIL_AppendByteArrayFast( BYTEARRAY &b, string &append, bool terminator = t
 void UTIL_AppendByteArray( BYTEARRAY &b, uint16_t i, bool reverse );
 void UTIL_AppendByteArray( BYTEARRAY &b, uint32_t i, bool reverse );
 BYTEARRAY UTIL_ExtractCString( BYTEARRAY &b, unsigned int start );
+QString UTIL_ExtractQString ( BYTEARRAY &b, unsigned int start );
 unsigned char UTIL_ExtractHex( BYTEARRAY &b, unsigned int start, bool reverse );
 BYTEARRAY UTIL_ExtractNumbers( string s, unsigned int count );
 BYTEARRAY UTIL_ExtractHexNumbers( string s );

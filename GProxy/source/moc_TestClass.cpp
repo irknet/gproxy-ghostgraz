@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'TestClass.h'
 **
-** Created: Sat 4. Jun 21:01:31 2011
+** Created: Sun 12. Jun 19:21:58 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!

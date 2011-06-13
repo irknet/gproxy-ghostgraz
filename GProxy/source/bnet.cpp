@@ -717,6 +717,14 @@ void CBNET::ProcessPackets ()
 
                 case CBNETProtocol::SID_CLANMEMBERLIST:
                     break;
+
+//                case CBNETProtocol::SID_MESSAGEBOX:
+//                    BYTEARRAY messagebox = m_Protocol->RECEIVE_SID_MESSAGEBOX(Packet->GetData());
+////                    uint32_t style = UTIL_ByteArrayToUInt32(messagebox, false);
+//                    QString text = UTIL_ExtractQString(messagebox, 4);
+//                    QString title = UTIL_ExtractQString(messagebox, 5 + text.length());
+//                    CONSOLE_Print("Messagebox: Title="+title+" Text="+text);
+//                    break;
             }
         }
 
@@ -801,7 +809,7 @@ void CBNET::ProcessChatEvent (CIncomingChatEvent * chatEvent)
 
         if (m_GProxy->m_LocalSocket)
         {
-            m_GProxy->SendLocalChat(User.toStdString() + " whispers: " + Message.toStdString());
+            m_GProxy->SendLocalChat(User + " whispers: " + Message);
         }
 
         if (m_GProxy->m_PlaySound)
@@ -893,7 +901,7 @@ void CBNET::ProcessChatEvent (CIncomingChatEvent * chatEvent)
     {
         if (m_GProxy->m_LocalSocket)
         {
-            m_GProxy->SendLocalChat("[INFO] " + Message.toStdString());
+            m_GProxy->SendLocalChat("[INFO] " + Message);
         }
         CONSOLE_Print("[INFO] " + Message); //phy autosearch
         int index = Message.indexOf(" ");
@@ -962,7 +970,7 @@ void CBNET::QueueChatCommand (QString chatCommand, bool showMessage)
                 CONSOLE_Print("[QUEUED] " + chatCommand);
             }
 
-            m_OutPackets.push(m_Protocol->SEND_SID_CHATCOMMAND(chatCommand.toStdString()));
+            m_OutPackets.push(m_Protocol->SEND_SID_CHATCOMMAND(chatCommand));
         }
     }
 }

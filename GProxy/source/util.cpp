@@ -21,6 +21,8 @@
 
 #include <sys/stat.h>
 #include <QString>
+#include <QByteArray>
+#include <QTextCodec>
 
 BYTEARRAY UTIL_CreateByteArray( unsigned char *a, int size )
 {
@@ -184,6 +186,29 @@ BYTEARRAY UTIL_ExtractCString( BYTEARRAY &b, unsigned int start )
 	}
 
 	return BYTEARRAY( );
+}
+
+QString UTIL_ExtractQString(BYTEARRAY &b, unsigned int start)
+{
+    if (start < b.size())
+    {
+        QByteArray encodedString;
+        for (unsigned int i = start; i < b.size(); i++)
+        {
+            if (b[i] == 0)
+            {
+                return QTextCodec::codecForName("UTF-8")->toUnicode(encodedString);
+            }
+
+            encodedString += b.at(i);
+        }
+
+        // no null value found, return the rest of the byte array
+
+        return QTextCodec::codecForName("UTF-8")->toUnicode(encodedString);
+    }
+
+    return QString();
 }
 
 unsigned char UTIL_ExtractHex( BYTEARRAY &b, unsigned int start, bool reverse )

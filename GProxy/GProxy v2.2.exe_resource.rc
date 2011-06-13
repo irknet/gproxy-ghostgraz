@@ -25,8 +25,8 @@ VS_VERSION_INFO VERSIONINFO
 				VALUE "FileDescription", "\0"
 				VALUE "FileVersion", "2.2.0.0\0"
 				VALUE "LegalCopyright", "\0"
-				VALUE "OriginalFilename", "GProxy.exe\0"
-				VALUE "ProductName", "GProxy\0"
+				VALUE "OriginalFilename", "GProxy v2.2.exe.exe\0"
+				VALUE "ProductName", "GProxy v2.2.exe\0"
 			END
 		END
 	END
