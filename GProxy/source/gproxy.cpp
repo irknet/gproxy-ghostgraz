@@ -4,6 +4,7 @@
 #include <QDateTime>
 #include <QTextStream>
 #include <QTextCodec>
+#include <QMutableListIterator>
 
 #include "gproxy.h"
 #include "util.h"
@@ -27,7 +28,6 @@
 #include <sstream>
 #include <windows.h>
 #include <winsock.h>
-//#include "mysql/include/mysql.h" // has to be after winsock
 
 CGProxy* gproxy;
 MainGUI* mainGUI;
@@ -36,17 +36,10 @@ GproxyUpdateThread* gproxyUpdateThread;
 QElapsedTimer timer;
 QFile* logFile;
 
-vector<CIncomingSlots*> slotList;
-//CPlayer players[12];
 bool playerLoadingComplete[12];
-int slotListWithPlayer;
 int finishedLoadingCounter;
 int teamNumber;
-int teams;
 unsigned int countdownEndTime;
-//MYSQL *conn;
-//MYSQL_RES *res;
-//MYSQL_ROW row;
 
 string parseTextline (string input)
 {
@@ -144,91 +137,153 @@ int main (int argc, char** argv)
     mainGUI = new MainGUI(gproxy);
     mainGUI->show();
 
-    qRegisterMetaType<vector<CIncomingSlots*> >("vector<CIncomingSlots*>");
+    gproxy->connectSignalsAndSlots();
 
-    QObject::connect(gproxy, SIGNAL(signal_addMessage(QString, bool)),
-            mainGUI, SLOT(addMessage(QString, bool)), Qt::QueuedConnection);
-
-    QObject::connect(gproxy, SIGNAL(signal_changeChannel(QString)),
-            mainGUI, SLOT(changeChannel(QString)), Qt::QueuedConnection);
-
-    QObject::connect(gproxy, SIGNAL(signal_addChannelUser(QString, QString)),
-            mainGUI, SLOT(addChannelUser(QString, QString)), Qt::QueuedConnection);
-
-    QObject::connect(gproxy, SIGNAL(signal_removeChannelUser(QString)),
-            mainGUI, SLOT(removeChannelUser(QString)), Qt::QueuedConnection);
-
-    QObject::connect(gproxy, SIGNAL(signal_clearFriendlist()),
-            mainGUI, SLOT(clearFriendlist()), Qt::QueuedConnection);
-
-    QObject::connect(gproxy, SIGNAL(signal_addFriend(QString, bool, QString)),
-            mainGUI, SLOT(addFriend(QString, bool, QString)), Qt::QueuedConnection);
-
-    QObject::connect(gproxy, SIGNAL(signal_setGameslots(vector<CIncomingSlots*>)),
-            mainGUI, SLOT(setGameslots(vector<CIncomingSlots*>)), Qt::QueuedConnection);
-
-    QObject::connect(gproxy, SIGNAL(signal_showErrorMessage(QString)),
-            mainGUI, SLOT(showErrorMessage(QString)), Qt::QueuedConnection);
-
-    QObject::connect(gproxy, SIGNAL(signal_playerJoined(const QString &)),
-            mainGUI, SLOT(playerJoined(const QString &)), Qt::QueuedConnection);
-
+    // For printing the date to the log file in English format.
     QLocale::setDefault(QLocale::English);
+    // Support special characters.
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
-
+    // For getting the elapsed time since application start.
     timer.start();
 
     CONSOLE_Print("[GPROXY] starting up");
     CONSOLE_Print("[GPROXY] Trying to loading configuration file");
 
-    Config *config = new Config("gproxy.cfg");
+    // Initialize config.
+    Config* config = new Config("gproxy.cfg");
     gproxy->setConfig(config);
-
     int statusCode = config->loadConfig();
-    bool status = gproxy->checkStatus(statusCode);
+    bool connect = gproxy->checkStatus(statusCode);
 
     mainGUI->init();
 
     gproxy->applyConfig();
 
 #ifdef WIN32
-    // initialize winsock
-    CONSOLE_Print("[GPROXY] starting winsock");
+    // Initialize winsock
+    CONSOLE_Print("[GPROXY] Starting winsock");
     WSADATA wsadata;
 
     if (WSAStartup(MAKEWORD(2, 2), &wsadata) != 0)
     {
-        CONSOLE_Print("[GPROXY] error starting winsock");
+        gproxy->showErrorMessage("Error starting winsock!");
         return 1;
     }
 
-    // increase process priority
+    // Increase process priority
     CONSOLE_Print("[GPROXY] setting process priority to \"above normal\"");
     SetPriorityClass(GetCurrentProcess(), ABOVE_NORMAL_PRIORITY_CLASS);
 #endif
 
-    CONSOLE_Print("", false);
-    CONSOLE_Print("  Welcome to GProxy++.", false);
-    CONSOLE_Print("  Server: " + gproxy->getServer(), false);
-    CONSOLE_Print("  Username: " + gproxy->getUsername(), false);
-    CONSOLE_Print("  Channel: " + gproxy->getChannel(), false);
-    CONSOLE_Print("", false);
-    CONSOLE_Print("  Type /help at any time for help.", false);
-    CONSOLE_Print("", false);
-    CONSOLE_Print("Welcome to <font color=\"red\">GProxy++</font>, "
-            "this mod is by <font color=\"darkgreen\">Phyton</font>, "
-            "<font color=\"deeppink\">Pr0gm4n</font> and "
-            "<font color=\"gold\">Manufactoring</font>.");
+    gproxy->showWelcomeMessages();
 
-    gproxy->init("", "", true, false, status);
+    // FIXME Remove unnecessary parameters.
+    gproxy->initVariables("", "", true, false, connect);
 
     return app.exec();
 }
 
 /**
- * Constructor.
+ * Empty Constructor.
  */
 CGProxy::CGProxy () { }
+
+/**
+ * Deconstructor
+ */
+CGProxy::~CGProxy ()
+{
+    for (vector<CIncomingGameHost* > ::iterator i = m_Games.begin(); i != m_Games.end(); ++i)
+    {
+        m_UDPSocket->Broadcast(6112, m_GameProtocol->SEND_W3GS_DECREATEGAME(
+                ((CIncomingGameHost*) (*i))->GetUniqueGameID()));
+    }
+
+    for (QList<Slot*>::iterator i = slotList.begin(); i != slotList.end(); ++i)
+    {
+        delete *i;
+    }
+    slotList.clear();
+
+    for (QVector<Player*> ::iterator i = players.begin(); i != players.end(); ++i)
+    {
+        delete *i;
+    }
+    players.clear();
+
+    delete config;
+    delete m_LocalServer;
+    delete m_LocalSocket;
+    delete m_RemoteSocket;
+    delete m_UDPSocket;
+    delete m_BNET;
+    delete lastLeaver;
+
+    for (vector<CIncomingGameHost*> ::iterator i = m_Games.begin(); i != m_Games.end(); i++)
+    {
+        delete *i;
+    }
+    m_Games.clear();
+
+    delete m_GameProtocol;
+    delete m_GPSProtocol;
+
+    while (!m_LocalPackets.empty())
+    {
+        delete m_LocalPackets.front();
+        m_LocalPackets.pop();
+    }
+
+    while (!m_RemotePackets.empty())
+    {
+        delete m_RemotePackets.front();
+        m_RemotePackets.pop();
+    }
+
+    while (!m_PacketBuffer.empty())
+    {
+        delete m_PacketBuffer.front();
+        m_PacketBuffer.pop();
+    }
+}
+
+/**
+ * Connect all necessary signals and slots.
+ */
+void CGProxy::connectSignalsAndSlots()
+{
+    qRegisterMetaType< QList<Slot*> >("QList<Slot*>");
+
+    connect(this, SIGNAL(signal_addMessage(QString, bool)),
+            mainGUI, SLOT(addMessage(QString, bool)), Qt::QueuedConnection);
+
+    connect(this, SIGNAL(signal_changeChannel(QString)),
+            mainGUI, SLOT(changeChannel(QString)), Qt::QueuedConnection);
+
+    connect(this, SIGNAL(signal_addChannelUser(QString, QString)),
+            mainGUI, SLOT(addChannelUser(QString, QString)), Qt::QueuedConnection);
+
+    connect(this, SIGNAL(signal_removeChannelUser(QString)),
+            mainGUI, SLOT(removeChannelUser(QString)), Qt::QueuedConnection);
+
+    connect(this, SIGNAL(signal_clearFriendlist()),
+            mainGUI, SLOT(clearFriendlist()), Qt::QueuedConnection);
+
+    connect(this, SIGNAL(signal_addFriend(QString, bool, QString)),
+            mainGUI, SLOT(addFriend(QString, bool, QString)), Qt::QueuedConnection);
+
+    connect(this, SIGNAL(signal_setGameslots(QList<Slot*>)),
+            mainGUI, SLOT(setGameslots(QList<Slot*>)), Qt::QueuedConnection);
+
+    connect(this, SIGNAL(signal_showErrorMessage(QString)),
+            mainGUI, SLOT(showErrorMessage(QString)), Qt::QueuedConnection);
+
+    connect(this, SIGNAL(signal_playerJoined(const QString &)),
+            mainGUI, SLOT(playerJoined(const QString &)), Qt::QueuedConnection);
+
+    connect(this, SIGNAL(signal_showConfigDialog(bool)),
+            mainGUI, SLOT(showConfigDialog(bool)), Qt::QueuedConnection);
+}
 
 /**
  * Initializes all variables.
@@ -239,8 +294,8 @@ CGProxy::CGProxy () { }
  * @param listing_current_games
  * @param status
  */
-void CGProxy::init (string cpublic, string cfilter, bool temp_displayautocreated,
-        bool listing_current_games, bool status)
+void CGProxy::initVariables (string cpublic, string cfilter, bool temp_displayautocreated,
+        bool listing_current_games, bool connect)
 {
     m_Version = mainGUI->windowTitle().remove(0, 7).toStdString();
     m_LocalServer = new CTCPServer();
@@ -296,9 +351,9 @@ void CGProxy::init (string cpublic, string cfilter, bool temp_displayautocreated
     downloadThread = new DownloadThread(mainGUI);
     downloadThread->start(QThread::LowestPriority);
 
-    gproxyUpdateThread = new GproxyUpdateThread(gproxy);
-    if (status == true)
+    if (connect)
     {
+        gproxyUpdateThread = new GproxyUpdateThread(gproxy);
         gproxyUpdateThread->start(QThread::HighPriority);
     }
 
@@ -306,58 +361,7 @@ void CGProxy::init (string cpublic, string cfilter, bool temp_displayautocreated
 }
 
 /**
- * Deconstructor
- */
-CGProxy::~CGProxy ()
-{
-    for (vector<CIncomingGameHost* > ::iterator i = m_Games.begin(); i != m_Games.end(); i++)
-    {
-        m_UDPSocket->Broadcast(6112, m_GameProtocol->SEND_W3GS_DECREATEGAME(((CIncomingGameHost* ) (*i))->GetUniqueGameID()));
-    }
-
-    for (QVector<Player*> ::iterator i = players.begin(); i != players.end(); i++)
-    {
-        delete *i;
-    }
-
-    delete config;
-    delete m_LocalServer;
-    delete m_LocalSocket;
-    delete m_RemoteSocket;
-    delete m_UDPSocket;
-    delete m_BNET;
-    delete lastLeaver;
-
-    for (vector<CIncomingGameHost*> ::iterator i = m_Games.begin(); i != m_Games.end(); i++)
-    {
-        delete *i;
-    }
-
-    delete m_GameProtocol;
-    delete m_GPSProtocol;
-
-
-    while (!m_LocalPackets.empty())
-    {
-        delete m_LocalPackets.front();
-        m_LocalPackets.pop();
-    }
-
-    while (!m_RemotePackets.empty())
-    {
-        delete m_RemotePackets.front();
-        m_RemotePackets.pop();
-    }
-
-    while (!m_PacketBuffer.empty())
-    {
-        delete m_PacketBuffer.front();
-        m_PacketBuffer.pop();
-    }
-}
-
-/**
- * Cleanup function before exiting.
+ * Cleanup function before exiting. (Deleting all pointers)
  */
 void CGProxy::cleanup ()
 {
@@ -371,11 +375,6 @@ void CGProxy::cleanup ()
     delete downloadThread;
     gproxyUpdateThread->stop();
     delete gproxyUpdateThread;
-
-    for (vector<CIncomingSlots*> ::iterator it = slotList.begin(); it != slotList.end(); it++)
-    {
-        delete *it;
-    }
 
     if (logFile->isOpen())
     {
@@ -418,6 +417,22 @@ void CGProxy::applyConfig ()
     gproxy->setExeversion(UTIL_ExtractNumbers(config->getString("exeversion").toStdString(), 4));
     gproxy->setExeversionhash(UTIL_ExtractNumbers(config->getString("exeversionhash").toStdString(), 4));
     gproxy->setPasswordhashtype(config->getString("passwordhashtype"));
+}
+
+void CGProxy::showWelcomeMessages()
+{
+    CONSOLE_Print("", false);
+    CONSOLE_Print("  Welcome to GProxy++.", false);
+    CONSOLE_Print("  Server: " + gproxy->getServer(), false);
+    CONSOLE_Print("  Username: " + gproxy->getUsername(), false);
+    CONSOLE_Print("  Channel: " + gproxy->getChannel(), false);
+    CONSOLE_Print("", false);
+    CONSOLE_Print("  Type /help at any time for help.", false);
+    CONSOLE_Print("", false);
+    CONSOLE_Print("Welcome to <font color=\"red\">GProxy++</font>, "
+            "this mod is by <font color=\"darkgreen\">Phyton</font>, "
+            "<font color=\"deeppink\">Pr0gm4n</font> and "
+            "<font color=\"gold\">Manufactoring</font>.", false);
 }
 
 /**
@@ -1702,13 +1717,19 @@ void CGProxy::ProcessRemotePackets ()
                 }
                 players.clear();
 
+                for (QList<Slot*>::iterator it = slotList.begin(); it != slotList.end(); ++it)
+                {
+                    delete *it;
+                }
+                slotList.clear();
+
                 BYTEARRAY Data = Packet->GetData();
 
                 if (Data.size() >= 6)
                 {
-                    unsigned int SlotInfoSize = ((unsigned int) UTIL_ByteArrayToUInt16(Data, false, 4));
+                    uint16_t SlotInfoSize = UTIL_ByteArrayToUInt16(Data, false, 4);
 
-                    if (Data.size() >= 7 + SlotInfoSize)
+                    if (Data.size() >= 7 + (unsigned) SlotInfoSize)
                     {
                         m_ChatPID = Data[6 + SlotInfoSize];
                     }
@@ -1724,61 +1745,36 @@ void CGProxy::ProcessRemotePackets ()
                     else
                         CONSOLE_Print("[GPROXY] detected standard game, disconnect protection disabled");
 
-                    unsigned int i = 6;
-                    unsigned char totalslotList = Data[i];
-                    i += 1;
+                    unsigned char numberOfSlots = Data[6];
 
-                    for(unsigned int i = 0; i < slotList.size(); i++)
+                    int i = 7;
+                    for (int j = 0; j < numberOfSlots; j++)
                     {
-                        delete slotList[i];
-                    }
-                    slotList.clear();
+                        Slot* slot = new Slot();
+                        slot->setPlayerId(Data[i++]);
+                        slot->setDownloadProgress(Data[i++]);
+                        slot->setSlotStatus(Slot::SlotStatus(Data[i++]));
+                        slot->setComputerStatus(Slot::ComputerStatus(Data[i++]));
+                        slot->setTeam(Data[i++]);
+                        slot->setColor(Slot::SlotColor(Data[i++]));
+                        slot->setRace(Slot::Race(Data[i++]));
+                        slot->setComputerType(Slot::ComputerType(Data[i++]));
+                        slot->setHandicap(Data[i++]);
 
-                    teams = 0;
-                    vector <int> processedTeams;
-
-                    for (int j = 0; j < totalslotList; j++)
-                    {
-                        slotList.push_back(new CIncomingSlots(Data[i], Data[i + 1], Data[i + 2], Data[i + 3],
-                                Data[i + 4], Data[i + 5], Data[i + 6], Data[i + 7], Data[i + 8]));
-
-                        if (((int) Data[i]) == m_ChatPID)
-                            teamNumber = (int) Data[i + 4];
-
-                        if (processedTeams.size() == 0)
+                        if (slot->getPlayerId() == m_ChatPID)
                         {
-                            processedTeams.push_back((int) Data[i + 4]);
-                            teams++;
-                        }
-                        else
-                        {
-                            bool teamProcessed = false;
-                            for (vector<int> ::iterator it = processedTeams.begin(); it != processedTeams.end(); it++)
-                            {
-                                if ((*it) == (int) Data[i + 4])
-                                {
-                                    teamProcessed = true;
-                                    break;
-                                }
-                            }
-
-                            if (!teamProcessed)
-                            {
-                                processedTeams.push_back((int) Data[i + 4]);
-                                teams++;
-                            }
+                            teamNumber = slot->getTeam();
                         }
 
-                        i += 9;
+                        slotList.append(slot);
                     }
 
-                    Player *player = new Player();
-                    player->setPlayerId(((int) m_ChatPID));
+                    Player* player = new Player();
+                    player->setPlayerId(m_ChatPID);
                     player->setName(username);
                     players.append(player);
 
                     emit signal_playerJoined(username);
-                    emit signal_setGameslots(slotList);
                 }
                 else
                 {
@@ -1791,72 +1787,53 @@ void CGProxy::ProcessRemotePackets ()
 
                 uint16_t SlotInfoSize = UTIL_ByteArrayToUInt16(Data, false, 4);
 
-                if (Data.size() >= 7 + ((unsigned int) SlotInfoSize))
+                if (Data.size() >= 7 + (unsigned) SlotInfoSize)
                 {
                     m_ChatPID = Data[6 + SlotInfoSize];
                 }
 
-                unsigned int i = 6;
-                unsigned char totalslotList = Data[i];
-                i += 1;
+                unsigned char numberOfSlots = Data[6];
 
-                teams = 0;
-                vector <int> processedTeams;
-
-                for (int j = 0; j < totalslotList; j++)
+                int i = 7;
+                for (int j = 0; j < numberOfSlots; j++)
                 {
-                    for (vector<CIncomingSlots *> ::iterator it = slotList.begin(); it != slotList.end(); it++)
+                    foreach(Slot* slot, slotList)
                     {
-                        if ((((CIncomingSlots *) (*it))->GetColor() == ((int) Data[i + 5])))
+                        if (slot->getColor() == Data[i + 5])
                         {
-                            ((CIncomingSlots *) (*it))->SetPID(((int) Data[i]));
-                            ((CIncomingSlots *) (*it))->SetDownloadStatus(((int) Data[i + 1]));
-                            ((CIncomingSlots *) (*it))->SetSlotStatus(((int) Data[i + 2]));
-                            ((CIncomingSlots *) (*it))->SetComputerStatus(((int) Data[i + 3]));
-                            ((CIncomingSlots *) (*it))->SetTeam(((int) Data[i + 4]));
-                            ((CIncomingSlots *) (*it))->SetColor(((int) Data[i + 5]));
-                            ((CIncomingSlots *) (*it))->SetRace(((int) Data[i + 6]));
-                            ((CIncomingSlots *) (*it))->SetComputerType(((int) Data[i + 7]));
-                            ((CIncomingSlots *) (*it))->SetHandicap(((int) Data[i + 8]));
-                            foreach(Player *player, players)
+                            slot->setPlayerId(Data[i++]);
+                            slot->setDownloadProgress(Data[i++]);
+                            slot->setSlotStatus(Slot::SlotStatus(Data[i++]));
+                            slot->setComputerStatus(Slot::ComputerStatus(Data[i++]));
+                            slot->setTeam(Data[i++]);
+                            slot->setColor(Slot::SlotColor(Data[i++]));
+                            slot->setRace(Slot::Race(Data[i++]));
+                            slot->setComputerType(Slot::ComputerType(Data[i++]));
+                            slot->setHandicap(Data[i++]);
+
+                            bool playerFound = false;
+                            foreach(Player* player, players)
                             {
-                                if(player->getPlayerId() == ((int) Data[i]))
+                                if(player->getPlayerId() == slot->getPlayerId())
                                 {
-                                    ((CIncomingSlots *) (*it))->SetName(player->getName().toStdString());
+                                    slot->setPlayer(player);
+                                    playerFound = true;
+                                    break;
                                 }
                             }
+                            if (!playerFound)
+                            {
+                                slot->setPlayer(NULL);
+                            }
 
-                            if (((int) Data[i]) == m_ChatPID)
-                                teamNumber = (int) Data[i + 4];
+                            if (slot->getPlayerId() == m_ChatPID)
+                            {
+                                teamNumber = slot->getTeam();
+                            }
 
                             break;
                         }
                     }
-
-                    if (processedTeams.size() == 0)
-                    {
-                        processedTeams.push_back((int) Data[i + 4]);
-                        teams++;
-                    }
-                    else
-                    {
-                        bool teamProcessed = false;
-                        for (vector<int> ::iterator it = processedTeams.begin(); it != processedTeams.end(); it++)
-                        {
-                            if ((*it) == (int) Data[i + 4])
-                            {
-                                teamProcessed = true;
-                                break;
-                            }
-                        }
-
-                        if (!teamProcessed)
-                        {
-                            processedTeams.push_back((int) Data[i + 4]);
-                            teams++;
-                        }
-                    }
-                    i += 9;
                 }
 
                 emit signal_setGameslots(slotList);
@@ -1865,19 +1842,14 @@ void CGProxy::ProcessRemotePackets ()
             {
                 BYTEARRAY data = Packet->GetData();
 
-                unsigned int i = 8;
-                int playerId = (int) data[i];
-                i += 1;
-                BYTEARRAY Name = UTIL_ExtractCString(data, i);
+                int playerId = (int) data[8];
+                BYTEARRAY Name = UTIL_ExtractCString(data, 9);
                 string playersName = UTIL_ToColoredText(string(Name.begin(), Name.end()));
 
-                Player *player = new Player();
+                Player* player = new Player();
                 player->setPlayerId(playerId);
                 player->setName(QString::fromStdString(playersName));
                 players.append(player);
-
-                CONSOLE_Print("[LOBBY] "
-                        + QString::fromStdString(playersName) + " has joined the game.");
 
                 emit signal_playerJoined(QString::fromStdString(playersName));
             }
@@ -1926,10 +1898,22 @@ void CGProxy::ProcessRemotePackets ()
                 playerLoadingComplete[ ((int) Packet->GetData()[4]) ] = true;
                 finishedLoadingCounter++;
 
-                if (slotListWithPlayer == finishedLoadingCounter)
+                int playerCount = 0;
+                foreach(Slot* slot, slotList)
+                {
+                    if (slot->getSlotStatus() == Slot::OCCUPIED
+                            && slot->getComputerStatus() == Slot::NO_COMPUTER)
+                    {
+                        playerCount++;
+                    }
+                }
+
+                if (playerCount == finishedLoadingCounter)
                 {
                     for (int i = 0; i < 12; i++)
+                    {
                         playerLoadingComplete[i] = false;
+                    }
 
                     finishedLoadingCounter = 0;
 
@@ -1953,19 +1937,6 @@ void CGProxy::ProcessRemotePackets ()
 
                 m_GameStarted = true;
                 countdownEndTime = getElapsedMilliseconds();
-
-                slotListWithPlayer = 0;
-                for (vector<CIncomingSlots *> ::iterator it = slotList.begin(); it != slotList.end(); it++)
-                {
-                    if (((CIncomingSlots *) (*it))->GetSlotStatus() == 2 && ((CIncomingSlots *) (*it))->GetComputerStatus() == 0)
-                        slotListWithPlayer++;
-                    else
-                    {
-                        delete *it;
-                        it = slotList.erase(it);
-                        continue;
-                    }
-                }
 
                 emit signal_setGameslots(slotList);
             }
@@ -2294,20 +2265,20 @@ void CGProxy::sendGamemessage (QString message, bool alliesOnly)
 
     if (!gproxy->m_GameStarted)
     {
-        for (vector<CIncomingSlots *> ::iterator it = slotList.begin(); it != slotList.end(); it++)
+        foreach(Slot* slot, slotList)
         {
-            toPIDs.push_back(((CIncomingSlots *) (*it))->GetPID());
+            toPIDs.push_back(slot->getPlayerId());
         }
 
         packet = gproxy->m_GameProtocol->SEND_W3GS_CHAT_TO_HOST(gproxy->m_ChatPID, toPIDs, 16, BYTEARRAY(), message);
     }
     else if (alliesOnly)
     {
-        for (vector<CIncomingSlots *> ::iterator it = slotList.begin(); it != slotList.end(); it++)
+        foreach(Slot* slot, slotList)
         {
-            if (((CIncomingSlots *) (*it))->GetTeam() == teamNumber)
+            if (slot->getTeam() == teamNumber)
             {
-                toPIDs.push_back(((CIncomingSlots *) (*it))->GetPID());
+                toPIDs.push_back(slot->getPlayerId());
             }
         }
 
@@ -2321,9 +2292,9 @@ void CGProxy::sendGamemessage (QString message, bool alliesOnly)
     }
     else
     {
-        for (vector<CIncomingSlots *> ::iterator it = slotList.begin(); it != slotList.end(); it++)
+        foreach (Slot* slot, slotList)
         {
-            toPIDs.push_back(((CIncomingSlots *) (*it))->GetPID());
+            toPIDs.push_back(slot->getPlayerId());
         }
 
         BYTEARRAY extraFlags;
@@ -2347,10 +2318,13 @@ void CGProxy::changeTeam (unsigned char team)
 {
     BYTEARRAY toPIDs;
 
-    for (vector<CIncomingSlots *> ::iterator it = slotList.begin(); it != slotList.end(); it++)
+    foreach (Slot* slot, slotList)
     {
-        if (((CIncomingSlots *) (*it))->GetSlotStatus() == 2 && ((CIncomingSlots *) (*it))->GetComputerStatus() == 0)
-            toPIDs.push_back(((CIncomingSlots *) (*it))->GetPID());
+        if (slot->getSlotStatus() == Slot::OCCUPIED
+                && slot->getComputerStatus() == Slot::NO_COMPUTER)
+        {
+            toPIDs.push_back(slot->getPlayerId());
+        }
     }
 
     BYTEARRAY Packet = gproxy->m_GameProtocol->SEND_W3GS_TEAMCHANGE(gproxy->m_ChatPID, toPIDs, team);
@@ -2448,8 +2422,7 @@ bool CGProxy::checkStatus (int statusCode)
         }
         case 1:
         {
-            ConfigGUI *configGUI = new ConfigGUI(gproxy->getConfig(), true);
-            configGUI->show();
+            emit signal_showConfigDialog(true);
             return false;
         }
         case 2:
@@ -2514,23 +2487,6 @@ bool flisting_current_games ()
 {
     return gproxy->m_listing_current_games;
 }
-
-CIncomingSlots::CIncomingSlots (unsigned char nPID, unsigned char ndownloadStatus, unsigned char nslotStatus,
-        unsigned char ncomputerStatus, unsigned char nteam, unsigned char ncolor,
-        unsigned char nrace, unsigned char ncomputerType, unsigned char nhandicap)
-{
-    PID = (int) nPID;
-    downloadStatus = (int) ndownloadStatus;
-    slotStatus = (int) nslotStatus;
-    computerStatus = (int) ncomputerStatus;
-    team = (int) nteam;
-    color = (int) ncolor;
-    race = (int) nrace;
-    computerType = (int) ncomputerType;
-    handicap = (int) nhandicap;
-}
-
-CIncomingSlots::~CIncomingSlots () { }
 
 void CGProxy::setServer (const QString &server)
 {
@@ -2624,7 +2580,7 @@ QString CGProxy::getChannel ()
 
 QVector<Player*> CGProxy::getPlayers()
 {
-    return players;
+    return this->players;
 }
 
 void CGProxy::setPlayers(const QVector<Player*> &players)
@@ -2634,5 +2590,5 @@ void CGProxy::setPlayers(const QVector<Player*> &players)
 
 Player* CGProxy::getLastLeaver()
 {
-    return lastLeaver;
+    return this->lastLeaver;
 }

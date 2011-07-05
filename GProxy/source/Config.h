@@ -4,7 +4,7 @@
 #include <QFile>
 #include <QString>
 #include <QStringList>
-#include <QVector>
+#include <QList>
 #include <QPair>
 #include <QColor>
 #include <QFont>
@@ -19,8 +19,8 @@ public:
     int loadConfig();
     bool hasRequiredValues();
 
-    QVector<QString> getKeys();
-    QVector<QString> getValues();
+    QList<QString> getKeys();
+    QList<QString> getValues();
     QString getString(const QString &key);
     int getInt(const QString &key);
     bool getBoolean(const QString &key);
@@ -37,8 +37,8 @@ public:
 
 private:
     QFile *configFile;
-    QVector<QString> vKey;
-    QVector<QString> vValue;
+    QList<QString> vKey;
+    QList<QString> vValue;
 
     void addKeys();
     void addValues(QString content);

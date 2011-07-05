@@ -1,20 +1,20 @@
 #ifndef CHANNELLISTDELEGATE_H
 #define	CHANNELLISTDELEGATE_H
 
-#include "gproxy.h"
+#include <QObject>
 #include <QStyledItemDelegate>
 #include <QPainter>
 #include <QColor>
+
+#include "MainGUI.h"
+#include "Player.h"
 
 class ChannellistDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 
-private:
-    CGProxy *gproxy;
-
 public:
-    ChannellistDelegate(CGProxy* gproxy);
+    ChannellistDelegate(MainGUI* mainGUI);
 
     enum ChannelData
     {
@@ -39,6 +39,8 @@ protected:
 //            const QModelIndex & index) const;
 
 private:
+    MainGUI *mainGUI;
+
     QBrush getBrush(const int &colorID) const;
 };
 

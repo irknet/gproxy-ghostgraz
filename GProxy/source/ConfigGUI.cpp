@@ -43,8 +43,8 @@ void ConfigGUI::init (Config *cfg, bool exitOnClose)
 
 void ConfigGUI::initValues ()
 {
-    QVector<QString> vKey = cfg->getKeys();
-    QVector<QString> vValue = cfg->getValues();
+    QList<QString> vKey = cfg->getKeys();
+    QList<QString> vValue = cfg->getValues();
 
     for (int i = 0; i < vKey.count(); i++)
     {

@@ -5,11 +5,13 @@
 #include "gproxy.h"
 #include "statspage/Statspage.h"
 #include "Player.h"
+#include "Slot.h"
 
 #include <QString>
 #include <QDialog>
 #include <QVector>
 #include <QMouseEvent>
+#include <QList>
 
 using namespace std;
 
@@ -17,31 +19,50 @@ class MainGUI : public QMainWindow
 {
     Q_OBJECT
 
-private:
-    CGProxy *gproxy;
-    QDialog *connectionDialog;
-    Statspage *statspage;
-
 public:
     MainGUI(CGProxy *p_gproxy);
     virtual ~MainGUI();
+
     void init();
     CGProxy* getGproxy();
     Statspage* getStatspage();
 
+    bool isAdmin(const QString &name);
+
+public slots:
+    void addMessage(QString message, bool log = true);
+    void changeChannel(QString channel);
+    void addChannelUser(QString username, QString clanTag);
+    void removeChannelUser(QString username);
+    void clearFriendlist();
+    void addFriend(QString username, bool online, QString location);
+    void clearGamelist();
+    void addGame(QString botname, QString gamename, QString openSlots);
+    void setGameslots(QList<Slot*> slotList);
+    void showErrorMessage(QString errorMessage);
+//    void showConfigDialog();
+    void showConfigDialog(bool exitOnReject = false);
+    void playerJoined(const QString &playerName);
+
 private:
     Ui::MainGUI widget;
+    CGProxy *gproxy;
+    QDialog *connectionDialog;
+    Statspage *statspage;
+    QList<QString> admins;
+
     void initStatspage();
     void initConnectionDialog();
     void initLayout();
     void initSlots();
+    void initAdminlist();
+
     void resizeEvent(QResizeEvent *event);
     void processInput(const QString &input);
     void addColor(QString &message);
     void addColor(QListWidgetItem *item);
     void sortChannelList();
     void sortFriendList();
-    void sortSlots(int teams);
 
 private slots:
     void onClose();
@@ -58,20 +79,7 @@ private slots:
     void onFriendlistItemClicked(QMouseEvent*);
     void statspageLoginFinished();
     void receivedPlayerInformation(Player *);
-
-public slots:
-    void addMessage(QString message, bool log = true);
-    void changeChannel(QString channel);
-    void addChannelUser(QString username, QString clanTag);
-    void removeChannelUser(QString username);
-    void clearFriendlist();
-    void addFriend(QString username, bool online, QString location);
-    void clearGamelist();
-    void addGame(QString botname, QString gamename, QString openSlots);
-    void setGameslots(vector<CIncomingSlots *> slotList);
-    void showErrorMessage(QString errorMessage);
-    void showConfigDialog();
-    void playerJoined(const QString &playerName);
+    void onAdminlistReceived(QList<QString>);
 };
 
 #endif	/* _MAINGUI_H */

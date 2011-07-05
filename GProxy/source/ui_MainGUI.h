@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainGUI.ui'
 **
-** Created: Mon 13. Jun 09:12:52 2011
+** Created: Tue 5. Jul 20:05:16 2011
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -165,7 +165,6 @@ public:
         menuFile->addAction(actionExit);
 
         retranslateUi(MainGUI);
-        QObject::connect(actionOptions, SIGNAL(triggered()), MainGUI, SLOT(showConfigDialog()));
         QObject::connect(actionExit, SIGNAL(triggered()), MainGUI, SLOT(close()));
         QObject::connect(gameList, SIGNAL(clicked(QMouseEvent*)), MainGUI, SLOT(onGameListItemClicked(QMouseEvent*)));
         QObject::connect(inputField, SIGNAL(textChanged()), MainGUI, SLOT(onInputFieldTextChanged()));
@@ -175,6 +174,7 @@ public:
         QObject::connect(refreshButton, SIGNAL(clicked()), MainGUI, SLOT(onRefreshButtonClicked()));
         QObject::connect(channelList, SIGNAL(clicked(QMouseEvent*)), MainGUI, SLOT(onChannellistItemClicked(QMouseEvent*)));
         QObject::connect(friendList, SIGNAL(clicked(QMouseEvent*)), MainGUI, SLOT(onFriendlistItemClicked(QMouseEvent*)));
+        QObject::connect(actionOptions, SIGNAL(triggered()), MainGUI, SLOT(showConfigDialog()));
 
         QMetaObject::connectSlotsByName(MainGUI);
     } // setupUi

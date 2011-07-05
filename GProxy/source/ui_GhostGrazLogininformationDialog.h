@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'GhostGrazLogininformationDialog.ui'
 **
-** Created: Sun 12. Jun 19:20:57 2011
+** Created: Thu 30. Jun 19:49:59 2011
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!

@@ -83,8 +83,8 @@ void Config::addKeys ()
 
 void Config::addValues (QString content)
 {
-    QVector<QString> vTempKey;
-    QVector<QString> vTempValue;
+    QList<QString> vTempKey;
+    QList<QString> vTempValue;
 
     QStringList lines = content.split("\n");
     for (QStringList::Iterator it = lines.begin(); it != lines.end(); ++it)
@@ -188,12 +188,12 @@ bool Config::hasRequiredValues ()
     }
 }
 
-QVector<QString> Config::getKeys ()
+QList<QString> Config::getKeys ()
 {
     return vKey;
 }
 
-QVector<QString> Config::getValues ()
+QList<QString> Config::getValues ()
 {
     return vValue;
 }

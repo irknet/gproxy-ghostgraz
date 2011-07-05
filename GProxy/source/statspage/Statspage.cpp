@@ -1,3 +1,7 @@
+#include <QList>
+#include <QUrl>
+#include <QStringList>
+
 #include "Statspage.h"
 
 Statspage::Statspage ()
@@ -18,6 +22,16 @@ void Statspage::getPlayerInformation (const QString& playerName)
                 + playerName + "&s=datetime&o=desc&p=user&n=0"));
 
         manager->get(statsRequest);
+    }
+}
+
+void Statspage::getAdminlist()
+{
+    if (loggedIn)
+    {
+        QNetworkRequest adminlistRequest(QUrl("http://forum.ghostgraz.com/statspage/?p=admins&n=all"));
+
+        manager->get(adminlistRequest);
     }
 }
 
@@ -66,32 +80,55 @@ void Statspage::loginReplyFinished (QNetworkReply *reply)
     }
 
     connect(manager, SIGNAL(finished(QNetworkReply *)),
-            this, SLOT(playerReplyFinished(QNetworkReply *)));
+            this, SLOT(replyFinished(QNetworkReply *)));
 
     reply->deleteLater();
 
     emit loginFinished();
 }
 
-void Statspage::playerReplyFinished (QNetworkReply *reply)
+void Statspage::replyFinished(QNetworkReply* reply)
+{
+    QString url = reply->url().toString();
+
+    if(url == "http://forum.ghostgraz.com/statspage/?p=admins&n=all")
+    {
+        onAdminlistReplyFinished(reply);
+    }
+    else
+    {
+        onPlayerReplyFinished(reply);
+    }
+}
+
+void Statspage::onPlayerReplyFinished (QNetworkReply *reply)
 {
     Player *player = new Player();
+
+    QString url = reply->url().toString();
+    int userIndex = url.indexOf("u=") + 2;
+    int userEndIndex = url.indexOf("&", userIndex);
+    QString playerName = url.mid(userIndex, userEndIndex - userIndex);
+    player->setName(playerName);
 
     QString content = QString(reply->readAll());
 
     if (content.contains("List of users matching")
             || content.contains("Welcome to the GhostGraz Stats Page"))
     {
+        reply->deleteLater();
+
+        if(!playerName.contains("GhostGraz"))
+        {
+            emit playerInformationReplyFinished(player);
+        }
+
         return;
     }
 
-    QString url = reply->url().toString();
-    int userIndex = url.indexOf("u=") + 2;
-    int userEndIndex = url.indexOf("&", userIndex);
-    player->setName(url.mid(userIndex, userEndIndex - userIndex));
     player->setKills(getInfo(content, "Kills:").toInt());
     player->setDeaths(getInfo(content, "Deaths:").toInt());
-    player->setAssits(getInfo(content, "Assists:").toInt());
+    player->setAssists(getInfo(content, "Assists:").toInt());
     player->setKillDeathRatio(getInfo(content, "Kills/Deaths:").toDouble());
     player->setGamesPlayed(getInfo(content, "Games:").toInt());
     QString winsLosses = getInfo(content, "Wins/Losses:");
@@ -117,6 +154,35 @@ QString Statspage::getInfo (const QString &content, const QString &infoText)
     int infoTdEndIndex = content.indexOf("</td>", infoTdIndex);
 
     return content.mid(infoTdIndex + 4, infoTdEndIndex - infoTdIndex - 4);
+}
+
+void Statspage::onAdminlistReplyFinished(QNetworkReply* reply)
+{
+    QList<QString> admins;
+
+    QString content = QString(reply->readAll());
+    QStringList lines = content.split("\n");
+
+    foreach(QString line, lines)
+    {
+        QString adminStartText = "<td align=center colspan=3><a href=\"?p=user&u=";
+        int startIndex = line.indexOf(adminStartText);
+        if(startIndex == -1)
+        {
+            continue;
+        }
+
+        startIndex += adminStartText.length();
+        startIndex = line.indexOf(">", startIndex) + 1;
+        int endIndex = line.indexOf("<", startIndex);
+
+        QString admin = line.mid(startIndex, endIndex - startIndex);
+        admins.append(admin);
+    }
+
+    reply->deleteLater();
+
+    emit adminlistReplyFinished(admins);
 }
 
 bool Statspage::isLoggedIn ()

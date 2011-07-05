@@ -1,10 +1,10 @@
 #ifndef STATSPAGE_H
 #define	STATSPAGE_H
 
-#include "Player.h"
-
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+
+#include "Player.h"
 
 class Statspage : public QObject
 {
@@ -16,12 +16,13 @@ public:
 
     void login(const QString &username, const QString &password);
     bool isLoggedIn();
-
     void getPlayerInformation(const QString &playerName);
+    void getAdminlist();
 
 signals:
     void loginFinished();
     void playerInformationReplyFinished(Player *);
+    void adminlistReplyFinished(QList<QString>);
 
 private:
     QNetworkAccessManager *manager;
@@ -30,11 +31,13 @@ private:
     bool loggedIn;
 
     QString getInfo(const QString &content, const QString &infoText);
+    void onPlayerReplyFinished(QNetworkReply *);
+    void onAdminlistReplyFinished(QNetworkReply *);
 
 private slots:
     void forumReplyFinished(QNetworkReply *);
     void loginReplyFinished(QNetworkReply *);
-    void playerReplyFinished(QNetworkReply *);
+    void replyFinished(QNetworkReply *);
 };
 
 #endif	/* STATSPAGE_H */

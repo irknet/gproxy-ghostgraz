@@ -19,6 +19,7 @@
 #include <QFile>
 #include <QDateTime>
 #include <QClipboard>
+#include <QFileInfo>
 
 MainGUI::MainGUI (CGProxy *p_gproxy)
 {
@@ -29,11 +30,6 @@ MainGUI::MainGUI (CGProxy *p_gproxy)
 MainGUI::~MainGUI ()
 {
     delete statspage;
-}
-
-CGProxy* MainGUI::getGproxy ()
-{
-    return gproxy;
 }
 
 void MainGUI::onClose ()
@@ -48,7 +44,7 @@ void MainGUI::onClose ()
 
 void MainGUI::init ()
 {
-    Config* config = gproxy->getConfig();
+    Config *config = gproxy->getConfig();
 
     QDesktopWidget *desktop = QApplication::desktop();
 
@@ -68,7 +64,7 @@ void MainGUI::init ()
                 (screenHeight - this->height()) / 2 - 50, appWidth, appHeight);
     }
 
-    widget.channelList->setItemDelegate(new ChannellistDelegate(gproxy));
+    widget.channelList->setItemDelegate(new ChannellistDelegate(this));
     widget.gameList->setItemDelegate(new GamelistDelegate());
 
     QAction *startWarcraftAction = widget.menuBar->addAction("Start Warcraft");
@@ -94,6 +90,13 @@ void MainGUI::initStatspage ()
 {
     statspage = new Statspage();
 
+    connect(statspage, SIGNAL(loginFinished()),
+            this, SLOT(statspageLoginFinished()));
+    connect(statspage, SIGNAL(playerInformationReplyFinished(Player *)),
+            this, SLOT(receivedPlayerInformation(Player *)));
+    connect(statspage, SIGNAL(adminlistReplyFinished(QList<QString>)),
+            this, SLOT(onAdminlistReceived(QList<QString>)));
+
     Config* config = gproxy->getConfig();
     QString ghostgrazUsername = config->getString("ghostgrazUsername");
     QString ghostgrazPassword = config->getString("ghostgrazPassword");
@@ -110,11 +113,6 @@ void MainGUI::initStatspage ()
     {
         statspage->login(ghostgrazUsername, ghostgrazPassword);
     }
-
-    QObject::connect(statspage, SIGNAL(loginFinished()),
-            this, SLOT(statspageLoginFinished()));
-    QObject::connect(statspage, SIGNAL(playerInformationReplyFinished(Player *)),
-            this, SLOT(receivedPlayerInformation(Player *)));
 }
 
 void MainGUI::initLayout ()
@@ -163,6 +161,11 @@ void MainGUI::initSlots ()
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(onClose()), Qt::QueuedConnection);
     connect(widget.outputField->verticalScrollBar(), SIGNAL(rangeChanged(int, int)),
             this, SLOT(onOutputFieldSliderMoved()), Qt::QueuedConnection);
+}
+
+void MainGUI::initAdminlist ()
+{
+    statspage->getAdminlist();
 }
 
 void MainGUI::resizeEvent (QResizeEvent *event)
@@ -800,7 +803,7 @@ void MainGUI::addMessage (QString message, bool log)
 
     QString dateTime = QLocale().toString(QDateTime::currentDateTime(), "[hh:mm:ss] ");
     message.insert(message.indexOf(">") + 1, dateTime);
-    
+
     widget.outputField->append(message);
 }
 
@@ -930,6 +933,11 @@ void MainGUI::addColor (QListWidgetItem *item)
 
         item->setData(ChannellistDelegate::COLOR_USER, QColor(0, 255, 0));
         item->setToolTip("Creator of GProxy GhostGraz");
+    }
+    else if (isAdmin(username))
+    {
+        item->setData(ChannellistDelegate::COLOR_USER, QColor(0, 255, 200));
+        item->setToolTip("GhostGraz admin");
     }
 }
 
@@ -1076,75 +1084,60 @@ void MainGUI::clearGamelist ()
     widget.gameList->clear();
 }
 
-void MainGUI::setGameslots (vector<CIncomingSlots *> slotList)
+void MainGUI::setGameslots (QList<Slot*> slotList)
 {
     widget.channelList->clear();
 
-    QVector<int> vTeamNumbers;
-
-    for (vector<CIncomingSlots *>::iterator it = slotList.begin(); it != slotList.end(); it++)
+    int currentTeam = -1;
+    foreach (Slot* slot, slotList)
     {
-        if (!gproxy->isDotaMap())
+        if (currentTeam != slot->getTeam())
         {
-            if (!vTeamNumbers.contains((*it)->GetTeam()))
+            currentTeam = slot->getTeam();
+
+            QListWidgetItem* teamItem = new QListWidgetItem();
+
+            if (gproxy->isDotaMap())
             {
-                vTeamNumbers.push_back((*it)->GetTeam());
+                if (currentTeam == 0)
+                {
+                    teamItem->setData(ChannellistDelegate::USER, "The Sentinel");
+                    teamItem->setData(ChannellistDelegate::COLOR_USER, QColor(255, 0, 0));
+                }
+                else
+                {
+                    teamItem->setData(ChannellistDelegate::USER, "The Scourge");
+                    teamItem->setData(ChannellistDelegate::COLOR_USER, QColor(0, 255, 0));
+                }
             }
+            else
+            {
+                teamItem->setData(ChannellistDelegate::USER, "Team " + QString::number(currentTeam + 1));
+            }
+
+            widget.channelList->addItem(teamItem);
         }
 
-        QListWidgetItem *itemSlot = new QListWidgetItem();
-        itemSlot->setData(ChannellistDelegate::SLOT_PID, (*it)->GetPID());
-        itemSlot->setData(ChannellistDelegate::SLOT_DOWNLOAD_STATUS, (*it)->GetDownloadStatus());
-        itemSlot->setData(ChannellistDelegate::SLOT_STATUS, (*it)->GetSlotStatus());
-        itemSlot->setData(ChannellistDelegate::SLOT_COMPUTER_STATUS, (*it)->GetComputerStatus());
-        itemSlot->setData(ChannellistDelegate::SLOT_TEAM, (*it)->GetTeam());
-        itemSlot->setData(ChannellistDelegate::SLOT_COLOR, (*it)->GetColor());
-        itemSlot->setData(ChannellistDelegate::SLOT_RACE, (*it)->GetRace());
-        itemSlot->setData(ChannellistDelegate::SLOT_COMPUTER_TYPE, (*it)->GetComputerType());
-        itemSlot->setData(ChannellistDelegate::SLOT_HANDICAP, (*it)->GetHandicap());
-        itemSlot->setData(ChannellistDelegate::USER, QString::fromStdString((*it)->GetName()));
-        widget.channelList->addItem(itemSlot);
-    }
+        QListWidgetItem* playerItem = new QListWidgetItem();
+        playerItem->setData(ChannellistDelegate::SLOT_PID, slot->getPlayerId());
+        playerItem->setData(ChannellistDelegate::SLOT_DOWNLOAD_STATUS, slot->getDownloadProgress());
+        playerItem->setData(ChannellistDelegate::SLOT_STATUS, slot->getSlotStatus());
+        playerItem->setData(ChannellistDelegate::SLOT_COMPUTER_STATUS, slot->getComputerStatus());
+        playerItem->setData(ChannellistDelegate::SLOT_TEAM, slot->getTeam());
+        playerItem->setData(ChannellistDelegate::SLOT_COLOR, slot->getColor());
+        playerItem->setData(ChannellistDelegate::SLOT_RACE, slot->getRace());
+        playerItem->setData(ChannellistDelegate::SLOT_COMPUTER_TYPE, slot->getComputerType());
+        playerItem->setData(ChannellistDelegate::SLOT_HANDICAP, slot->getHandicap());
 
-    if (!gproxy->isDotaMap())
-    {
-        for (int i = 0; i < vTeamNumbers.count(); i++)
+        if (slot->getPlayer())
         {
-            QListWidgetItem *itemTeam = new QListWidgetItem();
-            QString teamString = QString("Team ").append(QString::number(i + 1));
-            itemTeam->setData(ChannellistDelegate::USER, teamString);
-            widget.channelList->insertItem(i, itemTeam);
+            playerItem->setData(ChannellistDelegate::USER, slot->getPlayer()->getName());
         }
-
-        sortSlots(vTeamNumbers.count());
-    }
-    else
-    {
-
-        QListWidgetItem *itemSentinel = new QListWidgetItem();
-        itemSentinel->setData(ChannellistDelegate::USER, "The Sentinel");
-        itemSentinel->setData(ChannellistDelegate::COLOR_USER, QColor(255, 0, 0));
-        widget.channelList->insertItem(0, itemSentinel);
-
-        QListWidgetItem *itemScourge = new QListWidgetItem();
-        itemScourge->setData(ChannellistDelegate::USER, "The Scourge");
-        itemScourge->setData(ChannellistDelegate::COLOR_USER, QColor(0, 255, 0));
-        widget.channelList->insertItem(1, itemScourge);
-
-        sortSlots(2);
-    }
-}
-
-void MainGUI::sortSlots (int teams)
-{
-    for (int i = widget.channelList->count() - 1; i >= teams; i--)
-    {
-
-        QListWidgetItem *sortedItem =
-                widget.channelList->item(widget.channelList->count() - 1)->clone();
-        delete widget.channelList->takeItem(widget.channelList->count() - 1);
-        widget.channelList->insertItem(sortedItem->data(
-                ChannellistDelegate::SLOT_TEAM).toInt() + 1, sortedItem);
+        else
+        {
+            playerItem->setData(ChannellistDelegate::USER, "");
+        }
+        widget.channelList->addItem(playerItem);
     }
 }
 
@@ -1161,13 +1154,9 @@ void MainGUI::startWarcraft ()
         exePath = gproxy->getWar3Path() + "Warcraft III.exe";
     }
 
-    QProcess *wc3Process = new QProcess();
-    // The empty QStringList is needed due to a bug with Qt.
-    wc3Process->start(exePath, QStringList());
-
-    if (!wc3Process->waitForStarted(1000))
+    if( !QProcess::startDetached(exePath, QStringList()) )
     {
-        showErrorMessage(wc3Process->errorString());
+        showErrorMessage("Could not start " + exePath + ".\nPlease check your file permissions.");
     }
 }
 
@@ -1181,23 +1170,60 @@ void MainGUI::showErrorMessage (QString errorMessage)
     msgBox.setText(errorMessage);
     msgBox.exec();
 }
+//
+//void MainGUI::showConfigDialog ()
+//{
+//    showConfigDialog(false);
+//}
 
-void MainGUI::showConfigDialog ()
+void MainGUI::showConfigDialog (bool exitOnReject)
 {
-    ConfigGUI *config = new ConfigGUI(gproxy->getConfig());
-    config->exec();
+    ConfigGUI* config = new ConfigGUI(gproxy->getConfig());
+    int exitCode = config->exec();
+    if (exitOnReject)
+    {
+        if (exitCode == QDialog::Accepted)
+        {
+            // Restart GProxy.
+            showErrorMessage("Restarting GProxy...");
+            QString applicationName = QFileInfo(QApplication::applicationFilePath()).fileName();
+            QProcess::startDetached(applicationName , QStringList());
+            QApplication::quit();
+        }
+        else
+        {
+            showErrorMessage("GProxy cannot run without configuration.\nGood luck next time!");
+            QApplication::quit();
+        }
+    }
 }
 
 void MainGUI::playerJoined (const QString& playerName)
 {
+    addMessage("[LOBBY] " + playerName + " has joined the game.");
+
+    // If the player has a colored name (hostbot), return.
+    if (!playerName.startsWith("<span style=\"color:"))
+    {
+        return;
+    }
+
     statspage->getPlayerInformation(playerName);
 
-    for (int i = 0; i < widget.friendList->count(); i++)
+    if (isAdmin(playerName))
     {
-        if (widget.friendList->item(i)->text() == playerName)
+        QSound::play("sounds/vip_joins.wav");
+    }
+    else
+    {
+        // If the player is a friend -> play sound.
+        for (int i = 0; i < widget.friendList->count(); i++)
         {
-            QSound::play("sounds/vip_joins.wav");
-            break;
+            if (widget.friendList->item(i)->text() == playerName)
+            {
+                QSound::play("sounds/vip_joins.wav");
+                break;
+            }
         }
     }
 }
@@ -1283,6 +1309,7 @@ void MainGUI::statspageLoginFinished ()
     if (statspage->isLoggedIn())
     {
         CONSOLE_Print("[GPROXY] Statspage available.");
+        initAdminlist();
     }
     else
     {
@@ -1291,17 +1318,15 @@ void MainGUI::statspageLoginFinished ()
     }
 }
 
-void MainGUI::receivedPlayerInformation(Player *player)
+void MainGUI::receivedPlayerInformation (Player *player)
 {
     QVector<Player*> players = gproxy->getPlayers();
-    for(int i = 0; i < players.count(); i++)
+    for (int i = 0; i < players.count(); i++)
     {
         if (players.at(i)->getName() == player->getName())
         {
             player->setPlayerId(players.at(i)->getPlayerId());
-            delete players[i];
-            players.remove(i);
-            players.append(player);
+            players[i] = player;
 
             if (player->getStayPercent() < 80)
             {
@@ -1316,10 +1341,46 @@ void MainGUI::receivedPlayerInformation(Player *player)
             break;
         }
     }
+
     gproxy->setPlayers(players);
+    widget.channelList->repaint();
 }
 
-Statspage* MainGUI::getStatspage()
+/**
+ * Slot: Executed when the adminlist was downloaded and parsed successfully.
+ * @param admins The adminlist.
+ */
+void MainGUI::onAdminlistReceived (QList<QString> admins)
+{
+    this->admins = admins;
+}
+
+/**
+ * Returns true if the name is the name of an GhostGraz admin.
+ *
+ * @param name Possible admin name.
+ * @return True if the name is the name of an admin.
+ */
+bool MainGUI::isAdmin (const QString &name)
+{
+    QString adminName = name.toLower();
+    foreach(QString admin, admins)
+    {
+        if (admin == adminName)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+CGProxy* MainGUI::getGproxy ()
+{
+    return gproxy;
+}
+
+Statspage* MainGUI::getStatspage ()
 {
     return statspage;
 }

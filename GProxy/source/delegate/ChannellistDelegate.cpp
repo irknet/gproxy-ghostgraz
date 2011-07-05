@@ -1,10 +1,12 @@
+#include <QString>
+
 #include "delegate/ChannellistDelegate.h"
 #include "gproxy.h"
 #include "bnet.h"
 
-ChannellistDelegate::ChannellistDelegate (CGProxy* gproxy)
+ChannellistDelegate::ChannellistDelegate (MainGUI* mainGUI)
 {
-    this->gproxy = gproxy;
+    this->mainGUI = mainGUI;
 }
 
 void ChannellistDelegate::paint (QPainter * painter,
@@ -20,10 +22,9 @@ const
     {
         color = QColor(230, 230, 230);
     }
-
     painter->setPen(color);
 
-    if (gproxy->m_BNET->GetInGame())
+    if (mainGUI->getGproxy()->m_BNET->GetInGame())
     {
         int slotStatus = index.data(ChannellistDelegate::SLOT_STATUS).toInt();
         int computerStatus = index.data(ChannellistDelegate::SLOT_COMPUTER_STATUS).toInt();
@@ -59,12 +60,12 @@ const
                 }
                 else
                 {
-                    QVector<Player*> players = gproxy->getPlayers();
+                    QVector<Player*> players = mainGUI->getGproxy()->getPlayers();
                     foreach(Player *player, players)
                     {
                         if(player->getName() == user)
                         {
-                            if(player->getStayPercent() < 80 && !gproxy->m_GameStarted)
+                            if(player->getStayPercent() < 80 && !mainGUI->getGproxy()->m_GameStarted)
                             {
                                 painter->setPen(QColor(255, 69, 0));
                             }

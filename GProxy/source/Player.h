@@ -1,23 +1,65 @@
 #ifndef PLAYER_H
 #define	PLAYER_H
 
+#include <QObject>
+#include <QMetaType>
 #include <QString>
 
-class Player
+class Player : public QObject
 {
+    Q_OBJECT
+
 public:
     Player();
+
     Player(const QString &name);
+    Player(const Player& orig);
+    Player& operator= (const Player& orig);
     virtual ~Player();
 
     double getStayPercent();
 
+    // <editor-fold defaultstate="collapsed" desc="Getters and setters">
+    unsigned char getPlayerId() const;
+    void setPlayerId(const unsigned char& playerId);
+    int getAssists() const;
+    void setAssists(const int& assists);
+    int getCourierKills() const;
+    void setCourierKills(const int& courierKills);
+    int getCreepDenies() const;
+    void setCreepDenies(const int& creepDenies);
+    int getCreepKills() const;
+    void setCreepKills(const int& creepKills);
+    int getDeaths() const;
+    void setDeaths(const int& deaths);
+    int getGamesPlayed() const;
+    void setGamesPlayed(const int& gamesPlayed);
+    double getKillDeathRatio() const;
+    void setKillDeathRatio(const double& killDeathRatio);
+    int getKills() const;
+    void setKills(const int& kills);
+    QString getName() const;
+    void setName(const QString& name);
+    int getRaxKills() const;
+    void setRaxKills(const int& raxKills);
+    double getScore() const;
+    void setScore(const double& score);
+    int getTowerKills() const;
+    void setTowerKills(const int& towerKills);
+    int getWins() const;
+    void setWins(const int& wins);
+    int getLosses() const;
+    void setLosses(const int& losses);
+    double getWinPercent() const;
+    void setWinPercent(const double& winPercent);
+    // </editor-fold>
+
 private:
-    int playerId;
+    unsigned char playerId;
     QString name;
     int kills;
     int deaths;
-    int assits;
+    int assists;
     double killDeathRatio;
     int gamesPlayed;
     int wins;
@@ -29,43 +71,9 @@ private:
     int towerKills;
     int raxKills;
     int courierKills;
-
-public:
-    // Start getters and setters
-    int getPlayerId();
-    void setPlayerId(int playerId);
-    int getAssits();
-    void setAssits(int assits);
-    int getCourierKills();
-    void setCourierKills(int courierKills);
-    int getCreepDenies();
-    void setCreepDenies(int creepDenies);
-    int getCreepKills();
-    void setCreepKills(int creepKills);
-    int getDeaths();
-    void setDeaths(int deaths);
-    int getGamesPlayed();
-    void setGamesPlayed(int gamesPlayed);
-    double getKillDeathRatio();
-    void setKillDeathRatio(double killDeathRatio);
-    int getKills();
-    void setKills(int kills);
-    QString getName();
-    void setName(const QString &name);
-    int getRaxKills();
-    void setRaxKills(int raxKills);
-    double getScore();
-    void setScore(double score);
-    int getTowerKills();
-    void setTowerKills(int towerKills);
-    int getWins();
-    void setWins(int wins);
-    int getLosses();
-    void setLosses(int losses);
-    double getWinPercent();
-    void setWinPercent(double winPercent);
-    // End getters and setters
 };
+
+Q_DECLARE_METATYPE(Player)
 
 #endif	/* PLAYER_H */
 

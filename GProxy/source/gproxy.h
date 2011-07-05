@@ -24,6 +24,7 @@
 
 #include "Config.h"
 #include "Player.h"
+#include "Slot.h"
 
 #include <fstream>
 #include <iostream>
@@ -38,6 +39,7 @@
 #include <QString>
 #include <QObject>
 #include <QVector>
+#include <QList>
 
 using namespace std;
 
@@ -74,48 +76,6 @@ private:
 	string ExtractStatus( unsigned char status );
 	string ExtractArea( unsigned char area );
 	string ExtractLocation( string location );
-};
-
-class CIncomingSlots
-{
-private:
-	int PID;
-	int downloadStatus;
-	int slotStatus;
-	int computerStatus;
-	int team;
-	int color;
-	int race;
-	int computerType;
-	int handicap;
-	string name;
-
-public:
-	CIncomingSlots( unsigned char PID, unsigned char downloadStatus, unsigned char slotStatus,
-	unsigned char computerStatus,	unsigned char team, unsigned char color, unsigned char race,
-	unsigned char computerType, unsigned char handicap );
-	~CIncomingSlots( );
-
-	int GetPID( )									{ return PID; }
-	int GetDownloadStatus( )						{ return downloadStatus; }
-	int GetSlotStatus( )							{ return slotStatus; }
-	int GetComputerStatus( )						{ return computerStatus; }
-	int GetTeam( )									{ return team; }
-	int GetColor( )									{ return color; }
-	int GetRace( )									{ return race; }
-	int GetComputerType( )							{ return computerType; }
-	int GetHandicap( )								{ return handicap; }
-	string GetName( )								{ return name; }
-	void SetPID				( int nPID )			{ PID =				nPID; }
-	void SetDownloadStatus	( int ndownloadStatus )	{ downloadStatus =	ndownloadStatus; }
-	void SetSlotStatus		( int nslotStatus )		{ slotStatus =		nslotStatus; }
-	void SetComputerStatus	( int ncomputerStatus )	{ computerStatus =	ncomputerStatus; }
-	void SetTeam			( int nteam )			{ team =			nteam; }
-	void SetColor			( int ncolor )			{ color =			ncolor; }
-	void SetRace			( int nrace )			{ race =			nrace; }
-	void SetComputerType	( int ncomputerType )	{ computerType =	ncomputerType; }
-	void SetHandicap		( int nhandicap )		{ handicap =		nhandicap; }
-	void SetName			( string nname )		{ name =			nname; }
 };
 
 // output
@@ -163,6 +123,7 @@ class CGProxy : public QObject
     Q_OBJECT
 
 public:
+    // <editor-fold defaultstate="collapsed" desc="Attributes">
     // TODO Make these attributes private and create setters and getters.
     string m_Version;
     CTCPServer* m_LocalServer;
@@ -217,16 +178,16 @@ public:
     bool cautosearch; //pr0 cautosearch
     bool displayautocreated;
     bool m_listing_current_games;
+    //</editor-fold>
 
     CGProxy();
     ~CGProxy( );
-
-    void init(string cpublic ,string cfilter, bool temp_displayautocreated, bool listing_current_games, bool status);
+    void connectSignalsAndSlots();
+    void initVariables(string cpublic ,string cfilter, bool temp_displayautocreated,
+        bool listing_current_games, bool connect);
     void cleanup();
     void applyConfig();
-
-    // processing functions
-
+    bool checkStatus( int statusCode );
     bool Update( long usecBlock );
 
     void ExtractLocalPackets( );
@@ -240,7 +201,9 @@ public:
     bool CheckForwarding ( QString message );
     void changeTeam( unsigned char team );
     void SendEmptyAction( );
+    void showWelcomeMessages();
 
+    // <editor-fold defaultstate="collapsed" desc="Getters and setters">
     void setServer(const QString& server);
     void setUsername(const QString& username);
     void setPassword(const QString& password);
@@ -264,6 +227,7 @@ public:
     QVector<Player*> getPlayers();
     Player* getLastLeaver();
 
+    // FIXME Implementation in source file.
     void setPrivategamename(QString privategamename) { this->privategamename = privategamename; }
     void setBotprefix(QString botprefix) { this->botprefix = botprefix; }
     void setVShallCreate(bool vShallCreate) { this->vShallCreate = vShallCreate; }
@@ -273,7 +237,7 @@ public:
     void setCDKeyTFT(QString cdKeyTFT) { this->cdKeyTFT = cdKeyTFT; }
     void setCDKeyROC(QString cdKeyROC) { this->cdKeyROC = cdKeyROC; }
     void setDotaMap(bool dotaMap) { this->dotaMap = dotaMap; }
-    void setConfig(Config* config) { this->config = config; }
+    void setConfig(Config *config) { this->config = config; }
 
     QString getPrivategamename() { return privategamename; }
     QString getBotprefix() { return botprefix; }
@@ -284,9 +248,10 @@ public:
     QString getCDKeyTFT() { return cdKeyTFT; }
     QString getCDKeyROC() { return cdKeyROC; }
     bool isDotaMap() { return dotaMap; }
-    Config* getConfig() { return config; }
-    bool checkStatus( int statusCode );
+    Config *getConfig() { return config; }
+    // </editor-fold>
 
+    // <editor-fold defaultstate="collapsed" desc="Signal emitting functions">
     void addMessage(QString msg, bool log = true);
     void changeChannel(QString channel);
     void addChannelUser(QString username, QString clanTag);
@@ -295,8 +260,10 @@ public:
     void clearFriendlist();
     void addFriend(QString username, bool online, QString location);
     void showErrorMessage(QString errorMessage);
+    // </editor-fold>
 
 private:
+    // <editor-fold defaultstate="collapsed" desc="Attributes">
     Config* config;
     QString server;
     QString username;
@@ -316,8 +283,10 @@ private:
     QString cdKeyROC;
     QString cdKeyTFT;
     bool dotaMap;
+    QList<Slot*> slotList;
     QVector<Player*> players;
     Player* lastLeaver;
+    // </editor-fold>
 
 signals:
     void signal_addMessage(QString, bool);
@@ -326,10 +295,11 @@ signals:
     void signal_removeChannelUser(QString);
     void signal_clearFriendlist();
     void signal_addFriend(QString, bool, QString);
-    void signal_setGameslots(vector<CIncomingSlots*>);
+    void signal_setGameslots(QList<Slot*>);
     void signal_showErrorMessage(QString);
     void signal_playerJoined(const QString&);
     void signal_stopDownloadThread();
+    void signal_showConfigDialog(bool);
 };
 
 
