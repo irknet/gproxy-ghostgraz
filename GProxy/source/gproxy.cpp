@@ -7,7 +7,7 @@
 #include <QMutableListIterator>
 
 #include "gproxy.h"
-#include "util.h"
+#include "Util.h"
 #include "socket.h"
 #include "commandpacket.h"
 #include "bnetprotocol.h"
@@ -16,7 +16,6 @@
 #include "gpsprotocol.h"
 #include "MainGUI.h"
 #include "Config.h"
-#include "ConfigGUI.h"
 #include "thread/DownloadThread.h"
 #include "thread/GproxyUpdateThread.h"
 #include "thread/SleepThread.h"
@@ -146,14 +145,19 @@ int main (int argc, char** argv)
     // For getting the elapsed time since application start.
     timer.start();
 
-    CONSOLE_Print("[GPROXY] starting up");
-    CONSOLE_Print("[GPROXY] Trying to loading configuration file");
+    logFile = new QFile("gproxy_log.txt");
+
+    CONSOLE_Print("[GPROXY] starting up", false);
+    CONSOLE_Print("[GPROXY] Trying to loading configuration file", false);
 
     // Initialize config.
     Config* config = new Config("gproxy.cfg");
     gproxy->setConfig(config);
     int statusCode = config->loadConfig();
     bool connect = gproxy->checkStatus(statusCode);
+
+    QObject::connect(config, SIGNAL(configSaved()),
+            gproxy, SLOT(applyConfig()), Qt::QueuedConnection);
 
     mainGUI->init();
 
@@ -283,6 +287,9 @@ void CGProxy::connectSignalsAndSlots()
 
     connect(this, SIGNAL(signal_showConfigDialog(bool)),
             mainGUI, SLOT(showConfigDialog(bool)), Qt::QueuedConnection);
+
+    connect(this, SIGNAL(signal_applyConfig()),
+            mainGUI, SLOT(applyConfig()), Qt::QueuedConnection);
 }
 
 /**
@@ -391,12 +398,11 @@ void CGProxy::cleanup ()
  */
 void CGProxy::applyConfig ()
 {
-    logFile = new QFile("gproxy_log.txt");
-    if (config->getBoolean("log"))
+    if (!logFile->isOpen() && config->getBoolean("log"))
     {
         if (!logFile->open(QFile::Append | QFile::Text))
         {
-            gproxy->showErrorMessage(logFile->errorString());
+            gproxy->showErrorMessage("Could not open logfile: " + logFile->errorString());
         }
     }
 
@@ -417,6 +423,8 @@ void CGProxy::applyConfig ()
     gproxy->setExeversion(UTIL_ExtractNumbers(config->getString("exeversion").toStdString(), 4));
     gproxy->setExeversionhash(UTIL_ExtractNumbers(config->getString("exeversionhash").toStdString(), 4));
     gproxy->setPasswordhashtype(config->getString("passwordhashtype"));
+
+    emit signal_applyConfig();
 }
 
 void CGProxy::showWelcomeMessages()
@@ -429,10 +437,10 @@ void CGProxy::showWelcomeMessages()
     CONSOLE_Print("", false);
     CONSOLE_Print("  Type /help at any time for help.", false);
     CONSOLE_Print("", false);
-    CONSOLE_Print("Welcome to <font color=\"red\">GProxy++</font>, "
-            "this mod is by <font color=\"darkgreen\">Phyton</font>, "
-            "<font color=\"deeppink\">Pr0gm4n</font> and "
-            "<font color=\"gold\">Manufactoring</font>.", false);
+    CONSOLE_Print("Welcome to |CFFFF0000GProxy++|r, "
+            "this mod is by |CFF006400Phyton|r, "
+            "|CFFFF1493Pr0gm4n|r and "
+            "|CFFFFD700Manufactoring|r.", false);
 }
 
 /**
@@ -1035,15 +1043,12 @@ void CGProxy::ExtractLocalPackets ()
     BYTEARRAY Bytes = UTIL_CreateByteArray((unsigned char *) RecvBuffer->c_str(), RecvBuffer->size());
 
     // a packet is at least 4 bytes so loop as long as the buffer contains 4 bytes
-
     while (Bytes.size() >= 4)
     {
         // byte 0 is always 247
-
         if (Bytes[0] == W3GS_HEADER_CONSTANT)
         {
             // bytes 2 and 3 contain the length of the packet
-
             uint16_t Length = UTIL_ByteArrayToUInt16(Bytes, false, 2);
 
             if (Length >= 4)
@@ -1190,7 +1195,7 @@ bool CGProxy::CheckForwarding (QString message)
             for (i = 0; i < filePath.size(); i++)
                 help[i] = filePath[i];
             fstream infile(help);
-            //
+
             if (infile) // File exists
             {
                 char messageText[224]; // Maximum chat text is 224 bytes.
@@ -1646,7 +1651,7 @@ void CGProxy::ProcessRemotePackets ()
 
                     if (Flag == 16)
                     {
-                        CONSOLE_Print("[LOBBY][" + QString::fromStdString(UTIL_ToColoredText(playerName))
+                        CONSOLE_Print("[LOBBY][" + QString::fromStdString(playerName)
                                 + "] " + QString::fromStdString(MessageString), false);
                         LOG_Print("[LOBBY][" + QString::fromStdString(playerName) + "] "
                                 + QString::fromStdString(MessageString));
@@ -1843,15 +1848,18 @@ void CGProxy::ProcessRemotePackets ()
                 BYTEARRAY data = Packet->GetData();
 
                 int playerId = (int) data[8];
-                BYTEARRAY Name = UTIL_ExtractCString(data, 9);
-                string playersName = UTIL_ToColoredText(string(Name.begin(), Name.end()));
+                QString playername = UTIL_ExtractQString(data, 9);
+                if(playername.startsWith("|c", Qt::CaseInsensitive))
+                {
+                    playername.append("|r");
+                }
 
                 Player* player = new Player();
                 player->setPlayerId(playerId);
-                player->setName(QString::fromStdString(playersName));
+                player->setName(playername);
                 players.append(player);
 
-                emit signal_playerJoined(QString::fromStdString(playersName));
+                emit signal_playerJoined(playername);
             }
             else if (Packet->GetID() == CGameProtocol::W3GS_MAPCHECK)
             {
@@ -2591,4 +2599,14 @@ void CGProxy::setPlayers(const QVector<Player*> &players)
 Player* CGProxy::getLastLeaver()
 {
     return this->lastLeaver;
+}
+
+void CGProxy::setSlotList(const QList<Slot*> slotList)
+{
+    this->slotList = slotList;
+}
+
+QList<Slot*> CGProxy::getSlotList()
+{
+    return this->slotList;
 }

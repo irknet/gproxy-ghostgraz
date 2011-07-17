@@ -27,6 +27,7 @@
       <itemPath>source/OutputareaColorDialog.h</itemPath>
       <itemPath>source/Packet.h</itemPath>
       <itemPath>source/Player.h</itemPath>
+      <itemPath>source/Util.h</itemPath>
       <itemPath>source/bncsutilinterface.h</itemPath>
       <itemPath>source/bnet.h</itemPath>
       <itemPath>source/bnetprotocol.h</itemPath>
@@ -35,7 +36,6 @@
       <itemPath>source/gproxy.h</itemPath>
       <itemPath>source/gpsprotocol.h</itemPath>
       <itemPath>source/socket.h</itemPath>
-      <itemPath>source/util.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
                    displayName="Resource Files"
@@ -74,6 +74,7 @@
       <itemPath>source/Player.cpp</itemPath>
       <itemPath>source/Slot.cpp</itemPath>
       <itemPath>source/Slot.h</itemPath>
+      <itemPath>source/Util.cpp</itemPath>
       <itemPath>source/bncsutilinterface.cpp</itemPath>
       <itemPath>source/bnet.cpp</itemPath>
       <itemPath>source/bnetprotocol.cpp</itemPath>
@@ -82,7 +83,6 @@
       <itemPath>source/gproxy.cpp</itemPath>
       <itemPath>source/gpsprotocol.cpp</itemPath>
       <itemPath>source/socket.cpp</itemPath>
-      <itemPath>source/util.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"
                    displayName="Test Files"
@@ -122,12 +122,32 @@
             <pElem>.</pElem>
             <pElem>.</pElem>
             <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
           </incDir>
         </cTool>
         <ccTool>
           <incDir>
             <pElem>source</pElem>
             <pElem>../BNCSUtil/src</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
             <pElem>.</pElem>
             <pElem>.</pElem>
             <pElem>.</pElem>
@@ -160,39 +180,6 @@
           </makeArtifact>
         </requiredProjects>
       </compileType>
-      <folder path="TestFiles/f1">
-        <cTool>
-          <incDir>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-          </incDir>
-        </cTool>
-        <ccTool>
-          <incDir>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-          </incDir>
-        </ccTool>
-        <linkerTool>
-          <output>${TESTDIR}/TestFiles/f1</output>
-        </linkerTool>
-      </folder>
     </conf>
     <conf name="Release" type="4">
       <toolsSet>
@@ -219,6 +206,16 @@
             <pElem>.</pElem>
             <pElem>.</pElem>
             <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
           </incDir>
           <warningLevel>0</warningLevel>
         </cTool>
@@ -227,6 +224,16 @@
           <incDir>
             <pElem>source</pElem>
             <pElem>../BNCSUtil/src</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
             <pElem>.</pElem>
             <pElem>.</pElem>
             <pElem>.</pElem>
@@ -268,39 +275,6 @@
           </makeArtifact>
         </requiredProjects>
       </compileType>
-      <folder path="TestFiles/f1">
-        <cTool>
-          <incDir>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-          </incDir>
-        </cTool>
-        <ccTool>
-          <incDir>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-          </incDir>
-        </ccTool>
-        <linkerTool>
-          <output>${TESTDIR}/TestFiles/f1</output>
-        </linkerTool>
-      </folder>
     </conf>
   </confs>
 </configurationDescriptor>

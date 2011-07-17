@@ -4,6 +4,7 @@ Player::Player ()
 {
     // Set stay ratio to temporary to 100%. Will be updated by the statspage.
     setWins(1);
+    setLosses(0);
     setGamesPlayed(1);
 }
 
@@ -13,6 +14,7 @@ Player::Player (const QString& name)
 
     // Set stay ratio to temporary to 100%. Will be updated by the statspage.
     setWins(1);
+    setLosses(0);
     setGamesPlayed(1);
 }
 

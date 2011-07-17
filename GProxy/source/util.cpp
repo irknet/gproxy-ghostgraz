@@ -17,12 +17,43 @@
 */
 
 #include "gproxy.h"
-#include "util.h"
+#include "Util.h"
 
 #include <sys/stat.h>
-#include <QString>
 #include <QByteArray>
 #include <QTextCodec>
+#include <QRegExp>
+
+/**
+ * Converst a QString into QColor. The expected format is "|cAARRGGBB". |c is the start.
+ * AA is the alpha value. RR GG and BB are the red, green and blue
+ * hexadezimal color values respictively. Examples: |cFFFF0000 is red and |cFF0000FF is blue.
+ *
+ * @param colorString The string containing the color code.
+ * @return QColor
+ */
+QColor Util::toColor (const QString& colorString)
+{
+    QRegExp colorCodeRegExp = QRegExp("\\|c([a-f]|[0-9]){8}");
+    colorCodeRegExp.setCaseSensitivity(Qt::CaseInsensitive);
+
+    bool* ok = false; // Will be assigned true if the conversation was successful. False otherwise.
+    int alpha, red, green, blue; // Color values.
+
+    if (colorString.indexOf(colorCodeRegExp) == 0)
+    {
+        alpha = colorString.mid(2, 2).toInt(ok, 16);
+        red = colorString.mid(4, 2).toInt(ok, 16);
+        green = colorString.mid(6, 2).toInt(ok, 16);
+        blue = colorString.mid(8, 2).toInt(ok, 16);
+
+        return QColor(red, green, blue, alpha);
+    }
+    else
+    {
+        return QColor(); // Return invalid color.
+    }
+}
 
 BYTEARRAY UTIL_CreateByteArray( unsigned char *a, int size )
 {
@@ -587,22 +618,4 @@ BYTEARRAY UTIL_DecodeStatString( BYTEARRAY &data )
 	}
 
 	return Result;
-}
-
-string UTIL_ToColoredText(string message)
-{
-    QString msg = QString::fromStdString(message);
-    if(msg.startsWith("|c") || msg.startsWith("|C"))
-    {
-        msg = msg.mid(4);
-        QString color = msg.left(6);
-        msg = msg.mid(6);
-        msg.prepend("<span style=\"color:#"+color+"\">");
-        msg.append("</span>");
-        return msg.toStdString();
-    }
-    else
-    {
-        return message;
-    }
 }

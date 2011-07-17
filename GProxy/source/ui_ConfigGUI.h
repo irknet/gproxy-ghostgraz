@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'ConfigGUI.ui'
 **
-** Created: Thu 30. Jun 19:49:59 2011
+** Created: Wed 13. Jul 20:46:54 2011
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -65,13 +65,15 @@ public:
     QWidget *appearanceTab;
     QLabel *appearanceHeaderLabel;
     QTabWidget *appearanceTabWidget;
+    QWidget *appearanceGeneralTab;
+    QLabel *generalHeaderLabel;
+    QLabel *backgroundcolorLabel;
+    QPushButton *backgroundcolorButton;
     QWidget *appearanceOutputareaTab;
     QLabel *outputareaForegroundcolorLabel;
-    QLabel *outputareaBackgroundcolorLabel;
     QLabel *outputareaHeaderLabel;
     QLabel *outputareaFontLabel;
     QPushButton *outputareaForegroundcolorButton;
-    QPushButton *outputareaBackgroundcolorButton;
     QPushButton *outputareaFontButton;
     QWidget *appearanceInputareaTab;
     QWidget *appearanceGamelistTab;
@@ -272,41 +274,51 @@ public:
         appearanceTabWidget = new QTabWidget(appearanceTab);
         appearanceTabWidget->setObjectName(QString::fromUtf8("appearanceTabWidget"));
         appearanceTabWidget->setGeometry(QRect(0, 40, 450, 460));
+        appearanceGeneralTab = new QWidget();
+        appearanceGeneralTab->setObjectName(QString::fromUtf8("appearanceGeneralTab"));
+        generalHeaderLabel = new QLabel(appearanceGeneralTab);
+        generalHeaderLabel->setObjectName(QString::fromUtf8("generalHeaderLabel"));
+        generalHeaderLabel->setGeometry(QRect(0, 0, 450, 40));
+        sizePolicy1.setHeightForWidth(generalHeaderLabel->sizePolicy().hasHeightForWidth());
+        generalHeaderLabel->setSizePolicy(sizePolicy1);
+        QFont font5;
+        font5.setFamily(QString::fromUtf8("Calibri"));
+        font5.setPointSize(16);
+        font5.setBold(true);
+        font5.setWeight(75);
+        generalHeaderLabel->setFont(font5);
+        generalHeaderLabel->setAlignment(Qt::AlignCenter);
+        backgroundcolorLabel = new QLabel(appearanceGeneralTab);
+        backgroundcolorLabel->setObjectName(QString::fromUtf8("backgroundcolorLabel"));
+        backgroundcolorLabel->setGeometry(QRect(10, 60, 160, 20));
+        backgroundcolorLabel->setFont(font);
+        backgroundcolorButton = new QPushButton(appearanceGeneralTab);
+        backgroundcolorButton->setObjectName(QString::fromUtf8("backgroundcolorButton"));
+        backgroundcolorButton->setGeometry(QRect(180, 60, 240, 20));
+        appearanceTabWidget->addTab(appearanceGeneralTab, QString());
         appearanceOutputareaTab = new QWidget();
         appearanceOutputareaTab->setObjectName(QString::fromUtf8("appearanceOutputareaTab"));
         outputareaForegroundcolorLabel = new QLabel(appearanceOutputareaTab);
         outputareaForegroundcolorLabel->setObjectName(QString::fromUtf8("outputareaForegroundcolorLabel"));
         outputareaForegroundcolorLabel->setGeometry(QRect(10, 60, 160, 20));
         outputareaForegroundcolorLabel->setFont(font);
-        outputareaBackgroundcolorLabel = new QLabel(appearanceOutputareaTab);
-        outputareaBackgroundcolorLabel->setObjectName(QString::fromUtf8("outputareaBackgroundcolorLabel"));
-        outputareaBackgroundcolorLabel->setGeometry(QRect(10, 100, 160, 20));
-        outputareaBackgroundcolorLabel->setFont(font);
         outputareaHeaderLabel = new QLabel(appearanceOutputareaTab);
         outputareaHeaderLabel->setObjectName(QString::fromUtf8("outputareaHeaderLabel"));
         outputareaHeaderLabel->setGeometry(QRect(0, 0, 450, 40));
         sizePolicy1.setHeightForWidth(outputareaHeaderLabel->sizePolicy().hasHeightForWidth());
         outputareaHeaderLabel->setSizePolicy(sizePolicy1);
-        QFont font5;
-        font5.setFamily(QString::fromUtf8("Calibri"));
-        font5.setPointSize(16);
-        font5.setBold(true);
-        font5.setWeight(75);
         outputareaHeaderLabel->setFont(font5);
         outputareaHeaderLabel->setAlignment(Qt::AlignCenter);
         outputareaFontLabel = new QLabel(appearanceOutputareaTab);
         outputareaFontLabel->setObjectName(QString::fromUtf8("outputareaFontLabel"));
-        outputareaFontLabel->setGeometry(QRect(10, 140, 160, 20));
+        outputareaFontLabel->setGeometry(QRect(10, 100, 160, 20));
         outputareaFontLabel->setFont(font);
         outputareaForegroundcolorButton = new QPushButton(appearanceOutputareaTab);
         outputareaForegroundcolorButton->setObjectName(QString::fromUtf8("outputareaForegroundcolorButton"));
         outputareaForegroundcolorButton->setGeometry(QRect(180, 60, 240, 20));
-        outputareaBackgroundcolorButton = new QPushButton(appearanceOutputareaTab);
-        outputareaBackgroundcolorButton->setObjectName(QString::fromUtf8("outputareaBackgroundcolorButton"));
-        outputareaBackgroundcolorButton->setGeometry(QRect(180, 100, 240, 20));
         outputareaFontButton = new QPushButton(appearanceOutputareaTab);
         outputareaFontButton->setObjectName(QString::fromUtf8("outputareaFontButton"));
-        outputareaFontButton->setGeometry(QRect(180, 140, 240, 20));
+        outputareaFontButton->setGeometry(QRect(180, 100, 240, 20));
         appearanceTabWidget->addTab(appearanceOutputareaTab, QString());
         appearanceInputareaTab = new QWidget();
         appearanceInputareaTab->setObjectName(QString::fromUtf8("appearanceInputareaTab"));
@@ -387,6 +399,8 @@ public:
         QObject::connect(buttonBox, SIGNAL(rejected()), ConfigGUI, SLOT(reject()));
         QObject::connect(war3pathTextfield, SIGNAL(clicked()), ConfigGUI, SLOT(onWar3pathChangeRequest()));
         QObject::connect(war3pathButton, SIGNAL(clicked()), ConfigGUI, SLOT(onWar3pathChangeRequest()));
+        QObject::connect(backgroundcolorButton, SIGNAL(clicked()), ConfigGUI, SLOT(onBackgroundcolorButtonClicked()));
+        QObject::connect(outputareaFontButton, SIGNAL(clicked()), ConfigGUI, SLOT(onOutputareaFontButtonClicked()));
 
         optionsTabWidget->setCurrentIndex(0);
         appearanceTabWidget->setCurrentIndex(0);
@@ -507,16 +521,18 @@ public:
         passwordhashtypeTextfield->setPlaceholderText(QApplication::translate("ConfigGUI", "Password hash type", 0, QApplication::UnicodeUTF8));
         optionsTabWidget->setTabText(optionsTabWidget->indexOf(pvpgnTab), QApplication::translate("ConfigGUI", "PvPGN", 0, QApplication::UnicodeUTF8));
         appearanceHeaderLabel->setText(QApplication::translate("ConfigGUI", "Appearance", 0, QApplication::UnicodeUTF8));
+        generalHeaderLabel->setText(QApplication::translate("ConfigGUI", "General", 0, QApplication::UnicodeUTF8));
+        backgroundcolorLabel->setText(QApplication::translate("ConfigGUI", "Background color:", 0, QApplication::UnicodeUTF8));
+        backgroundcolorButton->setText(QApplication::translate("ConfigGUI", "Change background color", 0, QApplication::UnicodeUTF8));
+        appearanceTabWidget->setTabText(appearanceTabWidget->indexOf(appearanceGeneralTab), QApplication::translate("ConfigGUI", "General", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_WHATSTHIS
         appearanceOutputareaTab->setWhatsThis(QApplication::translate("ConfigGUI", "The output area is the big field at the left side of GProxy.\n"
 "Here you can will see all chat messages and much more.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_WHATSTHIS
         outputareaForegroundcolorLabel->setText(QApplication::translate("ConfigGUI", "Foreground color:", 0, QApplication::UnicodeUTF8));
-        outputareaBackgroundcolorLabel->setText(QApplication::translate("ConfigGUI", "Background color:", 0, QApplication::UnicodeUTF8));
         outputareaHeaderLabel->setText(QApplication::translate("ConfigGUI", "Output area", 0, QApplication::UnicodeUTF8));
         outputareaFontLabel->setText(QApplication::translate("ConfigGUI", "Font:", 0, QApplication::UnicodeUTF8));
         outputareaForegroundcolorButton->setText(QApplication::translate("ConfigGUI", "Change foreground color", 0, QApplication::UnicodeUTF8));
-        outputareaBackgroundcolorButton->setText(QApplication::translate("ConfigGUI", "Change background color", 0, QApplication::UnicodeUTF8));
         outputareaFontButton->setText(QApplication::translate("ConfigGUI", "Change font", 0, QApplication::UnicodeUTF8));
         appearanceTabWidget->setTabText(appearanceTabWidget->indexOf(appearanceOutputareaTab), QApplication::translate("ConfigGUI", "Ouput area", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_WHATSTHIS

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'gproxy.h'
 **
-** Created: Tue 5. Jul 20:44:06 2011
+** Created: Sun 10. Jul 11:32:58 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,12 +23,12 @@ static const uint qt_meta_data_CGProxy[] = {
        5,       // revision
        0,       // classname
        0,    0, // classinfo
-      11,   14, // methods
+      13,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-      11,       // signalCount
+      12,       // signalCount
 
  // signals: signature, parameters, type, tag, flags
       11,    9,    8,    8, 0x05,
@@ -42,6 +42,10 @@ static const uint qt_meta_data_CGProxy[] = {
      280,    8,    8,    8, 0x05,
      309,    8,    8,    8, 0x05,
      337,    8,    8,    8, 0x05,
+     367,    8,    8,    8, 0x05,
+
+ // slots: signature, parameters, type, tag, flags
+     388,    8,    8,    8, 0x0a,
 
        0        // eod
 };
@@ -58,6 +62,7 @@ static const char qt_meta_stringdata_CGProxy[] = {
     "signal_playerJoined(QString)\0"
     "signal_stopDownloadThread()\0"
     "signal_showConfigDialog(bool)\0"
+    "signal_applyConfig()\0applyConfig()\0"
 };
 
 const QMetaObject CGProxy::staticMetaObject = {
@@ -100,9 +105,11 @@ int CGProxy::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         case 8: signal_playerJoined((*reinterpret_cast< const QString(*)>(_a[1]))); break;
         case 9: signal_stopDownloadThread(); break;
         case 10: signal_showConfigDialog((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 11: signal_applyConfig(); break;
+        case 12: applyConfig(); break;
         default: ;
         }
-        _id -= 11;
+        _id -= 13;
     }
     return _id;
 }
@@ -180,5 +187,11 @@ void CGProxy::signal_showConfigDialog(bool _t1)
 {
     void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
     QMetaObject::activate(this, &staticMetaObject, 10, _a);
+}
+
+// SIGNAL 11
+void CGProxy::signal_applyConfig()
+{
+    QMetaObject::activate(this, &staticMetaObject, 11, 0);
 }
 QT_END_MOC_NAMESPACE

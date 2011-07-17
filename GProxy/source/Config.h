@@ -35,17 +35,17 @@ public:
 
     void commit();
 
+signals:
+    void configSaved();
+
 private:
-    QFile *configFile;
-    QList<QString> vKey;
-    QList<QString> vValue;
+    QFile* configFile;
+    QList<QString> keys;
+    QList<QString> values;
 
     void addKeys();
     void addValues(QString content);
     void addDefaultValue(const QString &key);
-
-private slots:
-
 };
 
 #endif	/* CONFIG_H */

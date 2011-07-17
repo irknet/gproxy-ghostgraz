@@ -20,9 +20,16 @@
 #define UTIL_H
 
 #include <QString>
+#include <QColor>
 #include <string>
 
 using namespace std;
+
+class Util
+{
+public:
+    static QColor toColor(const QString& colorString);
+};
 
 // byte arrays
 
@@ -64,7 +71,6 @@ int16_t UTIL_ToInt16( string &s );
 int32_t UTIL_ToInt32( string &s );
 double UTIL_ToDouble( string &s );
 string UTIL_MSToString( uint32_t ms );
-string UTIL_ToColoredText(string message);
 
 // files
 

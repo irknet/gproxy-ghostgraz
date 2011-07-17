@@ -60,16 +60,23 @@ const
                 }
                 else
                 {
-                    QVector<Player*> players = mainGUI->getGproxy()->getPlayers();
-                    foreach(Player *player, players)
+                    if (mainGUI->isAdmin(user))
                     {
-                        if(player->getName() == user)
+                        painter->setPen(QColor(0, 255, 200));
+                    }
+                    else
+                    {
+                        QVector<Player*> players = mainGUI->getGproxy()->getPlayers();
+                        foreach(Player *player, players)
                         {
-                            if(player->getStayPercent() < 80 && !mainGUI->getGproxy()->m_GameStarted)
+                            if(player->getName() == user)
                             {
-                                painter->setPen(QColor(255, 69, 0));
+                                if(player->getStayPercent() < 80 && !mainGUI->getGproxy()->m_GameStarted)
+                                {
+                                    painter->setPen(QColor(255, 69, 0));
+                                }
+                                break;
                             }
-                            break;
                         }
                     }
                 }

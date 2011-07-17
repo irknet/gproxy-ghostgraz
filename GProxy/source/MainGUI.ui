@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1085</width>
-    <height>555</height>
+    <width>1087</width>
+    <height>571</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -79,9 +79,9 @@
       <colorrole role="Base">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
-         <red>255</red>
-         <green>255</green>
-         <blue>255</blue>
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
         </color>
        </brush>
       </colorrole>
@@ -96,50 +96,7 @@
      <bold>true</bold>
     </font>
    </property>
-   <widget class="QTextEdit" name="outputField">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>661</width>
-      <height>521</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Arial</family>
-      <pointsize>9</pointsize>
-      <weight>50</weight>
-      <bold>false</bold>
-     </font>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::ClickFocus</enum>
-    </property>
-    <property name="autoFillBackground">
-     <bool>true</bool>
-    </property>
-    <property name="readOnly">
-     <bool>true</bool>
-    </property>
-    <property name="html">
-     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Arial'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Terminal'; font-size:12pt; font-weight:600;&quot;&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-    <property name="acceptRichText">
-     <bool>false</bool>
-    </property>
-    <property name="textInteractionFlags">
-     <set>Qt::TextSelectableByMouse</set>
-    </property>
-   </widget>
-   <widget class="QPlainTextEdit" name="inputField">
+   <widget class="QPlainTextEdit" name="inputTextArea">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -165,7 +122,7 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>900</x>
-      <y>20</y>
+      <y>30</y>
       <width>181</width>
       <height>301</height>
      </rect>
@@ -221,28 +178,19 @@ p, li { white-space: pre-wrap; }
      <enum>QAbstractItemView::SingleSelection</enum>
     </property>
    </widget>
-   <widget class="QLineEdit" name="channelField">
+   <widget class="QLineEdit" name="titleLabel">
     <property name="geometry">
      <rect>
       <x>900</x>
       <y>0</y>
       <width>181</width>
-      <height>21</height>
+      <height>31</height>
      </rect>
     </property>
     <property name="palette">
      <palette>
       <active>
        <colorrole role="Base">
-        <brush brushstyle="SolidPattern">
-         <color alpha="255">
-          <red>0</red>
-          <green>0</green>
-          <blue>0</blue>
-         </color>
-        </brush>
-       </colorrole>
-       <colorrole role="Window">
         <brush brushstyle="SolidPattern">
          <color alpha="255">
           <red>0</red>
@@ -262,27 +210,9 @@ p, li { white-space: pre-wrap; }
          </color>
         </brush>
        </colorrole>
-       <colorrole role="Window">
-        <brush brushstyle="SolidPattern">
-         <color alpha="255">
-          <red>0</red>
-          <green>0</green>
-          <blue>0</blue>
-         </color>
-        </brush>
-       </colorrole>
       </inactive>
       <disabled>
        <colorrole role="Base">
-        <brush brushstyle="SolidPattern">
-         <color alpha="255">
-          <red>0</red>
-          <green>0</green>
-          <blue>0</blue>
-         </color>
-        </brush>
-       </colorrole>
-       <colorrole role="Window">
         <brush brushstyle="SolidPattern">
          <color alpha="255">
           <red>0</red>
@@ -321,11 +251,33 @@ p, li { white-space: pre-wrap; }
       <x>670</x>
       <y>0</y>
       <width>221</width>
-      <height>23</height>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
      <string>Refresh</string>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="outputTextArea">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>661</width>
+      <height>521</height>
+     </rect>
+    </property>
+    <property name="autoFillBackground">
+     <bool>true</bool>
+    </property>
+    <property name="undoRedoEnabled">
+     <bool>true</bool>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+    <property name="textInteractionFlags">
+     <set>Qt::TextBrowserInteraction</set>
     </property>
    </widget>
   </widget>
@@ -334,21 +286,21 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1085</width>
+     <width>1087</width>
      <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuFile">
+   <widget class="QMenu" name="fileMenu">
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionOptions"/>
+    <addaction name="optionsAction"/>
     <addaction name="separator"/>
-    <addaction name="actionExit"/>
+    <addaction name="exitAction"/>
    </widget>
-   <addaction name="menuFile"/>
+   <addaction name="fileMenu"/>
   </widget>
-  <action name="actionOptions">
+  <action name="optionsAction">
    <property name="icon">
     <iconset resource="resources.qrc">
      <normaloff>:/images/Tool.png</normaloff>:/images/Tool.png</iconset>
@@ -357,7 +309,7 @@ p, li { white-space: pre-wrap; }
     <string>Options</string>
    </property>
   </action>
-  <action name="actionExit">
+  <action name="exitAction">
    <property name="icon">
     <iconset resource="resources.qrc">
      <normaloff>:/images/Cancel.png</normaloff>:/images/Cancel.png</iconset>
@@ -382,7 +334,7 @@ p, li { white-space: pre-wrap; }
  </resources>
  <connections>
   <connection>
-   <sender>actionExit</sender>
+   <sender>exitAction</sender>
    <signal>triggered()</signal>
    <receiver>MainGUI</receiver>
    <slot>close()</slot>
@@ -414,10 +366,10 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>inputField</sender>
+   <sender>inputTextArea</sender>
    <signal>textChanged()</signal>
    <receiver>MainGUI</receiver>
-   <slot>onInputFieldTextChanged()</slot>
+   <slot>onInputTextAreaTextChanged()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>330</x>
@@ -430,10 +382,10 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>channelField</sender>
+   <sender>titleLabel</sender>
    <signal>textChanged(QString)</signal>
    <receiver>MainGUI</receiver>
-   <slot>onChannelChanged()</slot>
+   <slot>onTitleLabelTextChanged()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>990</x>
@@ -526,7 +478,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>actionOptions</sender>
+   <sender>optionsAction</sender>
    <signal>triggered()</signal>
    <receiver>MainGUI</receiver>
    <slot>showConfigDialog()</slot>
@@ -545,8 +497,8 @@ p, li { white-space: pre-wrap; }
  <slots>
   <slot>showConfigDialog()</slot>
   <slot>onGameListItemClicked(QMouseEvent*)</slot>
-  <slot>onInputFieldTextChanged()</slot>
-  <slot>onChannelChanged()</slot>
+  <slot>onInputTextAreaTextChanged()</slot>
+  <slot>onTitleLabelTextChanged()</slot>
   <slot>onRefreshButtonClicked()</slot>
   <slot>onChannelContextMenu(QPoint)</slot>
   <slot>onFriendsContextMenu(QPoint)</slot>

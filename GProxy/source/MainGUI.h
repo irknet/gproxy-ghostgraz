@@ -12,6 +12,7 @@
 #include <QVector>
 #include <QMouseEvent>
 #include <QList>
+#include <QPalette>
 
 using namespace std;
 
@@ -43,6 +44,9 @@ public slots:
 //    void showConfigDialog();
     void showConfigDialog(bool exitOnReject = false);
     void playerJoined(const QString &playerName);
+    void applyConfig();
+    void setColor(const QString& area, const QPalette::ColorRole& colorRole, const QColor& color);
+    void setFont(const QString& area, const QFont& font);
 
 private:
     Ui::MainGUI widget;
@@ -52,7 +56,6 @@ private:
     QList<QString> admins;
 
     void initStatspage();
-    void initConnectionDialog();
     void initLayout();
     void initSlots();
     void initAdminlist();
@@ -66,8 +69,8 @@ private:
 
 private slots:
     void onClose();
-    void onInputFieldTextChanged();
-    void onChannelChanged();
+    void onInputTextAreaTextChanged();
+    void onTitleLabelTextChanged();
     void onChannelContextMenu(const QPoint&);
     void onFriendsContextMenu(const QPoint&);
     void onGameListItemClicked(QMouseEvent*);

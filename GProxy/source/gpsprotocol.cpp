@@ -1,5 +1,5 @@
 #include "gproxy.h"
-#include "util.h"
+#include "Util.h"
 #include "gpsprotocol.h"
 
 //

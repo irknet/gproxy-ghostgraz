@@ -7,6 +7,7 @@
 #include "thread/DownloadThread.h"
 #include "ConfigGUI.h"
 #include "GhostGrazLogininformationDialog.h"
+#include "Util.h"
 
 #include <QDesktopWidget>
 #include <QScrollBar>
@@ -20,6 +21,8 @@
 #include <QDateTime>
 #include <QClipboard>
 #include <QFileInfo>
+#include <QRegExp>
+#include <QTextFrame>
 
 MainGUI::MainGUI (CGProxy *p_gproxy)
 {
@@ -76,16 +79,6 @@ void MainGUI::init ()
     initSlots();
 }
 
-void MainGUI::initConnectionDialog () {
-    //    connectionDialog = new QDialog(this);
-    //    connectionDialog->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint
-    //            | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    //    connectionDialog->setWindowTitle("Connecting...");
-    //    connectionDialog->setFixedSize(400, 300);
-    //    QLabel *connectionInfo = new QLabel(connectionDialog);
-    //    connectionInfo->setGeometry(0, 0, connectionDialog->width(), connectionDialog->height());
-}
-
 void MainGUI::initStatspage ()
 {
     statspage = new Statspage();
@@ -126,9 +119,9 @@ void MainGUI::initLayout ()
     widget.refreshButton->setMaximumSize(gamelistWidth, channelfieldHeight);
     widget.refreshButton->move(width() - channelfieldWidth - gamelistWidth, 0);
 
-    widget.channelField->setMinimumSize(channelfieldWidth, channelfieldHeight);
-    widget.channelField->setMaximumSize(channelfieldWidth, channelfieldHeight);
-    widget.channelField->move(width() - channelfieldWidth, 0);
+    widget.titleLabel->setMinimumSize(channelfieldWidth, channelfieldHeight);
+    widget.titleLabel->setMaximumSize(channelfieldWidth, channelfieldHeight);
+    widget.titleLabel->move(width() - channelfieldWidth, 0);
 
     widget.channelList->setMinimumSize(channelfieldWidth,
             (height() - inputFieldHeight - channelfieldHeight) / 2);
@@ -147,19 +140,19 @@ void MainGUI::initLayout ()
     widget.gameList->setMaximumSize(gamelistWidth, height() - inputFieldHeight - channelfieldHeight);
     widget.gameList->move(width() - channelfieldWidth - gamelistWidth, channelfieldHeight);
 
-    widget.inputField->setMinimumSize(width(), inputFieldHeight);
-    widget.inputField->setMaximumSize(width(), inputFieldHeight);
-    widget.inputField->move(0, height() - inputFieldHeight);
+    widget.inputTextArea->setMinimumSize(width(), inputFieldHeight);
+    widget.inputTextArea->setMaximumSize(width(), inputFieldHeight);
+    widget.inputTextArea->move(0, height() - inputFieldHeight);
 
-    widget.outputField->setMinimumSize(width() - channelfieldWidth - gamelistWidth, height() - inputFieldHeight);
-    widget.outputField->setMaximumSize(width() - channelfieldWidth - gamelistWidth, height() - inputFieldHeight);
-    widget.outputField->move(0, 0);
+    widget.outputTextArea->setMinimumSize(width() - channelfieldWidth - gamelistWidth, height() - inputFieldHeight);
+    widget.outputTextArea->setMaximumSize(width() - channelfieldWidth - gamelistWidth, height() - inputFieldHeight);
+    widget.outputTextArea->move(0, 0);
 }
 
 void MainGUI::initSlots ()
 {
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(onClose()), Qt::QueuedConnection);
-    connect(widget.outputField->verticalScrollBar(), SIGNAL(rangeChanged(int, int)),
+    connect(widget.outputTextArea->verticalScrollBar(), SIGNAL(rangeChanged(int, int)),
             this, SLOT(onOutputFieldSliderMoved()), Qt::QueuedConnection);
 }
 
@@ -168,40 +161,75 @@ void MainGUI::initAdminlist ()
     statspage->getAdminlist();
 }
 
-void MainGUI::resizeEvent (QResizeEvent *event)
+void MainGUI::applyConfig()
+{
+    Config* config = gproxy->getConfig();
+
+    // Set color
+    QPalette palette = widget.centralwidget->palette();
+
+    palette.setColor(QPalette::Base, config->getColor("backgroundcolor"));
+
+    widget.centralwidget->setPalette(palette);
+    widget.titleLabel->setPalette(palette);
+
+    // Set font
+    widget.outputTextArea->setFont(config->getFont("outputareaFont"));
+}
+
+void MainGUI::setColor(const QString& area, const QPalette::ColorRole& colorRole, const QColor& color)
+{
+    if (area == "all")
+    {
+        QPalette palette = widget.centralwidget->palette();
+        palette.setColor(colorRole, color);
+        widget.centralwidget->setPalette(palette);
+        widget.titleLabel->setPalette(palette);
+    }
+}
+
+void MainGUI::setFont(const QString& area, const QFont& font)
+{
+    if (area == "outputarea")
+    {
+        widget.outputTextArea->setFont(font);
+    }
+}
+
+void MainGUI::resizeEvent (QResizeEvent* event)
 {
     QWidget::resizeEvent(event);
     initLayout();
 }
 
-void MainGUI::onInputFieldTextChanged ()
+void MainGUI::onInputTextAreaTextChanged ()
 {
-    if (widget.inputField->toPlainText().contains("\n")
-            && widget.inputField->toPlainText().size() > 1)
+    if (widget.inputTextArea->toPlainText().contains("\n")
+            && widget.inputTextArea->toPlainText().size() > 1)
     {
-        QString input = widget.inputField->toPlainText();
+        QString input = widget.inputTextArea->toPlainText();
         input.replace("\n", "");
 
-        widget.inputField->setPlainText("");
+        widget.inputTextArea->setPlainText("");
 
         processInput(input);
     }
-    else if (widget.inputField->toPlainText().toLower() == "/r "
+    else if (widget.inputTextArea->toPlainText().toLower() == "/r "
             && !gproxy->m_BNET->GetReplyTarget().empty())
     {
-        widget.inputField->setPlainText("/w "
+        widget.inputTextArea->setPlainText("/w "
                 + QString::fromStdString(gproxy->m_BNET->GetReplyTarget()) + " ");
-        widget.inputField->moveCursor(QTextCursor::End);
+        widget.inputTextArea->moveCursor(QTextCursor::End);
     }
 }
 
-void MainGUI::onChannelChanged ()
+void MainGUI::onTitleLabelTextChanged ()
 {
-    QString text = widget.channelField->text();
-    QFont font = widget.channelField->font();
+    QString text = widget.titleLabel->text();
+    QFont font = widget.titleLabel->font();
     font.setPointSize(12);
     QFontMetrics *fm = new QFontMetrics(font);
-    int width = widget.channelField->width();
+    int width = widget.titleLabel->width();
 
     while (fm->boundingRect(text).width() >= width)
     {
@@ -209,7 +237,7 @@ void MainGUI::onChannelChanged ()
         fm = new QFontMetrics(font);
     }
 
-    widget.channelField->setFont(font);
+    widget.titleLabel->setFont(font);
 }
 
 void MainGUI::onChannelContextMenu (const QPoint& pos)
@@ -255,9 +283,9 @@ void MainGUI::onChannelContextMenu (const QPoint& pos)
     {
         if (action->text() == "Whisper")
         {
-            widget.inputField->setPlainText("/w " + user + " ");
-            widget.inputField->setFocus();
-            widget.inputField->moveCursor(QTextCursor::End);
+            widget.inputTextArea->setPlainText("/w " + user + " ");
+            widget.inputTextArea->setFocus();
+            widget.inputTextArea->moveCursor(QTextCursor::End);
         }
         else if (action->text() == "Whois")
         {
@@ -329,9 +357,9 @@ void MainGUI::onFriendsContextMenu (const QPoint& pos)
     {
         if (action->text() == "Whisper")
         {
-            widget.inputField->setPlainText("/w " + item->text() + " ");
-            widget.inputField->setFocus();
-            widget.inputField->moveCursor(QTextCursor::End);
+            widget.inputTextArea->setPlainText("/w " + item->text() + " ");
+            widget.inputTextArea->setFocus();
+            widget.inputTextArea->moveCursor(QTextCursor::End);
         }
         else if (action->text() == "Whois")
         {
@@ -339,9 +367,9 @@ void MainGUI::onFriendsContextMenu (const QPoint& pos)
         }
         else if (action->text() == "Whisper all")
         {
-            widget.inputField->setPlainText("/f m ");
-            widget.inputField->setFocus();
-            widget.inputField->moveCursor(QTextCursor::End);
+            widget.inputTextArea->setPlainText("/f m ");
+            widget.inputTextArea->setFocus();
+            widget.inputTextArea->moveCursor(QTextCursor::End);
         }
         else if (action->text() == "!stats" || action->text() == "!statsdota")
         {
@@ -362,7 +390,7 @@ void MainGUI::onFriendsContextMenu (const QPoint& pos)
 
 void MainGUI::onGameListItemClicked (QMouseEvent *mouseEvent)
 {
-    widget.inputField->setFocus();
+    widget.inputTextArea->setFocus();
 
     QListWidgetItem *item = widget.gameList->itemAt(mouseEvent->pos());
     if (!item)
@@ -388,7 +416,7 @@ void MainGUI::onGameListItemClicked (QMouseEvent *mouseEvent)
 
 void MainGUI::onOutputFieldSliderMoved ()
 {
-    QScrollBar* vsb = widget.outputField->verticalScrollBar();
+    QScrollBar* vsb = widget.outputTextArea->verticalScrollBar();
     if (vsb->value() >= (vsb->maximum() - vsb->singleStep() * 2))
     {
         vsb->setValue(vsb->maximum());
@@ -705,10 +733,10 @@ void MainGUI::processInput (const QString& input)
     else if (command == "/version")
     {
         addMessage("[GPROXY] Customized GProxy++ Version " + QString::fromStdString(gproxy->m_Version));
-        addMessage("[GPROXY] <font color=\"#e6e6e6\">"
-                "This mod is by <font color=\"darkgreen\">Phyton</font>, "
-                "<font color=\"deeppink\">Pr0gm4n</font> and "
-                "<font color=\"gold\">Manufactoring</font>.</font>");
+        addMessage("[GPROXY] |CFFE6E6E6"
+                "This mod is by |CFF006400Phyton|r, "
+                "|CFFFF1493Pr0gm4n|r and "
+                "|CFFFFD700Manufactoring|r.");
     }
     else if (command == "/test")
     {
@@ -799,35 +827,62 @@ void MainGUI::addMessage (QString message, bool log)
         LOG_Print(message);
     }
 
+    widget.outputTextArea->moveCursor(QTextCursor::End);
+
     addColor(message);
-
     QString dateTime = QLocale().toString(QDateTime::currentDateTime(), "[hh:mm:ss] ");
-    message.insert(message.indexOf(">") + 1, dateTime);
+    message.insert(10, dateTime);
+    if (!widget.outputTextArea->textCursor().atStart())
+    {
+        message.insert(0, "\n");
+    }
 
-    widget.outputField->append(message);
+    // Print the message colored, if it contains a Warcraft like color code: "|cFF00FF00|r".
+    QRegExp colorCodeRegExp = QRegExp("\\|c([a-f]|[0-9]){8}");
+    colorCodeRegExp.setCaseSensitivity(Qt::CaseInsensitive);
+    int i = 0;
+    while (message.indexOf(colorCodeRegExp, i) != -1)
+    {
+        int colorStartIndex = message.indexOf(colorCodeRegExp, i);
+        widget.outputTextArea->insertPlainText(message.mid(i, colorStartIndex - i));
+        widget.outputTextArea->setTextColor(Util::toColor(message.mid(colorStartIndex, 10)));
+        i = colorStartIndex + 10;
+
+        if (message.indexOf("|r", i, Qt::CaseInsensitive) != -1)
+        {
+            int colorEndIndex = message.indexOf("|r", i, Qt::CaseInsensitive);
+            int nextColorStartIndex = message.indexOf(colorCodeRegExp, i);
+            if (nextColorStartIndex == -1 || nextColorStartIndex > colorEndIndex)
+            {
+                widget.outputTextArea->insertPlainText(message.mid(i, colorEndIndex - i));
+                widget.outputTextArea->setTextColor(QColor(230, 230, 230));
+                i = colorEndIndex + 2;
+            }
+        }
+    }
+
+    widget.outputTextArea->insertPlainText(message.mid(i));
+    widget.outputTextArea->setTextColor(QColor(230, 230, 230));
 }
 
-void MainGUI::addColor (QString &message)
+void MainGUI::addColor (QString& message)
 {
     if (message.startsWith("[WHISPER]")
             || message.startsWith("[QUEUED] /w ")
             || message.startsWith("[WHISPER TO]"))
     {
-        message.prepend("<font color=\"Lime\">");
-        message.append("</font>");
+        message.prepend("|CFF00FF00");
     }
     else if (message.startsWith("[Phyton]")
             || message.startsWith("[Pr0gm4n]")
             || message.startsWith("[CONFIG]")
             || message.startsWith("Bot ["))
     {
-        message.prepend("<font color=\"DarkGreen\">");
-        message.append("</font>");
+        message.prepend("|CFF006400");
     }
     else if (message.startsWith("[Manufactoring]"))
     {
-        message.prepend("<font color=\"Gold\">");
-        message.append("</font>");
+        message.prepend("|CFFFFD700");
     }
     else if (message.startsWith("[LOCAL]"))
     {
@@ -838,12 +893,11 @@ void MainGUI::addColor (QString &message)
         if (message.startsWith("[baerli_graz]")
                 || message.startsWith("[klingone_graz]"))
         {
-            message.insert(1, "<font color=\"red\">");
-            message.insert(message.indexOf("]"), "</font>");
+            message.insert(1, "|CFFFF0000");
+            message.insert(message.indexOf("]"), "|r");
         }
 
-        message.prepend("<font color=\"#e6e6e6\">");
-        message.append("</font>");
+        message.prepend("|CFFE6E6E6");
     }
     else if (message.startsWith("[QUEUED]"))
     {
@@ -855,62 +909,53 @@ void MainGUI::addColor (QString &message)
         if (message.startsWith("[baerli_graz]")
                 || message.startsWith("[klingone_graz]"))
         {
-            message.insert(1, "<font color=\"red\">");
-            message.insert(message.indexOf("]"), "</font>");
+            message.insert(1, "|CFFFF0000");
+            message.insert(message.indexOf("]"), "|r");
         }
 
-        message.prepend("<font color=\"#e6e6e6\">");
-        message.append("</font>");
+        message.prepend("|CFFE6E6E6");
     }
     else if (message.startsWith("[INFO]"))
     {
         message.remove(0, 7);
-        message.prepend("<font color=\"Cyan\">");
-        message.append("</font>");
+        message.prepend("|CFF00FFFF");
     }
     else if (message.startsWith("[TCPSOCKET]"))
     {
-        message.prepend("<font color=\"Indigo\">");
-        message.append("</font>");
+        message.prepend("|CFF4B0082");
     }
     else if (message.startsWith("[GPROXY]")
             || message.startsWith("[UDPSOCKET]"))
     {
-        message.prepend("<font color=\"Indigo\">");
-        message.append("</font>");
+        message.prepend("|CFF4B0082");
     }
     else if (message.startsWith("[BNET]"))
     {
-        message.prepend("<font color=\"DarkRed\">");
-        message.append("</font>");
+        message.prepend("|CFF8B0000");
     }
     else if (message.startsWith("[EMOTE]"))
     {
         message.remove(0, 8);
-        message.prepend("<font color=\"Gray\">");
-        message.append("</font>");
+        message.prepend("|CFF808080");
     }
     else if (message.endsWith(" has joined the game.")
             || message.endsWith(" has left the game."))
     {
-        message.prepend("<font color=\"Gold\">");
-        message.append("</font>");
+        message.prepend("|CFFFFD700");
+        message.insert(message.indexOf(" has "), "|CFFFFD700");
     }
     else if (message.startsWith("[ERROR]")
             || message.startsWith("[Manufactoring][ERROR]"))
     {
-        message.prepend("<font color=\"Red\">");
-        message.append("</font>");
+        message.prepend("|CFFFF0000");
     }
     else if (message.startsWith("[WARNING]"))
     {
-        message.prepend("<font color=\"OrangeRed\">");
-        message.append("</font>");
+        message.prepend("|CFFFF4500");
     }
     else
     {
-        message.prepend("<font color=\"#e6e6e6\">");
-        message.append("</font>");
+        message.prepend("|CFFE6E6E6");
     }
 }
 
@@ -1037,9 +1082,8 @@ void MainGUI::removeChannelUser (QString username)
 
 void MainGUI::changeChannel (QString channel)
 {
-
     widget.channelList->clear();
-    widget.channelField->setText(channel);
+    widget.titleLabel->setText(channel);
 }
 
 void MainGUI::clearFriendlist ()
@@ -1102,17 +1146,20 @@ void MainGUI::setGameslots (QList<Slot*> slotList)
                 if (currentTeam == 0)
                 {
                     teamItem->setData(ChannellistDelegate::USER, "The Sentinel");
+                    teamItem->setData(ChannellistDelegate::SLOT_TEAM, 0);
                     teamItem->setData(ChannellistDelegate::COLOR_USER, QColor(255, 0, 0));
                 }
                 else
                 {
                     teamItem->setData(ChannellistDelegate::USER, "The Scourge");
+                    teamItem->setData(ChannellistDelegate::SLOT_TEAM, 1);
                     teamItem->setData(ChannellistDelegate::COLOR_USER, QColor(0, 255, 0));
                 }
             }
             else
             {
                 teamItem->setData(ChannellistDelegate::USER, "Team " + QString::number(currentTeam + 1));
+                teamItem->setData(ChannellistDelegate::SLOT_TEAM, currentTeam);
             }
 
             widget.channelList->addItem(teamItem);
@@ -1178,7 +1225,7 @@ void MainGUI::showErrorMessage (QString errorMessage)
 
 void MainGUI::showConfigDialog (bool exitOnReject)
 {
-    ConfigGUI* config = new ConfigGUI(gproxy->getConfig());
+    ConfigGUI* config = new ConfigGUI(this);
     int exitCode = config->exec();
     if (exitOnReject)
     {
@@ -1198,19 +1245,19 @@ void MainGUI::showConfigDialog (bool exitOnReject)
     }
 }
 
-void MainGUI::playerJoined (const QString& playerName)
+void MainGUI::playerJoined (const QString& playername)
 {
-    addMessage("[LOBBY] " + playerName + " has joined the game.");
+    addMessage("[LOBBY] " + playername + " has joined the game.");
 
     // If the player has a colored name (hostbot), return.
-    if (!playerName.startsWith("<span style=\"color:"))
+    if (playername.startsWith("|cff", Qt::CaseInsensitive))
     {
         return;
     }
 
-    statspage->getPlayerInformation(playerName);
+    statspage->getPlayerInformation(playername);
 
-    if (isAdmin(playerName))
+    if (gproxy->getUsername() != playername && isAdmin(playername))
     {
         QSound::play("sounds/vip_joins.wav");
     }
@@ -1219,7 +1266,7 @@ void MainGUI::playerJoined (const QString& playerName)
         // If the player is a friend -> play sound.
         for (int i = 0; i < widget.friendList->count(); i++)
         {
-            if (widget.friendList->item(i)->text() == playerName)
+            if (widget.friendList->item(i)->text() == playername)
             {
                 QSound::play("sounds/vip_joins.wav");
                 break;
@@ -1230,9 +1277,9 @@ void MainGUI::playerJoined (const QString& playerName)
 
 void MainGUI::onChannellistItemClicked (QMouseEvent *mouseEvent)
 {
-    widget.inputField->setFocus();
+    widget.inputTextArea->setFocus();
 
-    QListWidgetItem *item = widget.channelList->itemAt(mouseEvent->pos());
+    QListWidgetItem* item = widget.channelList->itemAt(mouseEvent->pos());
     if (!item)
     {
         return;
@@ -1243,53 +1290,120 @@ void MainGUI::onChannellistItemClicked (QMouseEvent *mouseEvent)
         QString user = item->data(ChannellistDelegate::USER).toString();
         int slotStatus = item->data(ChannellistDelegate::SLOT_STATUS).toInt();
         int computerStatus = item->data(ChannellistDelegate::SLOT_COMPUTER_STATUS).toInt();
+        int team = item->data(ChannellistDelegate::SLOT_TEAM).toInt();
 
         if (gproxy->m_BNET->GetInGame())
         {
             if (user == "The Sentinel" || user == "The Scourge"
                     || user.startsWith("Team "))
             {
-                int team;
-
-                if (user == "The Sentinel")
-                {
-                    team = 0;
-                }
-                else if (user == "The Scourge")
-                {
-                    team = 1;
-                }
-                else
-                {
-                    team = user.mid(5).toInt();
-                }
-
                 gproxy->changeTeam(team);
             }
             else if (slotStatus == 0)
             {
                 if (gproxy->isDotaMap())
                 {
-                    // Swap to color
+                    return; // Still buggy.
+
+                    int requestedSlotNumber = 1;
+                    for (int i = 0; i < widget.channelList->count(); i++)
+                    {
+                        if (item == widget.channelList->item(i))
+                        {
+                            requestedSlotNumber = i;
+                            break;
+                        }
+                    }
+
+                    int currentSlotNumber = 1;
+                    foreach (Slot* slot, gproxy->getSlotList())
+                    {
+                        if (slot->getPlayer()) // Check for existing player.
+                        {
+                            if (slot->getPlayer()->getPlayerId() == gproxy->m_ChatPID)
+                            {
+                                currentSlotNumber = slot->getColor();
+                                break;
+                            }
+                        }
+                    }
+
+                    if ((currentSlotNumber < 6 && requestedSlotNumber < 6)
+                            || (currentSlotNumber > 6 && requestedSlotNumber > 6))
+                    {
+                        for (int i = currentSlotNumber + 1; i != requestedSlotNumber +1; i++)
+                        {
+                            if (team == 0 && i > 5)
+                            {
+                                i = 1;
+                            }
+                            else if (i > 11)
+                            {
+                                i = 7;
+                            }
+
+                            if (!gproxy->getSlotList().at(i)->getPlayer())
+                            {
+                                gproxy->changeTeam(team);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        int i;
+                        if (team == 0)
+                        {
+                            i = 1;
+                        }
+                        else
+                        {
+                            i = 7;
+                        }
+
+                        while (i != requestedSlotNumber)
+                        {
+                            if (!gproxy->getSlotList().at(i)->getPlayer())
+                            {
+                                gproxy->changeTeam(team);
+                            }
+
+                            i++;
+                        }
+
+                        /**
+                         * SENT
+                         * 1
+                         * 2
+                         * 3
+                         * 4
+                         * 5
+                         * SCOU
+                         * 7
+                         * 8
+                         * 9
+                         * 10
+                         * 11
+                         */
+                    }
                 }
             }
             else if (slotStatus == 2 && computerStatus == 0)
             {
-                widget.inputField->setPlainText("/w " + user + " ");
-                widget.inputField->moveCursor(QTextCursor::End);
+                widget.inputTextArea->setPlainText("/w " + user + " ");
+                widget.inputTextArea->moveCursor(QTextCursor::End);
             }
         }
         else
         {
-            widget.inputField->setPlainText("/w " + user + " ");
-            widget.inputField->moveCursor(QTextCursor::End);
+            widget.inputTextArea->setPlainText("/w " + user + " ");
+            widget.inputTextArea->moveCursor(QTextCursor::End);
         }
     }
 }
 
 void MainGUI::onFriendlistItemClicked (QMouseEvent *mouseEvent)
 {
-    widget.inputField->setFocus();
+    widget.inputTextArea->setFocus();
 
     QListWidgetItem *item = widget.friendList->itemAt(mouseEvent->pos());
     if (!item)
@@ -1299,8 +1413,8 @@ void MainGUI::onFriendlistItemClicked (QMouseEvent *mouseEvent)
 
     if (mouseEvent->button() == Qt::LeftButton)
     {
-        widget.inputField->setPlainText("/w " + item->text() + " ");
-        widget.inputField->moveCursor(QTextCursor::End);
+        widget.inputTextArea->setPlainText("/w " + item->text() + " ");
+        widget.inputTextArea->moveCursor(QTextCursor::End);
     }
 }
 
@@ -1328,14 +1442,21 @@ void MainGUI::receivedPlayerInformation (Player *player)
             player->setPlayerId(players.at(i)->getPlayerId());
             players[i] = player;
 
-            if (player->getStayPercent() < 80)
+            if (players[i]->getGamesPlayed() == 0)
             {
-                addMessage("[WARNING] " + player->getName()
+                addMessage("[WARNING] " + players[i]->getName()
+                        + " hasn't played any games with the bot yet.");
+                gproxy->SendLocalChat("[WARNING] " + players[i]->getName()
+                        + " hasn't played any games with the bot yet.");
+            }
+            else if (players[i]->getStayPercent() < 80)
+            {
+                addMessage("[WARNING] " + players[i]->getName()
                         + " has a stay ratio below 80%. ("
-                        + QString::number(player->getStayPercent(), 'f', 2) + "%)");
-                gproxy->SendLocalChat("WARNING: " + player->getName()
+                        + QString::number(players[i]->getStayPercent(), 'f', 2) + "%)");
+                gproxy->SendLocalChat("WARNING: " + players[i]->getName()
                         + " has a stay ratio below 80%. ("
-                        + QString::number(player->getStayPercent(), 'f', 2) + "%)");
+                        + QString::number(players[i]->getStayPercent(), 'f', 2) + "%)");
             }
 
             break;

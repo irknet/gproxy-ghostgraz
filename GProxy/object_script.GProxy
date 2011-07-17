@@ -13,7 +13,6 @@ INPUT(
 ./build/Release/Qt_MinGW-Windows/Player.o
 ./build/Release/Qt_MinGW-Windows/SleepThread.o
 ./build/Release/Qt_MinGW-Windows/ConfigGUI.o
-./build/Release/Qt_MinGW-Windows/util.o
 ./build/Release/Qt_MinGW-Windows/Config.o
 ./build/Release/Qt_MinGW-Windows/gameprotocol.o
 ./build/Release/Qt_MinGW-Windows/GamelistDelegate.o
@@ -21,6 +20,7 @@ INPUT(
 ./build/Release/Qt_MinGW-Windows/OutputareaColorDialog.o
 ./build/Release/Qt_MinGW-Windows/MainGUI.o
 ./build/Release/Qt_MinGW-Windows/commandpacket.o
+./build/Release/Qt_MinGW-Windows/Util.o
 ./build/Release/Qt_MinGW-Windows/gpsprotocol.o
 ./build/Release/Qt_MinGW-Windows/gproxy.o
 ./build/Release/Qt_MinGW-Windows/bncsutilinterface.o

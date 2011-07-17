@@ -103,7 +103,7 @@ void Statspage::replyFinished(QNetworkReply* reply)
 
 void Statspage::onPlayerReplyFinished (QNetworkReply *reply)
 {
-    Player *player = new Player();
+    Player* player = new Player();
 
     QString url = reply->url().toString();
     int userIndex = url.indexOf("u=") + 2;
@@ -116,12 +116,10 @@ void Statspage::onPlayerReplyFinished (QNetworkReply *reply)
     if (content.contains("List of users matching")
             || content.contains("Welcome to the GhostGraz Stats Page"))
     {
+        player->setGamesPlayed(0);
         reply->deleteLater();
 
-        if(!playerName.contains("GhostGraz"))
-        {
-            emit playerInformationReplyFinished(player);
-        }
+        emit playerInformationReplyFinished(player);
 
         return;
     }

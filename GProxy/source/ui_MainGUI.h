@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainGUI.ui'
 **
-** Created: Tue 5. Jul 20:05:16 2011
+** Created: Sat 16. Jul 11:20:38 2011
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -30,38 +30,38 @@ QT_BEGIN_NAMESPACE
 class Ui_MainGUI
 {
 public:
-    QAction *actionOptions;
-    QAction *actionExit;
+    QAction *optionsAction;
+    QAction *exitAction;
     QWidget *centralwidget;
-    QTextEdit *outputField;
-    QPlainTextEdit *inputField;
+    QPlainTextEdit *inputTextArea;
     ClickableListWidget *channelList;
     ClickableListWidget *friendList;
     ClickableListWidget *gameList;
-    QLineEdit *channelField;
+    QLineEdit *titleLabel;
     QPushButton *refreshButton;
+    QTextEdit *outputTextArea;
     QMenuBar *menuBar;
-    QMenu *menuFile;
+    QMenu *fileMenu;
 
     void setupUi(QMainWindow *MainGUI)
     {
         if (MainGUI->objectName().isEmpty())
             MainGUI->setObjectName(QString::fromUtf8("MainGUI"));
-        MainGUI->resize(1085, 555);
+        MainGUI->resize(1087, 571);
         MainGUI->setMinimumSize(QSize(500, 200));
         QIcon icon;
         icon.addFile(QString::fromUtf8(":/images/GProxy.gif"), QSize(), QIcon::Normal, QIcon::Off);
         MainGUI->setWindowIcon(icon);
-        actionOptions = new QAction(MainGUI);
-        actionOptions->setObjectName(QString::fromUtf8("actionOptions"));
+        optionsAction = new QAction(MainGUI);
+        optionsAction->setObjectName(QString::fromUtf8("optionsAction"));
         QIcon icon1;
         icon1.addFile(QString::fromUtf8(":/images/Tool.png"), QSize(), QIcon::Normal, QIcon::Off);
-        actionOptions->setIcon(icon1);
-        actionExit = new QAction(MainGUI);
-        actionExit->setObjectName(QString::fromUtf8("actionExit"));
+        optionsAction->setIcon(icon1);
+        exitAction = new QAction(MainGUI);
+        exitAction->setObjectName(QString::fromUtf8("exitAction"));
         QIcon icon2;
         icon2.addFile(QString::fromUtf8(":/images/Cancel.png"), QSize(), QIcon::Normal, QIcon::Off);
-        actionExit->setIcon(icon2);
+        exitAction->setIcon(icon2);
         centralwidget = new QWidget(MainGUI);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         QPalette palette;
@@ -76,9 +76,7 @@ public:
         QBrush brush2(QColor(120, 120, 120, 255));
         brush2.setStyle(Qt::SolidPattern);
         palette.setBrush(QPalette::Disabled, QPalette::Text, brush2);
-        QBrush brush3(QColor(255, 255, 255, 255));
-        brush3.setStyle(Qt::SolidPattern);
-        palette.setBrush(QPalette::Disabled, QPalette::Base, brush3);
+        palette.setBrush(QPalette::Disabled, QPalette::Base, brush1);
         centralwidget->setPalette(palette);
         QFont font;
         font.setFamily(QString::fromUtf8("Courier New"));
@@ -86,32 +84,17 @@ public:
         font.setBold(true);
         font.setWeight(75);
         centralwidget->setFont(font);
-        outputField = new QTextEdit(centralwidget);
-        outputField->setObjectName(QString::fromUtf8("outputField"));
-        outputField->setEnabled(true);
-        outputField->setGeometry(QRect(0, 0, 661, 521));
+        inputTextArea = new QPlainTextEdit(centralwidget);
+        inputTextArea->setObjectName(QString::fromUtf8("inputTextArea"));
+        inputTextArea->setGeometry(QRect(0, 521, 661, 31));
         QFont font1;
-        font1.setFamily(QString::fromUtf8("Arial"));
-        font1.setPointSize(9);
-        font1.setBold(false);
-        font1.setWeight(50);
-        outputField->setFont(font1);
-        outputField->setFocusPolicy(Qt::ClickFocus);
-        outputField->setAutoFillBackground(true);
-        outputField->setReadOnly(true);
-        outputField->setAcceptRichText(false);
-        outputField->setTextInteractionFlags(Qt::TextSelectableByMouse);
-        inputField = new QPlainTextEdit(centralwidget);
-        inputField->setObjectName(QString::fromUtf8("inputField"));
-        inputField->setGeometry(QRect(0, 521, 661, 31));
-        QFont font2;
-        font2.setFamily(QString::fromUtf8("Courier New"));
-        font2.setPointSize(10);
-        inputField->setFont(font2);
-        inputField->setStyleSheet(QString::fromUtf8(""));
+        font1.setFamily(QString::fromUtf8("Courier New"));
+        font1.setPointSize(10);
+        inputTextArea->setFont(font1);
+        inputTextArea->setStyleSheet(QString::fromUtf8(""));
         channelList = new ClickableListWidget(centralwidget);
         channelList->setObjectName(QString::fromUtf8("channelList"));
-        channelList->setGeometry(QRect(900, 20, 181, 301));
+        channelList->setGeometry(QRect(900, 30, 181, 301));
         channelList->setContextMenuPolicy(Qt::CustomContextMenu);
         channelList->setEditTriggers(QAbstractItemView::NoEditTriggers);
         channelList->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -128,53 +111,57 @@ public:
         gameList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         gameList->setEditTriggers(QAbstractItemView::NoEditTriggers);
         gameList->setSelectionMode(QAbstractItemView::SingleSelection);
-        channelField = new QLineEdit(centralwidget);
-        channelField->setObjectName(QString::fromUtf8("channelField"));
-        channelField->setGeometry(QRect(900, 0, 181, 21));
+        titleLabel = new QLineEdit(centralwidget);
+        titleLabel->setObjectName(QString::fromUtf8("titleLabel"));
+        titleLabel->setGeometry(QRect(900, 0, 181, 31));
         QPalette palette1;
         palette1.setBrush(QPalette::Active, QPalette::Base, brush1);
-        palette1.setBrush(QPalette::Active, QPalette::Window, brush1);
         palette1.setBrush(QPalette::Inactive, QPalette::Base, brush1);
-        palette1.setBrush(QPalette::Inactive, QPalette::Window, brush1);
         palette1.setBrush(QPalette::Disabled, QPalette::Base, brush1);
-        palette1.setBrush(QPalette::Disabled, QPalette::Window, brush1);
-        channelField->setPalette(palette1);
-        QFont font3;
-        font3.setFamily(QString::fromUtf8("Courier New"));
-        font3.setPointSize(12);
-        font3.setBold(true);
-        font3.setWeight(75);
-        channelField->setFont(font3);
-        channelField->setCursor(QCursor(Qt::BlankCursor));
-        channelField->setAlignment(Qt::AlignCenter);
-        channelField->setReadOnly(true);
+        titleLabel->setPalette(palette1);
+        QFont font2;
+        font2.setFamily(QString::fromUtf8("Courier New"));
+        font2.setPointSize(12);
+        font2.setBold(true);
+        font2.setWeight(75);
+        titleLabel->setFont(font2);
+        titleLabel->setCursor(QCursor(Qt::BlankCursor));
+        titleLabel->setAlignment(Qt::AlignCenter);
+        titleLabel->setReadOnly(true);
         refreshButton = new QPushButton(centralwidget);
         refreshButton->setObjectName(QString::fromUtf8("refreshButton"));
-        refreshButton->setGeometry(QRect(670, 0, 221, 23));
+        refreshButton->setGeometry(QRect(670, 0, 221, 31));
+        outputTextArea = new QTextEdit(centralwidget);
+        outputTextArea->setObjectName(QString::fromUtf8("outputTextArea"));
+        outputTextArea->setGeometry(QRect(0, 0, 661, 521));
+        outputTextArea->setAutoFillBackground(true);
+        outputTextArea->setUndoRedoEnabled(true);
+        outputTextArea->setReadOnly(true);
+        outputTextArea->setTextInteractionFlags(Qt::TextBrowserInteraction);
         MainGUI->setCentralWidget(centralwidget);
         menuBar = new QMenuBar(MainGUI);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 1085, 21));
-        menuFile = new QMenu(menuBar);
-        menuFile->setObjectName(QString::fromUtf8("menuFile"));
+        menuBar->setGeometry(QRect(0, 0, 1087, 21));
+        fileMenu = new QMenu(menuBar);
+        fileMenu->setObjectName(QString::fromUtf8("fileMenu"));
         MainGUI->setMenuBar(menuBar);
 
-        menuBar->addAction(menuFile->menuAction());
-        menuFile->addAction(actionOptions);
-        menuFile->addSeparator();
-        menuFile->addAction(actionExit);
+        menuBar->addAction(fileMenu->menuAction());
+        fileMenu->addAction(optionsAction);
+        fileMenu->addSeparator();
+        fileMenu->addAction(exitAction);
 
         retranslateUi(MainGUI);
-        QObject::connect(actionExit, SIGNAL(triggered()), MainGUI, SLOT(close()));
+        QObject::connect(exitAction, SIGNAL(triggered()), MainGUI, SLOT(close()));
         QObject::connect(gameList, SIGNAL(clicked(QMouseEvent*)), MainGUI, SLOT(onGameListItemClicked(QMouseEvent*)));
-        QObject::connect(inputField, SIGNAL(textChanged()), MainGUI, SLOT(onInputFieldTextChanged()));
-        QObject::connect(channelField, SIGNAL(textChanged(QString)), MainGUI, SLOT(onChannelChanged()));
+        QObject::connect(inputTextArea, SIGNAL(textChanged()), MainGUI, SLOT(onInputTextAreaTextChanged()));
+        QObject::connect(titleLabel, SIGNAL(textChanged(QString)), MainGUI, SLOT(onTitleLabelTextChanged()));
         QObject::connect(channelList, SIGNAL(customContextMenuRequested(QPoint)), MainGUI, SLOT(onChannelContextMenu(QPoint)));
         QObject::connect(friendList, SIGNAL(customContextMenuRequested(QPoint)), MainGUI, SLOT(onFriendsContextMenu(QPoint)));
         QObject::connect(refreshButton, SIGNAL(clicked()), MainGUI, SLOT(onRefreshButtonClicked()));
         QObject::connect(channelList, SIGNAL(clicked(QMouseEvent*)), MainGUI, SLOT(onChannellistItemClicked(QMouseEvent*)));
         QObject::connect(friendList, SIGNAL(clicked(QMouseEvent*)), MainGUI, SLOT(onFriendlistItemClicked(QMouseEvent*)));
-        QObject::connect(actionOptions, SIGNAL(triggered()), MainGUI, SLOT(showConfigDialog()));
+        QObject::connect(optionsAction, SIGNAL(triggered()), MainGUI, SLOT(showConfigDialog()));
 
         QMetaObject::connectSlotsByName(MainGUI);
     } // setupUi
@@ -182,17 +169,12 @@ public:
     void retranslateUi(QMainWindow *MainGUI)
     {
         MainGUI->setWindowTitle(QApplication::translate("MainGUI", "GProxy GhostGraz v2.2", 0, QApplication::UnicodeUTF8));
-        actionOptions->setText(QApplication::translate("MainGUI", "Options", 0, QApplication::UnicodeUTF8));
-        actionExit->setText(QApplication::translate("MainGUI", "Exit", 0, QApplication::UnicodeUTF8));
-        outputField->setHtml(QApplication::translate("MainGUI", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'Arial'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Terminal'; font-size:12pt; font-weight:600;\"></p></body></html>", 0, QApplication::UnicodeUTF8));
-        inputField->setPlainText(QString());
-        channelField->setText(QApplication::translate("MainGUI", "Channel", 0, QApplication::UnicodeUTF8));
+        optionsAction->setText(QApplication::translate("MainGUI", "Options", 0, QApplication::UnicodeUTF8));
+        exitAction->setText(QApplication::translate("MainGUI", "Exit", 0, QApplication::UnicodeUTF8));
+        inputTextArea->setPlainText(QString());
+        titleLabel->setText(QApplication::translate("MainGUI", "Channel", 0, QApplication::UnicodeUTF8));
         refreshButton->setText(QApplication::translate("MainGUI", "Refresh", 0, QApplication::UnicodeUTF8));
-        menuFile->setTitle(QApplication::translate("MainGUI", "File", 0, QApplication::UnicodeUTF8));
+        fileMenu->setTitle(QApplication::translate("MainGUI", "File", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

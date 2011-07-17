@@ -3,26 +3,32 @@
 
 #include "ui_ConfigGUI.h"
 #include "Config.h"
+#include "MainGUI.h"
 
 #include <QLineEdit>
 #include <QComboBox>
-#include <QSignalMapper>
+#include <QPalette>
+#include <QColor>
+#include <QFont>
 
 class ConfigGUI : public QDialog
 {
     Q_OBJECT
 
 public:
-    ConfigGUI(Config *cfg);
-    ConfigGUI(Config *cfg, bool exitOnClose);
+    ConfigGUI(MainGUI* mainGUI);
     virtual ~ConfigGUI();
+
+signals:
+    void applyConfig();
+    void colorChanged(const QString&, const QPalette::ColorRole&, const QColor&);
+    void fontChanged(const QString&, const QFont&);
 
 private:
     Ui::ConfigGUI widget;
-    Config *cfg;
-    bool exitOnClose;
+    MainGUI* mainGUI;
+    Config* cfg;
 
-    void init(Config *cfg, bool exitOnClose);
     void initValues();
     void initSlots();
     void setSelectedCBValue(QComboBox *combobox, const QString &value);
@@ -38,7 +44,10 @@ private slots:
     void onChannelChanged(QString text);
     void onWar3pathChangeRequest();
     void onServerComboboxItemChanged(const QString &text);
-    void onForegroundcolorButtonClicked();
+    void onBackgroundcolorButtonClicked();
+    void onBackgroundColorChanged(const QColor& color);
+    void onOutputareaFontButtonClicked();
+    void onOutputareaFontChanged(const QFont& font);
 };
 
 #endif	/* _CONFIGGUI_H */

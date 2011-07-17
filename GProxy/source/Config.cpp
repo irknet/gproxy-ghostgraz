@@ -22,8 +22,8 @@ int Config::loadConfig ()
 {
     if (configFile->open(QFile::ReadWrite))
     {
-        vKey.clear();
-        vValue.clear();
+        keys.clear();
+        values.clear();
         addKeys();
         addValues(QString(configFile->readAll()));
         configFile->close();
@@ -45,40 +45,41 @@ int Config::loadConfig ()
 
 void Config::addKeys ()
 {
-    vKey.append("# Required config values");
-    vKey.append("war3path");
-    vKey.append("cdkeyroc");
-    vKey.append("cdkeytft");
-    vKey.append("war3version");
-    vKey.append("server");
-    vKey.append("username");
-    vKey.append("password");
-    vKey.append("channel");
-    vKey.append("port");
+    keys.append("# Required config values");
+    keys.append("war3path");
+    keys.append("cdkeyroc");
+    keys.append("cdkeytft");
+    keys.append("war3version");
+    keys.append("server");
+    keys.append("username");
+    keys.append("password");
+    keys.append("channel");
+    keys.append("port");
 
-    vKey.append("# PvPGN config values");
-    vKey.append("exeversion");
-    vKey.append("exeversionhash");
-    vKey.append("passwordhashtype");
+    keys.append("# PvPGN config values");
+    keys.append("exeversion");
+    keys.append("exeversionhash");
+    keys.append("passwordhashtype");
 
-    vKey.append("# Optional config values");
-    vKey.append("ghostgrazUsername");
-    vKey.append("ghostgrazPassword");
-    vKey.append("sound");
-    vKey.append("privategamename");
-    vKey.append("botprefix");
-    vKey.append("log");
+    keys.append("# Optional config values");
+    keys.append("ghostgrazUsername");
+    keys.append("ghostgrazPassword");
+    keys.append("sound");
+    keys.append("privategamename");
+    keys.append("botprefix");
+    keys.append("log");
 
-    vKey.append("# Application config values");
-    vKey.append("width");
-    vKey.append("height");
-    vKey.append("botorder");
-    vKey.append("outputareaForegroundcolor");
-    vKey.append("outputareaBackgroundcolor");
-    vKey.append("outputareaFont");
-    vKey.append("inputareaForegroundcolor");
-    vKey.append("inputareaBackgroundcolor");
-    vKey.append("inputareaFont");
+    keys.append("# Application config values");
+    keys.append("width");
+    keys.append("height");
+    keys.append("botorder");
+
+    keys.append("# Appearance");
+    keys.append("backgroundcolor");
+    keys.append("outputareaForegroundcolor");
+    keys.append("outputareaFont");
+    keys.append("inputareaForegroundcolor");
+    keys.append("inputareaFont");
 }
 
 void Config::addValues (QString content)
@@ -101,20 +102,20 @@ void Config::addValues (QString content)
         vTempValue.append(value);
     }
 
-    for (int i = 0; i < vKey.count(); i++)
+    for (int i = 0; i < keys.count(); i++)
     {
-        if (!vTempKey.contains(vKey.at(i)))
+        if (!vTempKey.contains(keys.at(i)))
         {
-            addDefaultValue(vKey.at(i));
+            addDefaultValue(keys.at(i));
             continue;
         }
 
         // Load config values
         for (int j = 0; j < vTempKey.count(); j++)
         {
-            if (vKey.at(i) == vTempKey.at(j))
+            if (keys.at(i) == vTempKey.at(j))
             {
-                vValue.append(vTempValue.at(j));
+                values.append(vTempValue.at(j));
             }
         }
     }
@@ -124,51 +125,51 @@ void Config::addDefaultValue (const QString &key)
 {
     if (key == "war3version")
     {
-        vValue.append("26");
+        values.append("26");
     }
     else if (key == "server")
     {
-        vValue.append("europe.battle.net");
+        values.append("europe.battle.net");
     }
     else if (key == "channel")
     {
-        vValue.append("Clan Graz");
+        values.append("Clan Graz");
     }
     else if (key == "port")
     {
-        vValue.append("6125");
+        values.append("6125");
     }
     else if (key == "sound")
     {
-        vValue.append("Enabled");
+        values.append("Enabled");
     }
     else if (key == "privategamename")
     {
-        vValue.append("inhouse");
+        values.append("inhouse");
     }
     else if (key == "botprefix")
     {
-        vValue.append("GhostGraz");
+        values.append("GhostGraz");
     }
     else if (key == "log")
     {
-        vValue.append("Enabled");
+        values.append("Enabled");
+    }
+    else if(key == "backgroundcolor")
+    {
+        values.append("0,0,0");
     }
     else if(key == "outputareaForegroundcolor")
     {
-        vValue.append("255,255,255");
-    }
-    else if(key == "outputareaBackgroundcolor")
-    {
-        vValue.append("0,0,0");
+        values.append("255,255,255");
     }
     else if(key == "outputareaFont")
     {
-        vValue.append("Arial,9,50,false");
+        values.append(QFont("Arial", 9, QFont::Normal).toString());
     }
     else // add an empty string (THIS IS NEEDED!)
     {
-        vValue.append("");
+        values.append("");
     }
 }
 
@@ -190,21 +191,21 @@ bool Config::hasRequiredValues ()
 
 QList<QString> Config::getKeys ()
 {
-    return vKey;
+    return keys;
 }
 
 QList<QString> Config::getValues ()
 {
-    return vValue;
+    return values;
 }
 
 QString Config::getString (const QString &key)
 {
-    for (int i = 0; i < vKey.count(); i++)
+    for (int i = 0; i < keys.count(); i++)
     {
-        if (vKey.at(i).toLower() == key.toLower())
+        if (keys.at(i).toLower() == key.toLower())
         {
-            return vValue.at(i);
+            return values.at(i);
         }
     }
 
@@ -213,11 +214,11 @@ QString Config::getString (const QString &key)
 
 int Config::getInt (const QString &key)
 {
-    for (int i = 0; i < vKey.count(); i++)
+    for (int i = 0; i < keys.count(); i++)
     {
-        if (vKey.at(i).toLower() == key.toLower())
+        if (keys.at(i).toLower() == key.toLower())
         {
-            return vValue.at(i).toInt();
+            return values.at(i).toInt();
         }
     }
 
@@ -226,11 +227,11 @@ int Config::getInt (const QString &key)
 
 bool Config::getBoolean (const QString &key)
 {
-    for (int i = 0; i < vKey.count(); i++)
+    for (int i = 0; i < keys.count(); i++)
     {
-        if (vKey.at(i).toLower() == key.toLower())
+        if (keys.at(i).toLower() == key.toLower())
         {
-            QString value = vValue.at(i).toLower();
+            QString value = values.at(i).toLower();
             if (value == "false" || value == "off"
                     || value == "no" || value == "n" || value == "disabled")
             {
@@ -248,11 +249,11 @@ bool Config::getBoolean (const QString &key)
 
 QColor Config::getColor (const QString &key)
 {
-    for (int i = 0; i < vKey.count(); i++)
+    for (int i = 0; i < keys.count(); i++)
     {
-        if (vKey.at(i).toLower() == key.toLower())
+        if (keys.at(i).toLower() == key.toLower())
         {
-            QString color = vValue.at(i);
+            QString color = values.at(i);
             QStringList rgbList = color.split(",");
 
             if (rgbList.count() != 3)
@@ -269,28 +270,13 @@ QColor Config::getColor (const QString &key)
 
 QFont Config::getFont (const QString &key)
 {
-    for (int i = 0; i < vKey.count(); i++)
+    for (int i = 0; i < keys.count(); i++)
     {
-        if (vKey.at(i).toLower() == key.toLower())
+        if (keys.at(i).toLower() == key.toLower())
         {
-            QString font = vValue.at(i);
-            QStringList fontSettings = font.split(",");
-
-            if (fontSettings.count() != 4)
-            {
-                return QFont();
-            }
-
-            if (fontSettings.at(3) == "true")
-            {
-                return QFont(fontSettings.at(0), fontSettings.at(1).toInt(),
-                        QString(fontSettings.at(2)).toInt(), true);
-            }
-            else
-            {
-                return QFont(fontSettings.at(0), fontSettings.at(1).toInt(),
-                        QString(fontSettings.at(2)).toInt(), false);
-            }
+            QFont font;
+            font.fromString(values.at(i));
+            return font;
         }
     }
 
@@ -299,11 +285,11 @@ QFont Config::getFont (const QString &key)
 
 bool Config::setString (const QString &key, const QString &value)
 {
-    for (int i = 0; i < vKey.count(); i++)
+    for (int i = 0; i < keys.count(); i++)
     {
-        if (vKey.at(i).toLower() == key.toLower())
+        if (keys.at(i).toLower() == key.toLower())
         {
-            vValue[i] = value;
+            values[i] = value;
             return true;
         }
     }
@@ -313,11 +299,11 @@ bool Config::setString (const QString &key, const QString &value)
 
 bool Config::setInt (const QString &key, const int &value)
 {
-    for (int i = 0; i < vKey.count(); i++)
+    for (int i = 0; i < keys.count(); i++)
     {
-        if (vKey.at(i).toLower() == key.toLower())
+        if (keys.at(i).toLower() == key.toLower())
         {
-            vValue[i] = QString::number(value);
+            values[i] = QString::number(value);
             return true;
         }
     }
@@ -327,17 +313,17 @@ bool Config::setInt (const QString &key, const int &value)
 
 bool Config::setBoolean (const QString &key, const bool &value)
 {
-    for (int i = 0; i < vKey.count(); i++)
+    for (int i = 0; i < keys.count(); i++)
     {
-        if (vKey.at(i).toLower() == key.toLower())
+        if (keys.at(i).toLower() == key.toLower())
         {
             if (value == false)
             {
-                vValue[i] = "false";
+                values[i] = "false";
             }
             else
             {
-                vValue[i] = "true";
+                values[i] = "true";
             }
 
             return true;
@@ -354,11 +340,11 @@ bool Config::setColor (const QString &key, const QColor &color)
         return false;
     }
 
-    for (int i = 0; i < vKey.count(); i++)
+    for (int i = 0; i < keys.count(); i++)
     {
-        if (vKey.at(i).toLower() == key.toLower())
+        if (keys.at(i).toLower() == key.toLower())
         {
-            vValue[i] = QString::number(color.red()) + ","
+            values[i] = QString::number(color.red()) + ","
                     + QString::number(color.green()) + ","
                     + QString::number(color.blue());
             return true;
@@ -370,20 +356,11 @@ bool Config::setColor (const QString &key, const QColor &color)
 
 bool Config::setFont (const QString &key, const QFont &font)
 {
-    for (int i = 0; i < vKey.count(); i++)
+    for (int i = 0; i < keys.count(); i++)
     {
-        if (vKey.at(i).toLower() == key.toLower())
+        if (keys.at(i).toLower() == key.toLower())
         {
-            if (font.italic())
-            {
-                vValue[i] = font.family() + "," + font.pointSize() + ","
-                        + font.weight() + ",true";
-            }
-            else
-            {
-                vValue[i] = font.family() + "," + font.pointSize() + ","
-                        + font.weight() + ",false";
-            }
+            values[i] = font.toString();
 
             return true;
         }
@@ -398,19 +375,21 @@ void Config::commit ()
     {
         QTextStream out(configFile);
 
-        for (int i = 0; i < vKey.count(); i++)
+        for (int i = 0; i < keys.count(); i++)
         {
-            if (vKey.at(i).startsWith("#"))
+            if (keys.at(i).startsWith("#"))
             {
-                out << "\n" << vKey.at(i) << "\n\n";
+                out << "\n" << keys.at(i) << "\n\n";
             }
             else
             {
-                out << vKey.at(i) << " = " << vValue.at(i) << "\n";
+                out << keys.at(i) << " = " << values.at(i) << "\n";
             }
         }
 
         out.flush();
         configFile->close();
+
+        emit configSaved();
     }
 }

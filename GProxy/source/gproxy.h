@@ -186,7 +186,6 @@ public:
     void initVariables(string cpublic ,string cfilter, bool temp_displayautocreated,
         bool listing_current_games, bool connect);
     void cleanup();
-    void applyConfig();
     bool checkStatus( int statusCode );
     bool Update( long usecBlock );
 
@@ -214,6 +213,7 @@ public:
     void setPasswordhashtype(const QString& passwordhashtype);
     void setChannel(const QString& channel);
     void setPlayers(const QVector<Player*>& players);
+    void setSlotList(const QList<Slot*> slotList);
 
     QString getServer();
     QString getUsername();
@@ -226,6 +226,7 @@ public:
     QString getChannel();
     QVector<Player*> getPlayers();
     Player* getLastLeaver();
+    QList<Slot*> getSlotList();
 
     // FIXME Implementation in source file.
     void setPrivategamename(QString privategamename) { this->privategamename = privategamename; }
@@ -261,6 +262,9 @@ public:
     void addFriend(QString username, bool online, QString location);
     void showErrorMessage(QString errorMessage);
     // </editor-fold>
+
+public slots:
+    void applyConfig();
 
 private:
     // <editor-fold defaultstate="collapsed" desc="Attributes">
@@ -300,6 +304,7 @@ signals:
     void signal_playerJoined(const QString&);
     void signal_stopDownloadThread();
     void signal_showConfigDialog(bool);
+    void signal_applyConfig();
 };
 
 

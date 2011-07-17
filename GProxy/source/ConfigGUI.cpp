@@ -17,29 +17,30 @@
 
 // TODO Remove these ugly double constructors
 
-ConfigGUI::ConfigGUI (Config *cfg)
-{
-    init(cfg, false);
-}
-
-ConfigGUI::ConfigGUI (Config* cfg, bool exitOnClose)
-{
-    init(cfg, exitOnClose);
-}
-
-ConfigGUI::~ConfigGUI () { }
-
-void ConfigGUI::init (Config *cfg, bool exitOnClose)
+ConfigGUI::ConfigGUI (MainGUI* mainGUI)
 {
     widget.setupUi(this);
-    this->cfg = cfg;
-    widget.appearanceTab->setEnabled(false);
+    this->mainGUI = mainGUI;
+    this->cfg = mainGUI->getGproxy()->getConfig();
+//    widget.appearanceTab->setEnabled(false);
+
+    connect(this, SIGNAL(applyConfig()), mainGUI->getGproxy(), SLOT(applyConfig()));
+
+    connect(this,
+            SIGNAL(colorChanged(const QString&, const QPalette::ColorRole&, const QColor&)),
+            mainGUI,
+            SLOT(setColor(const QString&, const QPalette::ColorRole&, const QColor&)));
+
+    connect(this,
+            SIGNAL(fontChanged(const QString&, const QFont&)),
+            mainGUI,
+            SLOT(setFont(const QString&, const QFont&)));
 
     initValues();
     initSlots();
-
-    this->exitOnClose = exitOnClose;
 }
+
+ConfigGUI::~ConfigGUI () { }
 
 void ConfigGUI::initValues ()
 {
@@ -124,8 +125,6 @@ void ConfigGUI::initSlots ()
             this, SLOT(onChannelChanged(QString)));
     connect(widget.serverCombobox, SIGNAL(activated(const QString &)),
             this, SLOT(onServerComboboxItemChanged(const QString &)));
-    connect(widget.outputareaForegroundcolorButton, SIGNAL(clicked()),
-            this, SLOT(onForegroundcolorButtonClicked()));
 }
 
 void ConfigGUI::accept ()
@@ -190,13 +189,7 @@ void ConfigGUI::accept ()
     if (cfg->hasRequiredValues())
     {
         cfg->commit();
-
-        if (exitOnClose)
-        {
-            showErrorMessage("You need to restart GProxy now.\nExiting...");
-            QApplication::quit();
-        }
-
+        emit applyConfig();
         done(QDialog::Accepted);
     }
     else
@@ -211,14 +204,8 @@ void ConfigGUI::accept ()
 
 void ConfigGUI::reject ()
 {
-    if (exitOnClose)
-    {
-        showErrorMessage("You need to fill in all required values for GProxy to work.\n"
-                "Exiting...");
-        QApplication::quit();
-    }
-
     cfg->loadConfig();
+    emit applyConfig();
     done(QDialog::Rejected);
 }
 
@@ -486,35 +473,59 @@ void ConfigGUI::showErrorMessage (const QString &errorMessage)
     msgBox.exec();
 }
 
-void ConfigGUI::onForegroundcolorButtonClicked ()
+void ConfigGUI::onBackgroundcolorButtonClicked ()
 {
-    //    QDialog *dialog = new QDialog(this);
-    //    dialog->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint
-    //            | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    //    dialog->setWindowTitle("Foreground color");
-    //    dialog->setFixedSize(400, 500);
-    //
-    //    QLabel *label = new QLabel("Server: ", dialog);
-    //    label->setGeometry(10, 5, 40, 20);
-    //
-    //    QLineEdit *textfield = new QLineEdit(dialog);
-    //    textfield->setGeometry(50, 5, 160, 20);
-    //    textfield->setAccessibleName("server");
-    //
-    //    QPushButton *button = new QPushButton("Accept", dialog);
-    //    button->setGeometry(10, 30, 200, 20);
-    //    connect(button, SIGNAL(clicked()), dialog, SLOT(accept()));
-    //
-    //    if (dialog->exec() == QDialog::Accepted && !textfield->text().isEmpty())
-    //    {
-    //        setSelectedCBValue(widget.serverCombobox, textfield->text());
-    //    }
-    //    else
-    //    {
-    //        setSelectedCBValue(widget.serverCombobox,
-    //                widget.serverCombobox->accessibleDescription());
-    //    }
+    this->setVisible(false);
+    QColorDialog* colorDialog = new QColorDialog(cfg->getColor("backgroundcolor"), this);
 
-    cfg->setColor("outputareaForegroundcolor", QColorDialog::getColor(
-            cfg->getColor("outputareaForegroundcolor"), this));
+    connect(colorDialog, SIGNAL(currentColorChanged(const QColor&)),
+            this, SLOT(onBackgroundColorChanged(const QColor&)), Qt::QueuedConnection);
+
+    if (colorDialog->exec() == QDialog::Accepted)
+    {
+        QColor backgroundcolor = colorDialog->selectedColor();
+        if (backgroundcolor.isValid())
+        {
+            cfg->setColor("backgroundcolor", backgroundcolor);
+        }
+    }
+    else
+    {
+        emit colorChanged("all", QPalette::Base, cfg->getColor("backgroundcolor"));
+    }
+    delete colorDialog;
+
+    this->setVisible(true);
+}
+
+void ConfigGUI::onBackgroundColorChanged(const QColor& color)
+{
+    emit colorChanged("all", QPalette::Base, color);
+}
+
+void ConfigGUI::onOutputareaFontButtonClicked()
+{
+    this->setVisible(false);
+    QFontDialog* fontDialog = new QFontDialog(cfg->getFont("outputareaFont"), this);
+
+    connect(fontDialog, SIGNAL(currentFontChanged(const QFont&)),
+            this, SLOT(onOutputareaFontChanged(const QFont&)), Qt::QueuedConnection);
+
+    if (fontDialog->exec() == QDialog::Accepted)
+    {
+        QFont font = fontDialog->selectedFont();
+        cfg->setFont("outputareaFont", font);
+    }
+    else
+    {
+        emit fontChanged("outputarea", cfg->getFont("outputareaFont"));
+    }
+    delete fontDialog;
+
+    this->setVisible(true);
+}
+
+void ConfigGUI::onOutputareaFontChanged(const QFont& font)
+{
+    emit fontChanged("outputarea", font);
 }
