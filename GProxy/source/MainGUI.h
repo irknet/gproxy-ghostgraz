@@ -3,6 +3,8 @@
 
 #include "ui_MainGUI.h"
 #include "gproxy.h"
+#include "thread/DownloadThread.h"
+#include "thread/GproxyUpdateThread.h"
 #include "statspage/Statspage.h"
 #include "Player.h"
 #include "Slot.h"
@@ -31,6 +33,7 @@ public:
     bool isAdmin(const QString &name);
 
 public slots:
+    void startUpdateThread();
     void addMessage(QString message, bool log = true);
     void changeChannel(QString channel);
     void addChannelUser(QString username, QString clanTag);
@@ -41,7 +44,6 @@ public slots:
     void addGame(QString botname, QString gamename, QString openSlots);
     void setGameslots(QList<Slot*> slotList);
     void showErrorMessage(QString errorMessage);
-//    void showConfigDialog();
     void showConfigDialog(bool exitOnReject = false);
     void playerJoined(const QString &playerName);
     void applyConfig();
@@ -50,9 +52,11 @@ public slots:
 
 private:
     Ui::MainGUI widget;
-    CGProxy *gproxy;
-    QDialog *connectionDialog;
-    Statspage *statspage;
+    CGProxy* gproxy;
+    DownloadThread* refreshButtonDownloadThread;
+    DownloadThread* downloadThread;
+    GproxyUpdateThread* gproxyUpdateThread;
+    Statspage* statspage;
     QList<QString> admins;
 
     void initStatspage();
@@ -60,10 +64,10 @@ private:
     void initSlots();
     void initAdminlist();
 
-    void resizeEvent(QResizeEvent *event);
-    void processInput(const QString &input);
+    void resizeEvent(QResizeEvent* event);
+    void processInput(const QString& input);
     void addColor(QString &message);
-    void addColor(QListWidgetItem *item);
+    void addColor(QListWidgetItem* item);
     void sortChannelList();
     void sortFriendList();
 
@@ -81,7 +85,7 @@ private slots:
     void onChannellistItemClicked(QMouseEvent*);
     void onFriendlistItemClicked(QMouseEvent*);
     void statspageLoginFinished();
-    void receivedPlayerInformation(Player *);
+    void receivedPlayerInformation(Player*);
     void onAdminlistReceived(QList<QString>);
 };
 

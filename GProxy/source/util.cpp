@@ -51,7 +51,7 @@ QColor Util::toColor (const QString& colorString)
     }
     else
     {
-        return QColor(); // Return invalid color.
+        return QColor::Invalid;
     }
 }
 

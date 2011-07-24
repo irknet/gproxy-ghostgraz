@@ -85,7 +85,6 @@ void CONSOLE_Print( QString message, bool log = true );
 void CheckForGame( string gamename );//phy core
 string parrot();//phy parrot
 string IntToString(int i);
-void Pspoofcheck( );//phy autostpoofcheck
 bool fcfgfilterfirst();//phy filter
 string fcfgfilter();//phy filter
 bool autodetect();
@@ -201,6 +200,7 @@ public:
     void changeTeam( unsigned char team );
     void SendEmptyAction( );
     void showWelcomeMessages();
+    void spoofcheck();
 
     // <editor-fold defaultstate="collapsed" desc="Getters and setters">
     void setServer(const QString& server);
@@ -212,7 +212,7 @@ public:
     void setExeversionhash(const BYTEARRAY& exeversionhash);
     void setPasswordhashtype(const QString& passwordhashtype);
     void setChannel(const QString& channel);
-    void setPlayers(const QVector<Player*>& players);
+    void setPlayers(const QList<Player*>& players);
     void setSlotList(const QList<Slot*> slotList);
 
     QString getServer();
@@ -224,7 +224,7 @@ public:
     BYTEARRAY getExeversionhash();
     QString getPasswordhashtype();
     QString getChannel();
-    QVector<Player*> getPlayers();
+    QList<Player*> getPlayers();
     Player* getLastLeaver();
     QList<Slot*> getSlotList();
 
@@ -288,11 +288,12 @@ private:
     QString cdKeyTFT;
     bool dotaMap;
     QList<Slot*> slotList;
-    QVector<Player*> players;
+    QList<Player*> players;
     Player* lastLeaver;
     // </editor-fold>
 
 signals:
+    void signal_startUpdateThread();
     void signal_addMessage(QString, bool);
     void signal_changeChannel(QString);
     void signal_addChannelUser(QString, QString);

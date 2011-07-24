@@ -2,7 +2,6 @@
 #define	GPROXYUPDATETHREAD_H
 
 #include "gproxy.h"
-#include "bnet.h"
 
 #include <QThread>
 

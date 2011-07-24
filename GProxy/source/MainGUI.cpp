@@ -4,7 +4,6 @@
 #include "delegate/ChannellistDelegate.h"
 #include "delegate/GamelistDelegate.h"
 #include "socket.h"
-#include "thread/DownloadThread.h"
 #include "ConfigGUI.h"
 #include "GhostGrazLogininformationDialog.h"
 #include "Util.h"
@@ -33,6 +32,12 @@ MainGUI::MainGUI (CGProxy *p_gproxy)
 MainGUI::~MainGUI ()
 {
     delete statspage;
+    refreshButtonDownloadThread->stop();
+    delete refreshButtonDownloadThread;
+    downloadThread->stop();
+    delete downloadThread;
+    gproxyUpdateThread->stop();
+    delete gproxyUpdateThread;
 }
 
 void MainGUI::onClose ()
@@ -45,27 +50,17 @@ void MainGUI::onClose ()
     gproxy->cleanup();
 }
 
+void MainGUI::startUpdateThread()
+{
+    gproxyUpdateThread->start(QThread::HighPriority);
+}
+
 void MainGUI::init ()
 {
-    Config *config = gproxy->getConfig();
-
-    QDesktopWidget *desktop = QApplication::desktop();
-
-    int screenWidth = desktop->width();
-    int screenHeight = desktop->height();
-    int appWidth = config->getInt("width");
-    int appHeight = config->getInt("height");
-
-    if (appWidth < 500 || appHeight < 200)
-    {
-        this->move((screenWidth - this->width()) / 2,
-                (screenHeight - this->height()) / 2 - 50);
-    }
-    else
-    {
-        this->setGeometry((screenWidth - this->width()) / 2,
-                (screenHeight - this->height()) / 2 - 50, appWidth, appHeight);
-    }
+    refreshButtonDownloadThread = new DownloadThread(gproxy);
+    downloadThread = new DownloadThread(gproxy);
+    downloadThread->start(QThread::LowestPriority);
+    gproxyUpdateThread = new GproxyUpdateThread(gproxy);
 
     widget.channelList->setItemDelegate(new ChannellistDelegate(this));
     widget.gameList->setItemDelegate(new GamelistDelegate());
@@ -151,9 +146,13 @@ void MainGUI::initLayout ()
 
 void MainGUI::initSlots ()
 {
-    connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(onClose()), Qt::QueuedConnection);
+    connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(onClose()));
     connect(widget.outputTextArea->verticalScrollBar(), SIGNAL(rangeChanged(int, int)),
             this, SLOT(onOutputFieldSliderMoved()), Qt::QueuedConnection);
+    connect(downloadThread, SIGNAL(signal_clearGamelist()),
+            this, SLOT(clearGamelist()), Qt::QueuedConnection);
+    connect(downloadThread, SIGNAL(signal_addGame(QString, QString, QString)),
+            this, SLOT(addGame(QString, QString, QString)), Qt::QueuedConnection);
 }
 
 void MainGUI::initAdminlist ()
@@ -164,6 +163,24 @@ void MainGUI::initAdminlist ()
 void MainGUI::applyConfig()
 {
     Config* config = gproxy->getConfig();
+
+    QDesktopWidget* desktop = QApplication::desktop();
+
+    int screenWidth = desktop->width();
+    int screenHeight = desktop->height();
+    int appWidth = config->getInt("width");
+    int appHeight = config->getInt("height");
+
+    if (appWidth < 500 || appHeight < 200)
+    {
+        this->move((screenWidth - this->width()) / 2,
+                (screenHeight - this->height()) / 2 - 50);
+    }
+    else
+    {
+        this->setGeometry((screenWidth - this->width()) / 2,
+                (screenHeight - this->height()) / 2 - 50, appWidth, appHeight);
+    }
 
     // Set color
     QPalette palette = widget.centralwidget->palette();
@@ -427,8 +444,14 @@ void MainGUI::onRefreshButtonClicked ()
 {
     widget.refreshButton->setEnabled(false);
 
-    DownloadThread *dt = new DownloadThread(this);
-    dt->refresh();
+    refreshButtonDownloadThread = new DownloadThread(gproxy);
+
+    connect(refreshButtonDownloadThread, SIGNAL(signal_clearGamelist()),
+            this, SLOT(clearGamelist()));
+    connect(refreshButtonDownloadThread, SIGNAL(signal_addGame(QString, QString, QString)),
+            this, SLOT(addGame(QString, QString, QString)));
+
+    refreshButtonDownloadThread->refresh();
 
     widget.refreshButton->setText("Refresh (10)");
     QTimer::singleShot(1000, this, SLOT(updateRefreshButton()));
@@ -1217,11 +1240,6 @@ void MainGUI::showErrorMessage (QString errorMessage)
     msgBox.setText(errorMessage);
     msgBox.exec();
 }
-//
-//void MainGUI::showConfigDialog ()
-//{
-//    showConfigDialog(false);
-//}
 
 void MainGUI::showConfigDialog (bool exitOnReject)
 {
@@ -1434,7 +1452,7 @@ void MainGUI::statspageLoginFinished ()
 
 void MainGUI::receivedPlayerInformation (Player *player)
 {
-    QVector<Player*> players = gproxy->getPlayers();
+    QList<Player*> players = gproxy->getPlayers();
     for (int i = 0; i < players.count(); i++)
     {
         if (players.at(i)->getName() == player->getName())
@@ -1445,7 +1463,7 @@ void MainGUI::receivedPlayerInformation (Player *player)
             if (players[i]->getGamesPlayed() == 0)
             {
                 addMessage("[WARNING] " + players[i]->getName()
-                        + " hasn't played any games with the bot yet.");
+                        + " hasn't played any games on GhostGraz yet.");
                 gproxy->SendLocalChat("[WARNING] " + players[i]->getName()
                         + " hasn't played any games with the bot yet.");
             }

@@ -19,5 +19,5 @@ UI_DIR = source
 QMAKE_CC = mingw32-gcc.exe
 QMAKE_CXX = mingw32-g++.exe
 DEFINES += 
-INCLUDEPATH += source ../BNCSUtil/src . . . . . . . . . . . . . . . 
+INCLUDEPATH += source ../BNCSUtil/src . . . . . . . . . . . . . . . . 
 LIBS += source/ms_sdk/version.lib source/ms_sdk/ws2_32.lib -L../BNCSUtil/dist/Debug/Qt_MinGW-Windows ../BNCSUtil/dist/Debug/Qt_MinGW-Windows/BNCSUtil.dll  

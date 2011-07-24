@@ -1,30 +1,13 @@
 #include "thread/DownloadThread.h"
 
-DownloadThread::DownloadThread (MainGUI *p_mainGUI)
+const static int updateInterval = 5;
+
+DownloadThread::DownloadThread (CGProxy* gproxy)
 {
+    this->gproxy = gproxy;
     stopped = false;
-    mainGUI = p_mainGUI;
     url = QUrl("http://0.static.ghostgraz.com/currentgames.txt");
     manager = new QNetworkAccessManager(this);
-
-    QObject::connect(this, SIGNAL(signal_clearGamelist()),
-            mainGUI, SLOT(clearGamelist()), Qt::QueuedConnection);
-
-    QObject::connect(this, SIGNAL(signal_addGame(QString, QString, QString)),
-            mainGUI, SLOT(addGame(QString, QString, QString)), Qt::QueuedConnection);
-
-    QString botorder = mainGUI->getGproxy()->getConfig()->getString("botorder");
-    if (botorder.isEmpty())
-    {
-        return;
-    }
-
-    QStringList botorderList = botorder.split(";");
-
-    foreach(QString bot, botorderList)
-    {
-        vBotorder.append(bot);
-    }
 }
 
 DownloadThread::~DownloadThread ()
@@ -44,9 +27,9 @@ void DownloadThread::run ()
 {
     while (true)
     {
-        while (mainGUI->getGproxy()->m_GameStarted)
+        while (gproxy->m_GameStarted)
         {
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < updateInterval; i++)
             {
                 if(stopped)
                 {
@@ -68,7 +51,7 @@ void DownloadThread::run ()
                 &loop, SLOT(quit()), Qt::QueuedConnection);
         loop.exec();
 
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < updateInterval; i++)
         {
             if(stopped)
             {
@@ -118,42 +101,39 @@ void DownloadThread::downloadFinished (QNetworkReply *reply)
         }
     }
 
-    QVector<QStringList> vSortedGamelist = sortGamelist(gamelist);
+//    QVector<QStringList> vSortedGamelist = sortGamelist(gamelist);
     emit signal_clearGamelist();
 
-    foreach(QStringList game, vSortedGamelist)
+    foreach(QStringList game, gamelist)
     {
         emit signal_addGame(game.at(0), game.at(1), game.at(2));
     }
 }
 
-QVector<QStringList> DownloadThread::sortGamelist (QVector<QStringList> vGamelist)
-{
-    if (vBotorder.isEmpty())
-    {
-        return vGamelist;
-    }
-
-    QVector<QStringList> vSortedGamelist;
-
-    foreach(QString bot, vBotorder)
-    {
-        foreach(QStringList game, vGamelist)
-        {
-            if (game.at(0) == bot)
-            {
-                vSortedGamelist.append((QStringList() << game.at(1)
-                        << game.at(1) << game.at(2)));
-                break;
-            }
-        }
-    }
-
-    return vSortedGamelist;
-}
+//QVector<QStringList> DownloadThread::sortGamelist (QVector<QStringList> vGamelist)
+//{
+//    return vGamelist;
+//
+//    QVector<QStringList> vSortedGamelist;
+//
+//    foreach(QString bot, vBotorder)
+//    {
+//        foreach(QStringList game, vGamelist)
+//        {
+//            if (game.at(0) == bot)
+//            {
+//                vSortedGamelist.append((QStringList() << game.at(1)
+//                        << game.at(1) << game.at(2)));
+//                break;
+//            }
+//        }
+//    }
+//
+//    return vSortedGamelist;
+//}
 
 void DownloadThread::stop ()
 {
     stopped = true;
-    this->wait(5000);
+    this->wait(updateInterval * 1000);
 }

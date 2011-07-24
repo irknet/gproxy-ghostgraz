@@ -16,8 +16,6 @@
 #include "gpsprotocol.h"
 #include "MainGUI.h"
 #include "Config.h"
-#include "thread/DownloadThread.h"
-#include "thread/GproxyUpdateThread.h"
 #include "thread/SleepThread.h"
 #include "GhostGrazLogininformationDialog.h"
 
@@ -30,8 +28,6 @@
 
 CGProxy* gproxy;
 MainGUI* mainGUI;
-DownloadThread* downloadThread;
-GproxyUpdateThread* gproxyUpdateThread;
 QElapsedTimer timer;
 QFile* logFile;
 
@@ -99,17 +95,6 @@ void CheckForGame (string gamename)
 }
 
 /**
- * Phyton autospoofcheck
- */
-void Pspoofcheck ()
-{
-    if (gproxy->m_BNET->GetLoggedIn())
-    {
-        gproxy->m_BNET->QueueChatCommand("spoofcheck", gproxy->m_HostName, true);
-    }
-}
-
-/**
  * Displays the message at the output area of GProxy.
  *
  * @param message The message to be displayed.
@@ -118,6 +103,52 @@ void Pspoofcheck ()
 void CONSOLE_Print (QString message, bool log)
 {
     gproxy->addMessage(message, log);
+}
+
+bool fcfgfilterfirst ()// Phyton filter
+{
+    return gproxy->cfgfilterfirst;
+
+}
+
+string fcfgfilter ()// Phyton filter
+{
+    return gproxy->cfgfilter;
+}
+
+bool getautosearch () //pr0 autosearch
+{
+    return gproxy->autosearch;
+}
+
+void autosearch (bool autosearchNew) //pr0 autosearch
+{
+    gproxy->autosearch = autosearchNew;
+}
+
+bool cautosearch () //pr0 cautosearch
+{
+    return gproxy->cautosearch;
+}
+
+bool displayautocreated ()
+{
+    return gproxy->displayautocreated;
+}
+
+void displayautocreated (bool newone)
+{
+    gproxy->displayautocreated = newone;
+}
+
+void flisting_current_games (bool newone)
+{
+    gproxy->m_listing_current_games = newone;
+}
+
+bool flisting_current_games ()
+{
+    return gproxy->m_listing_current_games;
 }
 
 /**
@@ -209,7 +240,7 @@ CGProxy::~CGProxy ()
     }
     slotList.clear();
 
-    for (QVector<Player*> ::iterator i = players.begin(); i != players.end(); ++i)
+    for (QList<Player*> ::iterator i = players.begin(); i != players.end(); ++i)
     {
         delete *i;
     }
@@ -257,6 +288,9 @@ CGProxy::~CGProxy ()
 void CGProxy::connectSignalsAndSlots()
 {
     qRegisterMetaType< QList<Slot*> >("QList<Slot*>");
+
+    connect(this, SIGNAL(signal_startUpdateThread()),
+            mainGUI, SLOT(startUpdateThread()), Qt::QueuedConnection);
 
     connect(this, SIGNAL(signal_addMessage(QString, bool)),
             mainGUI, SLOT(addMessage(QString, bool)), Qt::QueuedConnection);
@@ -355,13 +389,9 @@ void CGProxy::initVariables (string cpublic, string cfilter, bool temp_displayau
     dotaMap = false;
     lastLeaver = new Player(username);
 
-    downloadThread = new DownloadThread(mainGUI);
-    downloadThread->start(QThread::LowestPriority);
-
     if (connect)
     {
-        gproxyUpdateThread = new GproxyUpdateThread(gproxy);
-        gproxyUpdateThread->start(QThread::HighPriority);
+        emit signal_startUpdateThread();
     }
 
     CONSOLE_Print("[GPROXY] Customized GProxy++ Version " + QString::fromStdString(m_Version));
@@ -378,10 +408,6 @@ void CGProxy::cleanup ()
 #endif
 
     CONSOLE_Print("[GPROXY] shutting down");
-    downloadThread->stop();
-    delete downloadThread;
-    gproxyUpdateThread->stop();
-    delete gproxyUpdateThread;
 
     if (logFile->isOpen())
     {
@@ -1688,6 +1714,7 @@ void CGProxy::ProcessRemotePackets ()
 
                 int playerId = ((int) Data[4]);
                 QString playerName;
+
                 for (int i = 0; i < players.count(); i++)
                 {
                     if(players.at(i)->getPlayerId() == playerId)
@@ -1695,7 +1722,7 @@ void CGProxy::ProcessRemotePackets ()
                         playerName = players.at(i)->getName();
                         delete lastLeaver;
                         lastLeaver = players.at(i);
-                        players.remove(i);
+                        players.removeAt(i);
                         break;
                     }
                 }
@@ -2450,50 +2477,15 @@ bool CGProxy::checkStatus (int statusCode)
     }
 }
 
-bool fcfgfilterfirst ()// Phyton filter
+/**
+ * Sends "spoofcheck" as whisper to the host to spoofcheck.
+ */
+void CGProxy::spoofcheck ()
 {
-    return gproxy->cfgfilterfirst;
-
-}
-
-string fcfgfilter ()// Phyton filter
-{
-    return gproxy->cfgfilter;
-}
-
-bool getautosearch () //pr0 autosearch
-{
-    return gproxy->autosearch;
-}
-
-void autosearch (bool autosearchNew) //pr0 autosearch
-{
-    gproxy->autosearch = autosearchNew;
-}
-
-bool cautosearch () //pr0 cautosearch
-{
-    return gproxy->cautosearch;
-}
-
-bool displayautocreated ()
-{
-    return gproxy->displayautocreated;
-}
-
-void displayautocreated (bool newone)
-{
-    gproxy->displayautocreated = newone;
-}
-
-void flisting_current_games (bool newone)
-{
-    gproxy->m_listing_current_games = newone;
-}
-
-bool flisting_current_games ()
-{
-    return gproxy->m_listing_current_games;
+    if (gproxy->m_BNET->GetLoggedIn())
+    {
+        gproxy->m_BNET->QueueChatCommand("spoofcheck", gproxy->m_HostName, false);
+    }
 }
 
 void CGProxy::setServer (const QString &server)
@@ -2586,12 +2578,12 @@ QString CGProxy::getChannel ()
     return this->channel;
 }
 
-QVector<Player*> CGProxy::getPlayers()
+QList<Player*> CGProxy::getPlayers()
 {
     return this->players;
 }
 
-void CGProxy::setPlayers(const QVector<Player*> &players)
+void CGProxy::setPlayers(const QList<Player*> &players)
 {
     this->players = players;
 }

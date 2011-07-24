@@ -88,10 +88,8 @@ void Config::addValues (QString content)
     QList<QString> vTempValue;
 
     QStringList lines = content.split("\n");
-    for (QStringList::Iterator it = lines.begin(); it != lines.end(); ++it)
+    foreach (QString line, lines)
     {
-        QString line = QString(*it);
-
         QString key = line.mid(0, line.indexOf("="));
         key = key.trimmed();
 

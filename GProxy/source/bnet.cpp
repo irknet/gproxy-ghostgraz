@@ -804,7 +804,7 @@ void CBNET::ProcessChatEvent (CIncomingChatEvent * chatEvent)
 
         if (Message.mid(0, 30) == "Spoof check by replying to thi")
         {
-            Pspoofcheck();
+            m_GProxy->spoofcheck();
         }
 
         if (m_GProxy->m_LocalSocket)

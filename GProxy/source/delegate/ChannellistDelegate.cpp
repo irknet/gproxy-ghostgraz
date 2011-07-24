@@ -66,15 +66,19 @@ const
                     }
                     else
                     {
-                        QVector<Player*> players = mainGUI->getGproxy()->getPlayers();
+                        QList<Player*> players = mainGUI->getGproxy()->getPlayers();
                         foreach(Player *player, players)
                         {
                             if(player->getName() == user)
                             {
-                                if(player->getStayPercent() < 80 && !mainGUI->getGproxy()->m_GameStarted)
+                                if (!mainGUI->getGproxy()->m_GameStarted)
                                 {
-                                    painter->setPen(QColor(255, 69, 0));
+                                    if (player->getGamesPlayed() == 0 || player->getStayPercent() < 80)
+                                    {
+                                        painter->setPen(QColor(255, 69, 0));
+                                    }
                                 }
+
                                 break;
                             }
                         }

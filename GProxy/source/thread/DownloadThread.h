@@ -1,21 +1,21 @@
 #ifndef DOWNLOADTHREAD_H
 #define	DOWNLOADTHREAD_H
 
-#include "MainGUI.h"
-#include "bnet.h"
-
 #include <QThread>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QVector>
 #include <QStringList>
+#include <QEventLoop>
+
+#include "../gproxy.h"
 
 class DownloadThread : public QThread {
     Q_OBJECT
 
 public:
-    DownloadThread(MainGUI *p_mainGUI);
+    DownloadThread(CGProxy* gproxy);
     virtual ~DownloadThread();
     void refresh();
     void stop();
@@ -24,13 +24,12 @@ protected:
     void run();
 
 private:
+    CGProxy* gproxy;
     bool stopped;
-    MainGUI *mainGUI;
     QUrl url;
     QNetworkAccessManager *manager;
-    QVector<QString> vBotorder;
 
-    QVector<QStringList> sortGamelist(QVector<QStringList> vGamelist);
+//    QVector<QStringList> sortGamelist(QVector<QStringList> vGamelist);
 
 private slots:
     void downloadFinished(QNetworkReply *reply);
