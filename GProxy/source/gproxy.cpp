@@ -446,8 +446,8 @@ void CGProxy::applyConfig ()
     gproxy->setChannel(config->getString("channel"));
     gproxy->setWar3version(config->getInt("war3version"));
     gproxy->setPort(config->getInt("port"));
-    gproxy->setExeversion(UTIL_ExtractNumbers(config->getString("exeversion").toStdString(), 4));
-    gproxy->setExeversionhash(UTIL_ExtractNumbers(config->getString("exeversionhash").toStdString(), 4));
+    gproxy->setExeversion(Util::extractNumbers(config->getString("exeversion").toStdString(), 4));
+    gproxy->setExeversionhash(Util::extractNumbers(config->getString("exeversionhash").toStdString(), 4));
     gproxy->setPasswordhashtype(config->getString("passwordhashtype"));
 
     emit signal_applyConfig();
@@ -737,7 +737,7 @@ bool CGProxy::Update (long usecBlock)
                 LeaveGame.push_back(0x21);
                 LeaveGame.push_back(0x08);
                 LeaveGame.push_back(0x00);
-                UTIL_AppendByteArray(LeaveGame, (uint32_t) PLAYERLEAVE_GPROXY, false);
+                Util::appendByteArray(LeaveGame, (uint32_t) PLAYERLEAVE_GPROXY, false);
                 m_RemoteSocket->PutBytes(LeaveGame);
                 m_RemoteSocket->DoSend(&send_fd);
             }
@@ -1001,11 +1001,11 @@ bool CGProxy::Update (long usecBlock)
                 }
 
                 BYTEARRAY MapGameType;
-                UTIL_AppendByteArray(MapGameType, ((CIncomingGameHost*) (*i))->GetGameType(), false);
-                UTIL_AppendByteArray(MapGameType, ((CIncomingGameHost*) (*i))->GetParameter(), false);
-                BYTEARRAY MapFlags = UTIL_CreateByteArray(((CIncomingGameHost*) (*i))->GetMapFlags(), false);
-                BYTEARRAY MapWidth = UTIL_CreateByteArray(((CIncomingGameHost*) (*i))->GetMapWidth(), false);
-                BYTEARRAY MapHeight = UTIL_CreateByteArray(((CIncomingGameHost*) (*i))->GetMapHeight(), false);
+                Util::appendByteArray(MapGameType, ((CIncomingGameHost*) (*i))->GetGameType(), false);
+                Util::appendByteArray(MapGameType, ((CIncomingGameHost*) (*i))->GetParameter(), false);
+                BYTEARRAY MapFlags = Util::createByteArray(((CIncomingGameHost*) (*i))->GetMapFlags(), false);
+                BYTEARRAY MapWidth = Util::createByteArray(((CIncomingGameHost*) (*i))->GetMapWidth(), false);
+                BYTEARRAY MapHeight = Util::createByteArray(((CIncomingGameHost*) (*i))->GetMapHeight(), false);
                 string GameName = ((CIncomingGameHost*) (*i))->GetGameName();
 
                 // colour reliable game names so they're easier to pick out of the list
@@ -1066,7 +1066,7 @@ void CGProxy::ExtractLocalPackets ()
         return;
 
     string *RecvBuffer = m_LocalSocket->GetBytes();
-    BYTEARRAY Bytes = UTIL_CreateByteArray((unsigned char *) RecvBuffer->c_str(), RecvBuffer->size());
+    BYTEARRAY Bytes = Util::createByteArray((unsigned char *) RecvBuffer->c_str(), RecvBuffer->size());
 
     // a packet is at least 4 bytes so loop as long as the buffer contains 4 bytes
     while (Bytes.size() >= 4)
@@ -1075,7 +1075,7 @@ void CGProxy::ExtractLocalPackets ()
         if (Bytes[0] == W3GS_HEADER_CONSTANT)
         {
             // bytes 2 and 3 contain the length of the packet
-            uint16_t Length = UTIL_ByteArrayToUInt16(Bytes, false, 2);
+            uint16_t Length = Util::byteArrayToUInt16(Bytes, false, 2);
 
             if (Length >= 4)
             {
@@ -1110,14 +1110,14 @@ void CGProxy::ExtractLocalPackets ()
                                 if (Flag == 16)
                                 {
                                     // Chat message
-                                    BYTEARRAY Message = UTIL_ExtractCString(Data, i);
+                                    BYTEARRAY Message = Util::extractCString(Data, i);
                                     MessageString = string(Message.begin(), Message.end());
                                 }
                                 else if (Flag == 32)
                                 {
                                     // Extra flags
                                     ExtraFlags = BYTEARRAY(Data.begin() + i, Data.begin() + i + 4);
-                                    BYTEARRAY Message = UTIL_ExtractCString(Data, i + 4);
+                                    BYTEARRAY Message = Util::extractCString(Data, i + 4);
                                     MessageString = string(Message.begin(), Message.end());
                                 }
 
@@ -1451,11 +1451,11 @@ void CGProxy::ProcessLocalPackets ()
             {
                 if (Data.size() >= 20)
                 {
-                    uint32_t EntryKey = UTIL_ByteArrayToUInt32(Data, false, 8);
+                    uint32_t EntryKey = Util::byteArrayToUInt32(Data, false, 8);
                     unsigned char Unknown = Data[12];
-                    uint16_t ListenPort = UTIL_ByteArrayToUInt16(Data, false, 13);
-                    uint32_t PeerKey = UTIL_ByteArrayToUInt32(Data, false, 15);
-                    BYTEARRAY Name = UTIL_ExtractCString(Data, 19);
+                    uint16_t ListenPort = Util::byteArrayToUInt16(Data, false, 13);
+                    uint32_t PeerKey = Util::byteArrayToUInt32(Data, false, 15);
+                    BYTEARRAY Name = Util::extractCString(Data, 19);
                     string NameString = string(Name.begin(), Name.end());
                     BYTEARRAY Remainder = BYTEARRAY(Data.begin() + Name.size() + 20, Data.end());
 
@@ -1491,15 +1491,15 @@ void CGProxy::ProcessLocalPackets ()
                                 DataRewritten.push_back(Packet->GetID());
                                 DataRewritten.push_back(0);
                                 DataRewritten.push_back(0);
-                                UTIL_AppendByteArray(DataRewritten, ((CIncomingGameHost*) (*i))->GetHostCounter(), false);
-                                UTIL_AppendByteArray(DataRewritten, (uint32_t) 0, false);
+                                Util::appendByteArray(DataRewritten, ((CIncomingGameHost*) (*i))->GetHostCounter(), false);
+                                Util::appendByteArray(DataRewritten, (uint32_t) 0, false);
                                 DataRewritten.push_back(Unknown);
-                                UTIL_AppendByteArray(DataRewritten, ListenPort, false);
-                                UTIL_AppendByteArray(DataRewritten, PeerKey, false);
-                                UTIL_AppendByteArray(DataRewritten, username.toStdString());
-                                UTIL_AppendByteArrayFast(DataRewritten, Remainder);
+                                Util::appendByteArray(DataRewritten, ListenPort, false);
+                                Util::appendByteArray(DataRewritten, PeerKey, false);
+                                Util::appendByteArray(DataRewritten, username.toStdString());
+                                Util::appendByteArrayFast(DataRewritten, Remainder);
                                 BYTEARRAY LengthBytes;
-                                LengthBytes = UTIL_CreateByteArray((uint16_t) DataRewritten.size(), false);
+                                LengthBytes = Util::createByteArray((uint16_t) DataRewritten.size(), false);
                                 DataRewritten[2] = LengthBytes[0];
                                 DataRewritten[3] = LengthBytes[1];
                                 Data = DataRewritten;
@@ -1557,7 +1557,7 @@ void CGProxy::ProcessLocalPackets ()
 void CGProxy::ExtractRemotePackets ()
 {
     string *RecvBuffer = m_RemoteSocket->GetBytes();
-    BYTEARRAY Bytes = UTIL_CreateByteArray((unsigned char *) RecvBuffer->c_str(), RecvBuffer->size());
+    BYTEARRAY Bytes = Util::createByteArray((unsigned char *) RecvBuffer->c_str(), RecvBuffer->size());
 
     // a packet is at least 4 bytes so loop as long as the buffer contains 4 bytes
 
@@ -1567,7 +1567,7 @@ void CGProxy::ExtractRemotePackets ()
         {
             // bytes 2 and 3 contain the length of the packet
 
-            uint16_t Length = UTIL_ByteArrayToUInt16(Bytes, false, 2);
+            uint16_t Length = Util::byteArrayToUInt16(Bytes, false, 2);
 
             if (Length >= 4)
             {
@@ -1631,7 +1631,7 @@ void CGProxy::ProcessRemotePackets ()
                 if (Flag == 16)
                 {
                     // Chat message
-                    BYTEARRAY Message = UTIL_ExtractCString(Data, i);
+                    BYTEARRAY Message = Util::extractCString(Data, i);
                     MessageString = string(Message.begin(), Message.end());
                 }
                 else if (Flag >= 17 && Flag <= 20)
@@ -1642,7 +1642,7 @@ void CGProxy::ProcessRemotePackets ()
                 {
                     // Extra flags
                     ExtraFlags = BYTEARRAY(Data.begin() + i, Data.begin() + i + 4);
-                    BYTEARRAY Message = UTIL_ExtractCString(Data, i + 4);
+                    BYTEARRAY Message = Util::extractCString(Data, i + 4);
                     MessageString = string(Message.begin(), Message.end());
                 }
 
@@ -1759,7 +1759,7 @@ void CGProxy::ProcessRemotePackets ()
 
                 if (Data.size() >= 6)
                 {
-                    uint16_t SlotInfoSize = UTIL_ByteArrayToUInt16(Data, false, 4);
+                    uint16_t SlotInfoSize = Util::byteArrayToUInt16(Data, false, 4);
 
                     if (Data.size() >= 7 + (unsigned) SlotInfoSize)
                     {
@@ -1817,7 +1817,7 @@ void CGProxy::ProcessRemotePackets ()
             {
                 BYTEARRAY Data = Packet->GetData();
 
-                uint16_t SlotInfoSize = UTIL_ByteArrayToUInt16(Data, false, 4);
+                uint16_t SlotInfoSize = Util::byteArrayToUInt16(Data, false, 4);
 
                 if (Data.size() >= 7 + (unsigned) SlotInfoSize)
                 {
@@ -1875,7 +1875,7 @@ void CGProxy::ProcessRemotePackets ()
                 BYTEARRAY data = Packet->GetData();
 
                 int playerId = (int) data[8];
-                QString playername = UTIL_ExtractQString(data, 9);
+                QString playername = Util::extractQString(data, 9);
                 if(playername.startsWith("|c", Qt::CaseInsensitive))
                 {
                     playername.append("|r");
@@ -1892,7 +1892,7 @@ void CGProxy::ProcessRemotePackets ()
             {
                 BYTEARRAY data = Packet->GetData();
 
-                BYTEARRAY path = UTIL_ExtractCString(data, 8);
+                BYTEARRAY path = Util::extractCString(data, 8);
                 string filePath = string(path.begin(), path.end());
 
                 transform(filePath.begin(), filePath.end(), filePath.begin(), (int(*)(int))tolower);
@@ -1982,7 +1982,7 @@ void CGProxy::ProcessRemotePackets ()
                 if (Data.size() < 5)
                     return;
 
-                uint32_t reason = UTIL_ByteArrayToUInt32(Data, false, 4);
+                uint32_t reason = Util::byteArrayToUInt32(Data, false, 4);
 
                 switch (reason)
                 {
@@ -2136,16 +2136,16 @@ void CGProxy::ProcessRemotePackets ()
 
                 if (Packet->GetID() == CGPSProtocol::GPS_INIT && Data.size() == 12)
                 {
-                    m_ReconnectPort = UTIL_ByteArrayToUInt16(Data, false, 4);
+                    m_ReconnectPort = Util::byteArrayToUInt16(Data, false, 4);
                     m_PID = Data[6];
-                    m_ReconnectKey = UTIL_ByteArrayToUInt32(Data, false, 7);
+                    m_ReconnectKey = Util::byteArrayToUInt32(Data, false, 7);
                     m_NumEmptyActions = Data[11];
                     SendLocalChat("GProxy++ disconnect protection is ready (" + QString::number((m_NumEmptyActions + 1) * 60) + " second buffer).");
                     CONSOLE_Print("[GPROXY] handshake complete, disconnect protection ready (" + QString::number((m_NumEmptyActions + 1) * 60) + " second buffer)");
                 }
                 else if (Packet->GetID() == CGPSProtocol::GPS_RECONNECT && Data.size() == 8)
                 {
-                    uint32_t LastPacket = UTIL_ByteArrayToUInt32(Data, false, 4);
+                    uint32_t LastPacket = Util::byteArrayToUInt32(Data, false, 4);
                     uint32_t PacketsAlreadyUnqueued = m_TotalPacketsReceivedFromLocal - m_PacketBuffer.size();
 
                     if (LastPacket > PacketsAlreadyUnqueued)
@@ -2190,7 +2190,7 @@ void CGProxy::ProcessRemotePackets ()
                 }
                 else if (Packet->GetID() == CGPSProtocol::GPS_ACK && Data.size() == 8)
                 {
-                    uint32_t LastPacket = UTIL_ByteArrayToUInt32(Data, false, 4);
+                    uint32_t LastPacket = Util::byteArrayToUInt32(Data, false, 4);
                     uint32_t PacketsAlreadyUnqueued = m_TotalPacketsReceivedFromLocal - m_PacketBuffer.size();
 
                     if (LastPacket > PacketsAlreadyUnqueued)
@@ -2213,7 +2213,7 @@ void CGProxy::ProcessRemotePackets ()
                 }
                 else if (Packet->GetID() == CGPSProtocol::GPS_REJECT && Data.size() == 8)
                 {
-                    uint32_t Reason = UTIL_ByteArrayToUInt32(Data, false, 4);
+                    uint32_t Reason = Util::byteArrayToUInt32(Data, false, 4);
 
                     if (Reason == REJECTGPS_INVALID)
                         CONSOLE_Print("[GPROXY] rejected by remote server: invalid data");
@@ -2380,7 +2380,7 @@ void CGProxy::SendLocalChat (QString message)
                 message = message.left(127);
             }
 
-            m_LocalSocket->PutBytes(m_GameProtocol->SEND_W3GS_CHAT_FROM_HOST(m_ChatPID, UTIL_CreateByteArray(m_ChatPID), 32, UTIL_CreateByteArray((uint32_t) 0, false), message));
+            m_LocalSocket->PutBytes(m_GameProtocol->SEND_W3GS_CHAT_FROM_HOST(m_ChatPID, Util::createByteArray(m_ChatPID), 32, Util::createByteArray((uint32_t) 0, false), message));
         }
         else
         {
@@ -2389,7 +2389,7 @@ void CGProxy::SendLocalChat (QString message)
                 message = message.left(254);
             }
 
-            m_LocalSocket->PutBytes(m_GameProtocol->SEND_W3GS_CHAT_FROM_HOST(m_ChatPID, UTIL_CreateByteArray(m_ChatPID), 16, BYTEARRAY(), message));
+            m_LocalSocket->PutBytes(m_GameProtocol->SEND_W3GS_CHAT_FROM_HOST(m_ChatPID, Util::createByteArray(m_ChatPID), 16, BYTEARRAY(), message));
         }
     }
 }
@@ -2407,7 +2407,7 @@ void CGProxy::SendEmptyAction ()
         StopLag.push_back(0x09);
         StopLag.push_back(0);
         StopLag.push_back(*i);
-        UTIL_AppendByteArray(StopLag, (uint32_t) 60000, false);
+        Util::appendByteArray(StopLag, (uint32_t) 60000, false);
         m_LocalSocket->PutBytes(StopLag);
     }
 
@@ -2435,11 +2435,11 @@ void CGProxy::SendEmptyAction ()
             // hopefully warcraft 3 doesn't care about wild variations in the lag time in subsequent packets
 
             StartLag.push_back(*i);
-            UTIL_AppendByteArray(StartLag, (uint32_t) 60000, false);
+            Util::appendByteArray(StartLag, (uint32_t) 60000, false);
         }
 
         BYTEARRAY LengthBytes;
-        LengthBytes = UTIL_CreateByteArray((uint16_t) StartLag.size(), false);
+        LengthBytes = Util::createByteArray((uint16_t) StartLag.size(), false);
         StartLag[2] = LengthBytes[0];
         StartLag[3] = LengthBytes[1];
         m_LocalSocket->PutBytes(StartLag);

@@ -258,7 +258,7 @@ bool CBNET::Update (void *fd, void *send_fd)
                 && getElapsedMilliseconds() - m_LastOutPacketTicks >= WaitTicks)
         {
             if (m_OutPackets.size() > 7)
-                CONSOLE_Print("[BNET] packet queue warning - there are " + QString::fromStdString(UTIL_ToString(m_OutPackets.size())) + " packets waiting to be sent");
+                CONSOLE_Print("[BNET] packet queue warning - there are " + QString::fromStdString(Util::toString(m_OutPackets.size())) + " packets waiting to be sent");
 
             m_Socket->PutBytes(m_OutPackets.front());
             m_LastOutPacketSize = ((BYTEARRAY) m_OutPackets.front()).size();
@@ -349,7 +349,7 @@ void CBNET::ExtractPackets ()
 {
     // extract as many packets as possible from the socket's receive buffer and put them in the m_Packets queue
     string *RecvBuffer = m_Socket->GetBytes();
-    BYTEARRAY Bytes = UTIL_CreateByteArray((unsigned char *) RecvBuffer->c_str(), RecvBuffer->size());
+    BYTEARRAY Bytes = Util::createByteArray((unsigned char *) RecvBuffer->c_str(), RecvBuffer->size());
 
     // a packet is at least 4 bytes so loop as long as the buffer contains 4 bytes
     while (Bytes.size() >= 4)
@@ -358,7 +358,7 @@ void CBNET::ExtractPackets ()
         if (Bytes[0] == BNET_HEADER_CONSTANT)
         {
             // bytes 2 and 3 contain the length of the packet
-            uint16_t Length = UTIL_ByteArrayToUInt16(Bytes, false, 2);
+            uint16_t Length = Util::byteArrayToUInt16(Bytes, false, 2);
 
             if (Length >= 4)
             {
@@ -463,7 +463,7 @@ void CBNET::ProcessPackets ()
 //                                m_GProxy->m_RemoteSocket->SetNoDelay(true);
 //
 //                                BYTEARRAY test = (*i)->GetIP();
-//                                BYTEARRAY ip_cstr = UTIL_ExtractCString(test, 0);
+//                                BYTEARRAY ip_cstr = Util::ExtractCString(test, 0);
 //                                string ip = string(ip_cstr.begin(), ip_cstr.end());
 //
 //                                m_GProxy->m_RemoteSocket->Connect(string(), ip, (*i)->GetPort());
@@ -485,7 +485,7 @@ void CBNET::ProcessPackets ()
                     }
 
                     /* if( GamesReceived > 0 )
-                            CONSOLE_Print( "[BNET] sifted game list, found " + UTIL_ToString( OldReliableGamesReceived + NewReliableGamesReceived ) + "/" + UTIL_ToString( GamesReceived ) + " reliable games (" + UTIL_ToString( OldReliableGamesReceived ) + " duplicates)" ); */
+                            CONSOLE_Print( "[BNET] sifted game list, found " + Util::ToString( OldReliableGamesReceived + NewReliableGamesReceived ) + "/" + Util::ToString( GamesReceived ) + " reliable games (" + Util::ToString( OldReliableGamesReceived ) + " duplicates)" ); */
 
                     break;
 
@@ -570,7 +570,7 @@ void CBNET::ProcessPackets ()
                                     CONSOLE_Print( "[BNET] creating BNLS client" );
                                     delete m_BNLSClient;
                                     m_BNLSClient = new CBNLSClient( m_BNLSServer, m_BNLSPort, m_BNLSWardenCookie );
-                                    m_BNLSClient->QueueWardenSeed( UTIL_ByteArrayToUInt32( m_BNCSUtil->GetKeyInfoROC( ), false, 16 ) );
+                                    m_BNLSClient->QueueWardenSeed( Util::ByteArrayToUInt32( m_BNCSUtil->GetKeyInfoROC( ), false, 16 ) );
                             }
 
                              */
@@ -599,7 +599,7 @@ void CBNET::ProcessPackets ()
                     {
                         // cd keys not accepted
 
-                        switch (UTIL_ByteArrayToUInt32(m_Protocol->GetKeyState(), false))
+                        switch (Util::byteArrayToUInt32(m_Protocol->GetKeyState(), false))
                         {
                             case CBNETProtocol::KR_ROC_KEY_IN_USE:
                                 CONSOLE_Print("[BNET] logon failed - ROC CD key in use by user [" + QString::fromStdString(m_Protocol->GetKeyStateDescription()) + "], disconnecting");
@@ -720,9 +720,9 @@ void CBNET::ProcessPackets ()
 
 //                case CBNETProtocol::SID_MESSAGEBOX:
 //                    BYTEARRAY messagebox = m_Protocol->RECEIVE_SID_MESSAGEBOX(Packet->GetData());
-////                    uint32_t style = UTIL_ByteArrayToUInt32(messagebox, false);
-//                    QString text = UTIL_ExtractQString(messagebox, 4);
-//                    QString title = UTIL_ExtractQString(messagebox, 5 + text.length());
+////                    uint32_t style = Util::ByteArrayToUInt32(messagebox, false);
+//                    QString text = Util::ExtractQString(messagebox, 4);
+//                    QString title = Util::ExtractQString(messagebox, 5 + text.length());
 //                    CONSOLE_Print("Messagebox: Title="+title+" Text="+text);
 //                    break;
             }

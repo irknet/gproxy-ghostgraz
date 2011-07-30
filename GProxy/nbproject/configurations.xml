@@ -22,9 +22,9 @@
       </logicalFolder>
       <itemPath>source/Config.h</itemPath>
       <itemPath>source/ConfigGUI.h</itemPath>
+      <itemPath>source/ForegroundcolorDialog.h</itemPath>
       <itemPath>source/GhostGrazLogininformationDialog.h</itemPath>
       <itemPath>source/MainGUI.h</itemPath>
-      <itemPath>source/OutputareaColorDialog.h</itemPath>
       <itemPath>source/Packet.h</itemPath>
       <itemPath>source/Player.h</itemPath>
       <itemPath>source/Util.h</itemPath>
@@ -41,9 +41,9 @@
                    displayName="Resource Files"
                    projectFiles="true">
       <itemPath>source/ConfigGUI.ui</itemPath>
+      <itemPath>source/ForegroundcolorDialog.ui</itemPath>
       <itemPath>source/GhostGrazLogininformationDialog.ui</itemPath>
       <itemPath>source/MainGUI.ui</itemPath>
-      <itemPath>source/OutputareaColorDialog.ui</itemPath>
       <itemPath>source/resources.qrc</itemPath>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
@@ -67,9 +67,9 @@
       </logicalFolder>
       <itemPath>source/Config.cpp</itemPath>
       <itemPath>source/ConfigGUI.cpp</itemPath>
+      <itemPath>source/ForegroundcolorDialog.cpp</itemPath>
       <itemPath>source/GhostGrazLogininformationDialog.cpp</itemPath>
       <itemPath>source/MainGUI.cpp</itemPath>
-      <itemPath>source/OutputareaColorDialog.cpp</itemPath>
       <itemPath>source/Packet.cpp</itemPath>
       <itemPath>source/Player.cpp</itemPath>
       <itemPath>source/Slot.cpp</itemPath>

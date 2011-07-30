@@ -54,12 +54,12 @@ CSocket :: ~CSocket( )
 
 BYTEARRAY CSocket :: GetPort( )
 {
-	return UTIL_CreateByteArray( m_SIN.sin_port, false );
+	return Util::createByteArray( m_SIN.sin_port, false );
 }
 
 BYTEARRAY CSocket :: GetIP( )
 {
-	return UTIL_CreateByteArray( (uint32_t)m_SIN.sin_addr.s_addr, false );
+	return Util::createByteArray( (uint32_t)m_SIN.sin_addr.s_addr, false );
 }
 
 string CSocket :: GetIPString( )
@@ -112,7 +112,7 @@ string CSocket :: GetErrorString( )
 	case EREMOTE: return "EREMOTE";
 	}
 
-	return "UNKNOWN ERROR (" + UTIL_ToString( m_Error ) + ")";
+	return "UNKNOWN ERROR (" + Util::toString( m_Error ) + ")";
 }
 
 void CSocket :: SetFD( fd_set *fd, fd_set *send_fd, int *nfds )
@@ -278,7 +278,7 @@ void CTCPSocket :: DoRecv( fd_set *fd )
 
 				if( !Log.fail( ) )
 				{
-					Log << "					RECEIVE <<< " << UTIL_ByteArrayToHexString( UTIL_CreateByteArray( (unsigned char *)buffer, c ) ) << endl;
+					Log << "RECEIVE <<< " << Util::byteArrayToHexString( Util::createByteArray( (unsigned char *)buffer, c ) ) << endl;
 					Log.close( );
 				}
 			}
@@ -320,7 +320,7 @@ void CTCPSocket :: DoSend( fd_set *send_fd )
 
 				if( !Log.fail( ) )
 				{
-					Log << "SEND >>> " << UTIL_ByteArrayToHexString( BYTEARRAY( m_SendBuffer.begin( ), m_SendBuffer.begin( ) + s ) ) << endl;
+					Log << "SEND >>> " << Util::byteArrayToHexString( BYTEARRAY( m_SendBuffer.begin( ), m_SendBuffer.begin( ) + s ) ) << endl;
 					Log.close( );
 				}
 			}

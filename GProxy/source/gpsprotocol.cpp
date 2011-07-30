@@ -27,7 +27,7 @@ BYTEARRAY CGPSProtocol :: SEND_GPSC_INIT( uint32_t version )
 	packet.push_back( GPS_INIT );
 	packet.push_back( 0 );
 	packet.push_back( 0 );
-	UTIL_AppendByteArray( packet, version, false );
+	Util::appendByteArray( packet, version, false );
 	AssignLength( packet );
 	return packet;
 }
@@ -40,8 +40,8 @@ BYTEARRAY CGPSProtocol :: SEND_GPSC_RECONNECT( unsigned char PID, uint32_t recon
 	packet.push_back( 0 );
 	packet.push_back( 0 );
 	packet.push_back( PID );
-	UTIL_AppendByteArray( packet, reconnectKey, false );
-	UTIL_AppendByteArray( packet, lastPacket, false );
+	Util::appendByteArray( packet, reconnectKey, false );
+	Util::appendByteArray( packet, lastPacket, false );
 	AssignLength( packet );
 	return packet;
 }
@@ -53,7 +53,7 @@ BYTEARRAY CGPSProtocol :: SEND_GPSC_ACK( uint32_t lastPacket )
 	packet.push_back( GPS_ACK );
 	packet.push_back( 0 );
 	packet.push_back( 0 );
-	UTIL_AppendByteArray( packet, lastPacket, false );
+	Util::appendByteArray( packet, lastPacket, false );
 	AssignLength( packet );
 	return packet;
 }
@@ -65,9 +65,9 @@ BYTEARRAY CGPSProtocol :: SEND_GPSS_INIT( uint16_t reconnectPort, unsigned char 
 	packet.push_back( GPS_INIT );
 	packet.push_back( 0 );
 	packet.push_back( 0 );
-	UTIL_AppendByteArray( packet, reconnectPort, false );
+	Util::appendByteArray( packet, reconnectPort, false );
 	packet.push_back( PID );
-	UTIL_AppendByteArray( packet, reconnectKey, false );
+	Util::appendByteArray( packet, reconnectKey, false );
 	packet.push_back( numEmptyActions );
 	AssignLength( packet );
 	return packet;
@@ -80,7 +80,7 @@ BYTEARRAY CGPSProtocol :: SEND_GPSS_RECONNECT( uint32_t lastPacket )
 	packet.push_back( GPS_RECONNECT );
 	packet.push_back( 0 );
 	packet.push_back( 0 );
-	UTIL_AppendByteArray( packet, lastPacket, false );
+	Util::appendByteArray( packet, lastPacket, false );
 	AssignLength( packet );
 	return packet;
 }
@@ -92,7 +92,7 @@ BYTEARRAY CGPSProtocol :: SEND_GPSS_ACK( uint32_t lastPacket )
 	packet.push_back( GPS_ACK );
 	packet.push_back( 0 );
 	packet.push_back( 0 );
-	UTIL_AppendByteArray( packet, lastPacket, false );
+	Util::appendByteArray( packet, lastPacket, false );
 	AssignLength( packet );
 	return packet;
 }
@@ -104,7 +104,7 @@ BYTEARRAY CGPSProtocol :: SEND_GPSS_REJECT( uint32_t reason )
 	packet.push_back( GPS_REJECT );
 	packet.push_back( 0 );
 	packet.push_back( 0 );
-	UTIL_AppendByteArray( packet, reason, false );
+	Util::appendByteArray( packet, reason, false );
 	AssignLength( packet );
 	return packet;
 }
@@ -121,7 +121,7 @@ bool CGPSProtocol :: AssignLength( BYTEARRAY &content )
 
 	if( content.size( ) >= 4 && content.size( ) <= 65535 )
 	{
-		LengthBytes = UTIL_CreateByteArray( (uint16_t)content.size( ), false );
+		LengthBytes = Util::createByteArray( (uint16_t)content.size( ), false );
 		content[2] = LengthBytes[0];
 		content[3] = LengthBytes[1];
 		return true;
@@ -141,7 +141,7 @@ bool CGPSProtocol :: ValidateLength( BYTEARRAY &content )
 	{
 		LengthBytes.push_back( content[2] );
 		LengthBytes.push_back( content[3] );
-		Length = UTIL_ByteArrayToUInt16( LengthBytes, false );
+		Length = Util::byteArrayToUInt16( LengthBytes, false );
 
 		if( Length == content.size( ) )
 			return true;

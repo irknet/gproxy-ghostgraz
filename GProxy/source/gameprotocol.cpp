@@ -53,10 +53,10 @@ BYTEARRAY CGameProtocol :: SEND_W3GS_CHAT_FROM_HOST( unsigned char fromPID, BYTE
 		packet.push_back( 0 );							// packet length will be assigned later
 		packet.push_back( 0 );							// packet length will be assigned later
 		packet.push_back( toPIDs.size( ) );				// number of receivers
-		UTIL_AppendByteArrayFast( packet, toPIDs );		// receivers
+		Util::appendByteArrayFast( packet, toPIDs );		// receivers
 		packet.push_back( fromPID );					// sender
 		packet.push_back( flag );						// flag
-		UTIL_AppendByteArrayFast( packet, flagExtra );	// extra flag
+		Util::appendByteArrayFast( packet, flagExtra );	// extra flag
 
                 QByteArray messageBytes = message.toUtf8();
                 for(int i = 0; i < messageBytes.length(); i++)
@@ -86,10 +86,10 @@ BYTEARRAY CGameProtocol :: SEND_W3GS_CHAT_TO_HOST( unsigned char fromPID, BYTEAR
 		packet.push_back( 0 );							// packet length will be assigned later
 		packet.push_back( 0 );							// packet length will be assigned later
 		packet.push_back( toPIDs.size( ) );				// number of receivers
-		UTIL_AppendByteArrayFast( packet, toPIDs );		// receivers
+		Util::appendByteArrayFast( packet, toPIDs );		// receivers
 		packet.push_back( fromPID );					// sender
 		packet.push_back( flag );						// flag
-		UTIL_AppendByteArrayFast( packet, flagExtra );	// extra flag
+		Util::appendByteArrayFast( packet, flagExtra );	// extra flag
 
                 QByteArray messageBytes = message.toUtf8();
                 for(int i = 0; i < messageBytes.length(); i++)
@@ -119,7 +119,7 @@ BYTEARRAY CGameProtocol :: SEND_W3GS_TEAMCHANGE( unsigned char fromPID, BYTEARRA
 		packet.push_back( 0 );
 		packet.push_back( 0 );
 		packet.push_back( toPIDs.size( ) );
-		UTIL_AppendByteArrayFast( packet, toPIDs );
+		Util::appendByteArrayFast( packet, toPIDs );
 		packet.push_back( fromPID );
 		packet.push_back( ((unsigned char) 17) );
 		packet.push_back( team );
@@ -148,12 +148,12 @@ BYTEARRAY CGameProtocol :: SEND_W3GS_SEARCHGAME( bool TFT, unsigned char war3Ver
 	packet.push_back( 0 );									// packet length will be assigned later
 
 	if( TFT )
-		UTIL_AppendByteArray( packet, ProductID_TFT, 4 );	// Product ID (TFT)
+		Util::appendByteArray( packet, ProductID_TFT, 4 );	// Product ID (TFT)
 	else
-		UTIL_AppendByteArray( packet, ProductID_ROC, 4 );	// Product ID (ROC)
+		Util::appendByteArray( packet, ProductID_ROC, 4 );	// Product ID (ROC)
 
-	UTIL_AppendByteArray( packet, Version, 4 );				// Version
-	UTIL_AppendByteArray( packet, Unknown, 4 );				// ???
+	Util::appendByteArray( packet, Version, 4 );				// Version
+	Util::appendByteArray( packet, Unknown, 4 );				// ???
 	AssignLength( packet );
 	// DEBUG_Print( "SENT W3GS_SEARCHGAME" );
 	// DEBUG_Print( packet );
@@ -174,15 +174,15 @@ BYTEARRAY CGameProtocol :: SEND_W3GS_GAMEINFO( bool TFT, unsigned char war3Versi
 		// make the stat string
 
 		BYTEARRAY StatString;
-		UTIL_AppendByteArrayFast( StatString, mapFlags );
+		Util::appendByteArrayFast( StatString, mapFlags );
 		StatString.push_back( 0 );
-		UTIL_AppendByteArrayFast( StatString, mapWidth );
-		UTIL_AppendByteArrayFast( StatString, mapHeight );
-		UTIL_AppendByteArrayFast( StatString, mapCRC );
-		UTIL_AppendByteArrayFast( StatString, mapPath );
-		UTIL_AppendByteArrayFast( StatString, hostName );
+		Util::appendByteArrayFast( StatString, mapWidth );
+		Util::appendByteArrayFast( StatString, mapHeight );
+		Util::appendByteArrayFast( StatString, mapCRC );
+		Util::appendByteArrayFast( StatString, mapPath );
+		Util::appendByteArrayFast( StatString, hostName );
 		StatString.push_back( 0 );
-		StatString = UTIL_EncodeStatString( StatString );
+		StatString = Util::encodeStatString( StatString );
 
 		// make the rest of the packet
 
@@ -192,23 +192,23 @@ BYTEARRAY CGameProtocol :: SEND_W3GS_GAMEINFO( bool TFT, unsigned char war3Versi
 		packet.push_back( 0 );											// packet length will be assigned later
 
 		if( TFT )
-			UTIL_AppendByteArray( packet, ProductID_TFT, 4 );			// Product ID (TFT)
+			Util::appendByteArray( packet, ProductID_TFT, 4 );			// Product ID (TFT)
 		else
-			UTIL_AppendByteArray( packet, ProductID_ROC, 4 );			// Product ID (ROC)
+			Util::appendByteArray( packet, ProductID_ROC, 4 );			// Product ID (ROC)
 
-		UTIL_AppendByteArray( packet, Version, 4 );						// Version
-		UTIL_AppendByteArray( packet, hostCounter, false );				// Host Counter
-		UTIL_AppendByteArray( packet, entryKey, false );				// Entry Key
-		UTIL_AppendByteArrayFast( packet, gameName );					// Game Name
+		Util::appendByteArray( packet, Version, 4 );						// Version
+		Util::appendByteArray( packet, hostCounter, false );				// Host Counter
+		Util::appendByteArray( packet, entryKey, false );				// Entry Key
+		Util::appendByteArrayFast( packet, gameName );					// Game Name
 		packet.push_back( 0 );											// ??? (maybe game password)
-		UTIL_AppendByteArrayFast( packet, StatString );					// Stat String
+		Util::appendByteArrayFast( packet, StatString );					// Stat String
 		packet.push_back( 0 );											// Stat String null terminator (the stat string is encoded to remove all even numbers i.e. zeros)
-		UTIL_AppendByteArray( packet, slotsTotal, false );				// Slots Total
-		UTIL_AppendByteArrayFast( packet, mapGameType );				// Game Type
-		UTIL_AppendByteArray( packet, Unknown, 4 );						// ???
-		UTIL_AppendByteArray( packet, slotsOpen, false );				// Slots Open
-		UTIL_AppendByteArray( packet, upTime, false );					// time since creation
-		UTIL_AppendByteArray( packet, port, false );					// port
+		Util::appendByteArray( packet, slotsTotal, false );				// Slots Total
+		Util::appendByteArrayFast( packet, mapGameType );				// Game Type
+		Util::appendByteArray( packet, Unknown, 4 );						// ???
+		Util::appendByteArray( packet, slotsOpen, false );				// Slots Open
+		Util::appendByteArray( packet, upTime, false );					// time since creation
+		Util::appendByteArray( packet, port, false );					// port
 		AssignLength( packet );
 	}
 	else
@@ -233,12 +233,12 @@ BYTEARRAY CGameProtocol :: SEND_W3GS_CREATEGAME( bool TFT, unsigned char war3Ver
 	packet.push_back( 0 );									// packet length will be assigned later
 
 	if( TFT )
-		UTIL_AppendByteArray( packet, ProductID_TFT, 4 );	// Product ID (TFT)
+		Util::appendByteArray( packet, ProductID_TFT, 4 );	// Product ID (TFT)
 	else
-		UTIL_AppendByteArray( packet, ProductID_ROC, 4 );	// Product ID (ROC)
+		Util::appendByteArray( packet, ProductID_ROC, 4 );	// Product ID (ROC)
 
-	UTIL_AppendByteArray( packet, Version, 4 );				// Version
-	UTIL_AppendByteArray( packet, HostCounter, 4 );			// Host Counter
+	Util::appendByteArray( packet, Version, 4 );				// Version
+	Util::appendByteArray( packet, HostCounter, 4 );			// Host Counter
 	AssignLength( packet );
 	// DEBUG_Print( "SENT W3GS_CREATEGAME" );
 	// DEBUG_Print( packet );
@@ -254,9 +254,9 @@ BYTEARRAY CGameProtocol :: SEND_W3GS_REFRESHGAME( uint32_t players, uint32_t pla
 	packet.push_back( W3GS_REFRESHGAME );				// W3GS_REFRESHGAME
 	packet.push_back( 0 );								// packet length will be assigned later
 	packet.push_back( 0 );								// packet length will be assigned later
-	UTIL_AppendByteArray( packet, HostCounter, 4 );		// Host Counter
-	UTIL_AppendByteArray( packet, players, false );		// Players
-	UTIL_AppendByteArray( packet, playerSlots, false );	// Player Slots
+	Util::appendByteArray( packet, HostCounter, 4 );		// Host Counter
+	Util::appendByteArray( packet, players, false );		// Players
+	Util::appendByteArray( packet, playerSlots, false );	// Player Slots
 	AssignLength( packet );
 	// DEBUG_Print( "SENT W3GS_REFRESHGAME" );
 	// DEBUG_Print( packet );
@@ -270,7 +270,7 @@ BYTEARRAY CGameProtocol :: SEND_W3GS_DECREATEGAME( uint32_t hostCounter )
 	packet.push_back( W3GS_DECREATEGAME );				// W3GS_DECREATEGAME
 	packet.push_back( 0 );								// packet length will be assigned later
 	packet.push_back( 0 );								// packet length will be assigned later
-	UTIL_AppendByteArray( packet, hostCounter, false );	// Host Counter
+	Util::appendByteArray( packet, hostCounter, false );	// Host Counter
 	AssignLength( packet );
 	// DEBUG_Print( "SENT W3GS_DECREATEGAME" );
 	// DEBUG_Print( packet );
@@ -288,15 +288,15 @@ BYTEARRAY CGameProtocol :: SEND_W3GS_DECREATEGAME( uint32_t hostCounter )
 //    packet.push_back( W3GS_REQJOIN );
 //    packet.push_back( 0 );
 //    packet.push_back( 0 );
-//    UTIL_AppendByteArray( packet, hostCounter, false );
-//    UTIL_AppendByteArray( packet, entryKey, false );
+//    Util::appendByteArray( packet, hostCounter, false );
+//    Util::appendByteArray( packet, entryKey, false );
 //    packet.push_back(unknownByte);
-//    UTIL_AppendByteArray( packet, listenPort, false );
-//    UTIL_AppendByteArray( packet, peerKey, false );
-//    UTIL_AppendByteArrayFast( packet, playerName );
-//    UTIL_AppendByteArray( packet, unknownDWORD, false );
-//    UTIL_AppendByteArray( packet, internalPort, false );
-//    UTIL_AppendByteArray( packet, internalIP, false );
+//    Util::appendByteArray( packet, listenPort, false );
+//    Util::appendByteArray( packet, peerKey, false );
+//    Util::appendByteArrayFast( packet, playerName );
+//    Util::appendByteArray( packet, unknownDWORD, false );
+//    Util::appendByteArray( packet, internalPort, false );
+//    Util::appendByteArray( packet, internalIP, false );
 //    AssignLength( packet );
 //    CONSOLE_Print("SENDING REQJOIN");
 //
@@ -315,7 +315,7 @@ bool CGameProtocol :: AssignLength( BYTEARRAY &content )
 
 	if( content.size( ) >= 4 && content.size( ) <= 65535 )
 	{
-		LengthBytes = UTIL_CreateByteArray( (uint16_t)content.size( ), false );
+		LengthBytes = Util::createByteArray( (uint16_t)content.size( ), false );
 		content[2] = LengthBytes[0];
 		content[3] = LengthBytes[1];
 		return true;
@@ -335,7 +335,7 @@ bool CGameProtocol :: ValidateLength( BYTEARRAY &content )
 	{
 		LengthBytes.push_back( content[2] );
 		LengthBytes.push_back( content[3] );
-		Length = UTIL_ByteArrayToUInt16( LengthBytes, false );
+		Length = Util::byteArrayToUInt16( LengthBytes, false );
 
 		if( Length == content.size( ) )
 			return true;

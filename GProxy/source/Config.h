@@ -1,5 +1,5 @@
-#ifndef CONFIG2_H
-#define	CONFIG2_H
+#ifndef CONFIG_H
+#define	CONFIG_H
 
 #include <QFile>
 #include <QString>
