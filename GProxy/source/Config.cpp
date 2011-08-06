@@ -76,10 +76,17 @@ void Config::addKeys ()
 
     keys.append("# Appearance");
     keys.append("backgroundcolor");
-    keys.append("outputareaForegroundcolor");
     keys.append("outputareaFont");
-    keys.append("inputareaForegroundcolor");
-    keys.append("inputareaFont");
+    keys.append("# Foregroundcolors");
+    keys.append("chat_color");
+    keys.append("whisper_color");
+    keys.append("gameinfo_color");
+    keys.append("gproxy_color");
+    keys.append("bnet_color");
+    keys.append("info_color");
+    keys.append("emote_color");
+    keys.append("error_color");
+    keys.append("warning_color");
 }
 
 void Config::addValues (QString content)
@@ -164,6 +171,42 @@ void Config::addDefaultValue (const QString &key)
     else if(key == "outputareaFont")
     {
         values.append(QFont("Arial", 9, QFont::Normal).toString());
+    }
+    else if(key == "chat_color")
+    {
+        values.append("240,240,240");
+    }
+    else if(key == "whisper_color")
+    {
+        values.append("0,255,0");
+    }
+    else if(key == "gameinfo_color")
+    {
+        values.append("255,215,0");
+    }
+    else if(key == "gproxy_color")
+    {
+        values.append("75,0,130");
+    }
+    else if(key == "bnet_color")
+    {
+        values.append("139,0,0");
+    }
+    else if(key == "info_color")
+    {
+        values.append("0,255,255");
+    }
+    else if(key == "emote_color")
+    {
+        values.append("128,128,128");
+    }
+    else if(key == "error_color")
+    {
+        values.append("255,0,0");
+    }
+    else if(key == "warning_color")
+    {
+        values.append("255,69,0");
     }
     else // add an empty string (THIS IS NEEDED!)
     {

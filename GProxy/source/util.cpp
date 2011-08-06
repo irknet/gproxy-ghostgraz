@@ -350,6 +350,22 @@ string Util::toString( double d, int digits )
 	return result;
 }
 
+/**
+ * Converst a QColor into QString with the format "|caarrggbb". |c is the color start.
+ * "aa" is the alpha value which will always be "ff". "rr", "gg" and "bb" are the red, green and blue
+ * hexadezimal color values respictively. Examples: red is |cffff0000 and blue is |cff0000ff.
+ *
+ * @param color The QColor to convert.
+ * @return QString
+ */
+QString Util::toString(const QColor& color)
+{
+    return "|cff"
+            + QString("%1").arg(color.red(), -2, 16, QChar('0'))
+            + QString("%1").arg(color.green(), -2, 16, QChar('0'))
+            + QString("%1").arg(color.blue(), -2, 16, QChar('0'));
+}
+
 string Util::toHexString( uint32_t i )
 {
 	string result;
@@ -422,9 +438,9 @@ string Util::msToString( uint32_t ms )
 }
 
 /**
- * Converst a QString into QColor. The expected format is "|cAARRGGBB". |c is the start.
- * AA is the alpha value. RR GG and BB are the red, green and blue
- * hexadezimal color values respictively. Examples: |cFFFF0000 is red and |cFF0000FF is blue.
+ * Converst a QString into QColor. The expected format is "|caarrggbb". |c is the start.
+ * "aa" is the alpha value. "rr", "gg" and "bb" are the red, green and blue
+ * hexadezimal color values respictively. Examples: |cffff0000 is red and |cff0000ff is blue.
  *
  * @param colorString The string containing the color code.
  * @return QColor

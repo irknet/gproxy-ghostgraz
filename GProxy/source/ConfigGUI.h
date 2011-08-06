@@ -27,7 +27,7 @@ signals:
 private:
     Ui::ConfigGUI widget;
     MainGUI* mainGUI;
-    Config* cfg;
+    Config* config;
 
     void initValues();
     void initSlots();
@@ -48,6 +48,7 @@ private slots:
     void onBackgroundColorChanged(const QColor& color);
     void onOutputareaFontButtonClicked();
     void onOutputareaFontChanged(const QFont& font);
+    void onOutputareaForegroundcolorButtonClicked();
 };
 
 #endif	/* _CONFIGGUI_H */

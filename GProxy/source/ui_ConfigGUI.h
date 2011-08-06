@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'ConfigGUI.ui'
 **
-** Created: Wed 13. Jul 20:46:54 2011
+** Created: Fri 5. Aug 20:11:19 2011
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -401,9 +401,10 @@ public:
         QObject::connect(war3pathButton, SIGNAL(clicked()), ConfigGUI, SLOT(onWar3pathChangeRequest()));
         QObject::connect(backgroundcolorButton, SIGNAL(clicked()), ConfigGUI, SLOT(onBackgroundcolorButtonClicked()));
         QObject::connect(outputareaFontButton, SIGNAL(clicked()), ConfigGUI, SLOT(onOutputareaFontButtonClicked()));
+        QObject::connect(outputareaForegroundcolorButton, SIGNAL(clicked()), ConfigGUI, SLOT(onOutputareaForegroundcolorButtonClicked()));
 
-        optionsTabWidget->setCurrentIndex(0);
-        appearanceTabWidget->setCurrentIndex(0);
+        optionsTabWidget->setCurrentIndex(2);
+        appearanceTabWidget->setCurrentIndex(1);
 
 
         QMetaObject::connectSlotsByName(ConfigGUI);

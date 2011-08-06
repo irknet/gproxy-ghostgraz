@@ -18,7 +18,6 @@ INPUT(
 ./build/Release/Qt_MinGW-Windows/GamelistDelegate.o
 ./build/Release/Qt_MinGW-Windows/ChannellistDelegate.o
 ./build/Release/Qt_MinGW-Windows/MainGUI.o
-./build/Release/Qt_MinGW-Windows/ForegroundcolorDialog.o
 ./build/Release/Qt_MinGW-Windows/commandpacket.o
 ./build/Release/Qt_MinGW-Windows/Util.o
 ./build/Release/Qt_MinGW-Windows/gpsprotocol.o
@@ -40,6 +39,5 @@ INPUT(
 ./build/Release/Qt_MinGW-Windows/moc_DownloadThread.o
 ./build/Release/Qt_MinGW-Windows/moc_GamelistDelegate.o
 ./build/Release/Qt_MinGW-Windows/moc_ClickableListWidget.o
-./build/Release/Qt_MinGW-Windows/moc_ForegroundcolorDialog.o
 ./build/Release/Qt_MinGW-Windows/qrc_resources.o
 );

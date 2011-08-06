@@ -70,7 +70,7 @@
     </sizepolicy>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>2</number>
    </property>
    <widget class="QWidget" name="connectionTab">
     <property name="font">
@@ -791,7 +791,7 @@ It is also needed to start Warcraft 3 with GProxy.</string>
       </rect>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="appearanceGeneralTab">
       <attribute name="title">
@@ -1457,10 +1457,27 @@ The log file is located in the folder where the .exe is and is named gproxy_log.
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>outputareaForegroundcolorButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ConfigGUI</receiver>
+   <slot>onOutputareaForegroundcolorButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>303</x>
+     <y>153</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>224</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onWar3pathChangeRequest()</slot>
   <slot>onBackgroundcolorButtonClicked()</slot>
   <slot>onOutputareaFontButtonClicked()</slot>
+  <slot>onOutputareaForegroundcolorButtonClicked()</slot>
  </slots>
 </ui>

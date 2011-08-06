@@ -15,13 +15,11 @@
 #include <QColorDialog>
 #include <QFontDialog>
 
-// TODO Remove these ugly double constructors
-
 ConfigGUI::ConfigGUI (MainGUI* mainGUI)
 {
     widget.setupUi(this);
     this->mainGUI = mainGUI;
-    this->cfg = mainGUI->getGproxy()->getConfig();
+    this->config = mainGUI->getGproxy()->getConfig();
 //    widget.appearanceTab->setEnabled(false);
 
     connect(this, SIGNAL(applyConfig()), mainGUI->getGproxy(), SLOT(applyConfig()));
@@ -44,8 +42,8 @@ ConfigGUI::~ConfigGUI () { }
 
 void ConfigGUI::initValues ()
 {
-    QList<QString> vKey = cfg->getKeys();
-    QList<QString> vValue = cfg->getValues();
+    QList<QString> vKey = config->getKeys();
+    QList<QString> vValue = config->getValues();
 
     for (int i = 0; i < vKey.count(); i++)
     {
@@ -100,7 +98,7 @@ void ConfigGUI::initValues ()
                         {
                             setSelectedCBValue(combobox, value);
                         }
-                        else if (cfg->getBoolean(key) == false)
+                        else if (config->getBoolean(key) == false)
                         {
                             combobox->setCurrentIndex(1);
                         }
@@ -142,7 +140,7 @@ void ConfigGUI::accept ()
                 QLineEdit *textfield = (QLineEdit*) tabChild;
                 QString key = textfield->objectName().remove("Textfield");
 
-                if (!cfg->setString(key, textfield->text()))
+                if (!config->setString(key, textfield->text()))
                 {
                     showErrorMessage("Could not save " + key + " = " + textfield->text());
                 }
@@ -155,28 +153,28 @@ void ConfigGUI::accept ()
                 {
                     if (combobox->currentText() == "US West (Lordaeron)")
                     {
-                        cfg->setString("server", "uswest.battle.net");
+                        config->setString("server", "uswest.battle.net");
                     }
                     else if (combobox->currentText() == "US East (Azeroth)")
                     {
-                        cfg->setString("server", "useast.battle.net");
+                        config->setString("server", "useast.battle.net");
                     }
                     else if (combobox->currentText() == "Asia (Kalimdor)")
                     {
-                        cfg->setString("server", "asia.battle.net");
+                        config->setString("server", "asia.battle.net");
                     }
                     else if (combobox->currentText() == "Europe (Northrend)")
                     {
-                        cfg->setString("server", "europe.battle.net");
+                        config->setString("server", "europe.battle.net");
                     }
                     else
                     {
-                        cfg->setString("server", combobox->currentText());
+                        config->setString("server", combobox->currentText());
                     }
                 }
                 else
                 {
-                    if (!cfg->setString(key, combobox->currentText()))
+                    if (!config->setString(key, combobox->currentText()))
                     {
                         showErrorMessage("Could not save " + key + " = "
                                 + combobox->currentText());
@@ -186,9 +184,9 @@ void ConfigGUI::accept ()
         }
     }
 
-    if (cfg->hasRequiredValues())
+    if (config->hasRequiredValues())
     {
-        cfg->commit();
+        config->commit();
         emit applyConfig();
         done(QDialog::Accepted);
     }
@@ -204,7 +202,7 @@ void ConfigGUI::accept ()
 
 void ConfigGUI::reject ()
 {
-    cfg->loadConfig();
+    config->loadConfig();
     emit applyConfig();
     done(QDialog::Rejected);
 }
@@ -476,7 +474,7 @@ void ConfigGUI::showErrorMessage (const QString &errorMessage)
 void ConfigGUI::onBackgroundcolorButtonClicked ()
 {
     this->setVisible(false);
-    QColorDialog* colorDialog = new QColorDialog(cfg->getColor("backgroundcolor"), this);
+    QColorDialog* colorDialog = new QColorDialog(config->getColor("backgroundcolor"), this);
 
     connect(colorDialog, SIGNAL(currentColorChanged(const QColor&)),
             this, SLOT(onBackgroundColorChanged(const QColor&)), Qt::QueuedConnection);
@@ -486,12 +484,12 @@ void ConfigGUI::onBackgroundcolorButtonClicked ()
         QColor backgroundcolor = colorDialog->selectedColor();
         if (backgroundcolor.isValid())
         {
-            cfg->setColor("backgroundcolor", backgroundcolor);
+            config->setColor("backgroundcolor", backgroundcolor);
         }
     }
     else
     {
-        emit colorChanged("all", QPalette::Base, cfg->getColor("backgroundcolor"));
+        emit colorChanged("all", QPalette::Base, config->getColor("backgroundcolor"));
     }
     delete colorDialog;
 
@@ -506,7 +504,7 @@ void ConfigGUI::onBackgroundColorChanged(const QColor& color)
 void ConfigGUI::onOutputareaFontButtonClicked()
 {
     this->setVisible(false);
-    QFontDialog* fontDialog = new QFontDialog(cfg->getFont("outputareaFont"), this);
+    QFontDialog* fontDialog = new QFontDialog(config->getFont("outputareaFont"), this);
 
     connect(fontDialog, SIGNAL(currentFontChanged(const QFont&)),
             this, SLOT(onOutputareaFontChanged(const QFont&)), Qt::QueuedConnection);
@@ -514,11 +512,11 @@ void ConfigGUI::onOutputareaFontButtonClicked()
     if (fontDialog->exec() == QDialog::Accepted)
     {
         QFont font = fontDialog->selectedFont();
-        cfg->setFont("outputareaFont", font);
+        config->setFont("outputareaFont", font);
     }
     else
     {
-        emit fontChanged("outputarea", cfg->getFont("outputareaFont"));
+        emit fontChanged("outputarea", config->getFont("outputareaFont"));
     }
     delete fontDialog;
 
@@ -528,4 +526,45 @@ void ConfigGUI::onOutputareaFontButtonClicked()
 void ConfigGUI::onOutputareaFontChanged(const QFont& font)
 {
     emit fontChanged("outputarea", font);
+}
+
+void ConfigGUI::onOutputareaForegroundcolorButtonClicked()
+{
+    this->setVisible(false);
+    QDialog* foregroundcolorDialog = new QDialog(this);
+    QLabel* label = new QLabel("Foreground colors", foregroundcolorDialog);
+    label->setGeometry(0, 0, 250, 40);
+    label->setAlignment(Qt::AlignCenter);
+    label->setFont(QFont("Calibri", 16, QFont::Bold));
+
+    QPushButton* button;
+    int height = 60;
+    QList<QString> keys = config->getKeys();
+    foreach(QString key, keys)
+    {
+        if (key.endsWith("_color"))
+        {
+            QString element = key.left(key.length() - 6);
+
+            label = new QLabel(element.left(1).toUpper() + element.mid(1) + " color:", foregroundcolorDialog);
+            label->setGeometry(10, height, 100, 20);
+
+            button = new QPushButton("Change " + element + " color", foregroundcolorDialog);
+            button->setGeometry(110, height, 140, 20);
+
+            height += 30;
+        }
+    }
+
+    if (foregroundcolorDialog->exec() == QDialog::Accepted)
+    {
+
+    }
+    else
+    {
+//        emit colorChanged("all", QPalette::Base, cfg->getColor("backgroundcolor"));
+    }
+    delete foregroundcolorDialog;
+
+    this->setVisible(true);
 }

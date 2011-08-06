@@ -177,6 +177,7 @@ public:
     bool cautosearch; //pr0 cautosearch
     bool displayautocreated;
     bool m_listing_current_games;
+    uint32_t hostCounter;
     //</editor-fold>
 
     CGProxy();

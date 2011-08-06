@@ -1491,7 +1491,7 @@ void CGProxy::ProcessLocalPackets ()
                                 DataRewritten.push_back(Packet->GetID());
                                 DataRewritten.push_back(0);
                                 DataRewritten.push_back(0);
-                                Util::appendByteArray(DataRewritten, ((CIncomingGameHost*) (*i))->GetHostCounter(), false);
+                                Util::appendByteArray(DataRewritten, (*i)->GetHostCounter(), false);
                                 Util::appendByteArray(DataRewritten, (uint32_t) 0, false);
                                 DataRewritten.push_back(Unknown);
                                 Util::appendByteArray(DataRewritten, ListenPort, false);
@@ -1986,16 +1986,22 @@ void CGProxy::ProcessRemotePackets ()
 
                 switch (reason)
                 {
+                    case 0x07:
+                        CONSOLE_Print("[ERROR] there was an error in the request");
+                        break;
                     case 0x09:
-                        CONSOLE_Print("[GPROXY] gamelobby is full");
+                        CONSOLE_Print("[ERROR] gamelobby is full");
                         break;
                     case 0x10:
-                        CONSOLE_Print("[GPROXY] game has been started");
+                        CONSOLE_Print("[ERROR] game has been started");
                         break;
                     case 0x27:
-                        CONSOLE_Print("[GPROXY] wrong password");
+                        CONSOLE_Print("[ERROR] wrong password");
                         break;
+                    default:
+                        CONSOLE_Print("[ERROR] Join rejected with invalid error code: " + QString::number(reason));
                 }
+                return;
             }
             else if (Packet->GetID() == CGameProtocol::W3GS_INCOMING_ACTION)
             {

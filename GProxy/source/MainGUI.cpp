@@ -761,7 +761,7 @@ void MainGUI::processInput (const QString& input)
                 "|CFFFF1493Pr0gm4n|r and "
                 "|CFFFFD700Manufactoring|r.");
     }
-    else if (command == "/test")
+    else if (command.startsWith("/test"))
     {
         // Isn't it obvious?
     }
@@ -890,22 +890,28 @@ void MainGUI::addMessage (QString message, bool log)
 
 void MainGUI::addColor (QString& message)
 {
+    // TODO Performance enhancement:
+    // The config->getColor method has to loop
+    // through every config value to find the right one => Caching needed.
     if (message.startsWith("[WHISPER]")
             || message.startsWith("[QUEUED] /w ")
             || message.startsWith("[WHISPER TO]"))
     {
-        message.prepend("|CFF00FF00");
+//        message.prepend("|CFF00FF00");
+        message.prepend(Util::toString(gproxy->getConfig()->getColor("whipser_color")));
     }
     else if (message.startsWith("[Phyton]")
             || message.startsWith("[Pr0gm4n]")
             || message.startsWith("[CONFIG]")
             || message.startsWith("Bot ["))
     {
-        message.prepend("|CFF006400");
+//        message.prepend("|CFF006400");
+        message.prepend(Util::toString(gproxy->getConfig()->getColor("gameinfo_color")));
     }
     else if (message.startsWith("[Manufactoring]"))
     {
-        message.prepend("|CFFFFD700");
+//        message.prepend("|CFFFFD700");
+        message.prepend(Util::toString(gproxy->getConfig()->getColor("gameinfo_color")));
     }
     else if (message.startsWith("[LOCAL]"))
     {
@@ -916,11 +922,13 @@ void MainGUI::addColor (QString& message)
         if (message.startsWith("[baerli_graz]")
                 || message.startsWith("[klingone_graz]"))
         {
-            message.insert(1, "|CFFFF0000");
+//            message.insert(1, "|CFFFF0000");
+            message.insert(1, Util::toString(gproxy->getConfig()->getColor("error_color")));
             message.insert(message.indexOf("]"), "|r");
         }
 
-        message.prepend("|CFFE6E6E6");
+//        message.prepend("|CFFE6E6E6");
+        message.prepend(Util::toString(gproxy->getConfig()->getColor("chat_color")));
     }
     else if (message.startsWith("[QUEUED]"))
     {
@@ -932,53 +940,66 @@ void MainGUI::addColor (QString& message)
         if (message.startsWith("[baerli_graz]")
                 || message.startsWith("[klingone_graz]"))
         {
-            message.insert(1, "|CFFFF0000");
+//            message.insert(1, "|CFFFF0000");
+            message.insert(1, Util::toString(gproxy->getConfig()->getColor("whipser_color")));
             message.insert(message.indexOf("]"), "|r");
         }
 
-        message.prepend("|CFFE6E6E6");
+//        message.prepend("|CFFE6E6E6");
+        message.prepend(Util::toString(gproxy->getConfig()->getColor("chat_color")));
     }
     else if (message.startsWith("[INFO]"))
     {
         message.remove(0, 7);
-        message.prepend("|CFF00FFFF");
+//        message.prepend("|CFF00FFFF");
+        message.prepend(Util::toString(gproxy->getConfig()->getColor("info_color")));
     }
     else if (message.startsWith("[TCPSOCKET]"))
     {
-        message.prepend("|CFF4B0082");
+//        message.prepend("|CFF4B0082");
+        message.prepend(Util::toString(gproxy->getConfig()->getColor("gproxy_color")));
     }
     else if (message.startsWith("[GPROXY]")
             || message.startsWith("[UDPSOCKET]"))
     {
-        message.prepend("|CFF4B0082");
+//        message.prepend("|CFF4B0082");
+        message.prepend(Util::toString(gproxy->getConfig()->getColor("gproxy_color")));
     }
     else if (message.startsWith("[BNET]"))
     {
-        message.prepend("|CFF8B0000");
+//        message.prepend("|CFF8B0000");
+        message.prepend(Util::toString(gproxy->getConfig()->getColor("bnet_color")));
     }
     else if (message.startsWith("[EMOTE]"))
     {
         message.remove(0, 8);
-        message.prepend("|CFF808080");
+//        message.prepend("|CFF808080");
+        message.prepend(Util::toString(gproxy->getConfig()->getColor("emote_color")));
     }
     else if (message.endsWith(" has joined the game.")
             || message.endsWith(" has left the game."))
     {
-        message.prepend("|CFFFFD700");
-        message.insert(message.indexOf(" has "), "|CFFFFD700");
+//        message.prepend("|CFFFFD700");
+        message.prepend(Util::toString(gproxy->getConfig()->getColor("gameinfo_color")));
+        // Set the color here again. Has to be done for players with colored names.
+//        message.insert(message.indexOf(" has "), "|CFFFFD700");
+        message.insert(message.indexOf(" has "), Util::toString(gproxy->getConfig()->getColor("gameinfo_color")));
     }
     else if (message.startsWith("[ERROR]")
             || message.startsWith("[Manufactoring][ERROR]"))
     {
-        message.prepend("|CFFFF0000");
+//        message.prepend("|CFFFF0000");
+        message.prepend(Util::toString(gproxy->getConfig()->getColor("error_color")));
     }
     else if (message.startsWith("[WARNING]"))
     {
-        message.prepend("|CFFFF4500");
+//        message.prepend("|CFFFF4500");
+        message.prepend(Util::toString(gproxy->getConfig()->getColor("warning_color")));
     }
     else
     {
-        message.prepend("|CFFE6E6E6");
+//        message.prepend("|CFFE6E6E6");
+        message.prepend(Util::toString(gproxy->getConfig()->getColor("chat_color")));
     }
 }
 

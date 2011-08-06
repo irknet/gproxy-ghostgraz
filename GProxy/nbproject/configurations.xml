@@ -22,7 +22,6 @@
       </logicalFolder>
       <itemPath>source/Config.h</itemPath>
       <itemPath>source/ConfigGUI.h</itemPath>
-      <itemPath>source/ForegroundcolorDialog.h</itemPath>
       <itemPath>source/GhostGrazLogininformationDialog.h</itemPath>
       <itemPath>source/MainGUI.h</itemPath>
       <itemPath>source/Packet.h</itemPath>
@@ -41,7 +40,6 @@
                    displayName="Resource Files"
                    projectFiles="true">
       <itemPath>source/ConfigGUI.ui</itemPath>
-      <itemPath>source/ForegroundcolorDialog.ui</itemPath>
       <itemPath>source/GhostGrazLogininformationDialog.ui</itemPath>
       <itemPath>source/MainGUI.ui</itemPath>
       <itemPath>source/resources.qrc</itemPath>
@@ -67,7 +65,6 @@
       </logicalFolder>
       <itemPath>source/Config.cpp</itemPath>
       <itemPath>source/ConfigGUI.cpp</itemPath>
-      <itemPath>source/ForegroundcolorDialog.cpp</itemPath>
       <itemPath>source/GhostGrazLogininformationDialog.cpp</itemPath>
       <itemPath>source/MainGUI.cpp</itemPath>
       <itemPath>source/Packet.cpp</itemPath>

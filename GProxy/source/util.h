@@ -61,6 +61,7 @@ public:
     static string toString( int i );
     static string toString( float f, int digits );
     static string toString( double d, int digits );
+    static QString toString(const QColor& color);
     static string toHexString( uint32_t i );
     static uint16_t toUInt16( string &s );
     static uint32_t toUInt32( string &s );
