@@ -46,6 +46,7 @@ public slots:
     void showErrorMessage(QString errorMessage);
     void showConfigDialog(bool exitOnReject = false);
     void playerJoined(const QString &playerName);
+    void initConfigurations();
     void applyConfig();
     void setColor(const QString& area, const QPalette::ColorRole& colorRole, const QColor& color);
     void setFont(const QString& area, const QFont& font);
@@ -68,11 +69,11 @@ private:
     void processInput(const QString& input);
     void addColor(QString &message);
     void addColor(QListWidgetItem* item);
-    void sortChannelList();
     void sortFriendList();
 
 private slots:
     void onClose();
+    void onRestart();
     void onInputTextAreaTextChanged();
     void onTitleLabelTextChanged();
     void onChannelContextMenu(const QPoint&);

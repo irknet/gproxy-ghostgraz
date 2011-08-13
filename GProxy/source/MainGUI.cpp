@@ -50,6 +50,14 @@ void MainGUI::onClose ()
     gproxy->cleanup();
 }
 
+void MainGUI::onRestart()
+{
+    this->hide();
+    QString applicationName = QFileInfo(QApplication::applicationFilePath()).fileName();
+    QProcess::startDetached(applicationName , QStringList());
+    QApplication::quit();
+}
+
 void MainGUI::startUpdateThread()
 {
     gproxyUpdateThread->start(QThread::HighPriority);
@@ -160,7 +168,10 @@ void MainGUI::initAdminlist ()
     statspage->getAdminlist();
 }
 
-void MainGUI::applyConfig()
+/**
+ * Configuration options which are only applied once after startup.
+ */
+void MainGUI::initConfigurations()
 {
     Config* config = gproxy->getConfig();
 
@@ -171,16 +182,23 @@ void MainGUI::applyConfig()
     int appWidth = config->getInt("width");
     int appHeight = config->getInt("height");
 
-    if (appWidth < 500 || appHeight < 200)
+    // Resize if possible. App would crash if the window size is too small.
+    if (appWidth >= 500 && appHeight >= 200)
     {
-        this->move((screenWidth - this->width()) / 2,
-                (screenHeight - this->height()) / 2 - 50);
+        this->resize(appWidth, appHeight);
     }
-    else
-    {
-        this->setGeometry((screenWidth - this->width()) / 2,
-                (screenHeight - this->height()) / 2 - 50, appWidth, appHeight);
-    }
+    // Center the window.
+    this->move((screenWidth - this->width()) / 2, (screenHeight - this->height()) / 2 - 50);
+
+    applyConfig();
+}
+
+/**
+ * Configuration options which are reloaded every time the config has changed and once after startup.
+ */
+void MainGUI::applyConfig()
+{
+    Config* config = gproxy->getConfig();
 
     // Set color
     QPalette palette = widget.centralwidget->palette();
@@ -194,6 +212,13 @@ void MainGUI::applyConfig()
     widget.outputTextArea->setFont(config->getFont("outputareaFont"));
 }
 
+/**
+ * Slot for changing the color.
+ *
+ * @param area The area where the color change should be applied.
+ * @param colorRole The ColorRole of the palette. (Which color has changed?)
+ * @param color The new color.
+ */
 void MainGUI::setColor(const QString& area, const QPalette::ColorRole& colorRole, const QColor& color)
 {
     if (area == "all")
@@ -205,6 +230,12 @@ void MainGUI::setColor(const QString& area, const QPalette::ColorRole& colorRole
     }
 }
 
+/**
+ * Slot for changing the font.
+ *
+ * @param area The area where the font change should be applied.
+ * @param font The new font.
+ */
 void MainGUI::setFont(const QString& area, const QFont& font)
 {
     if (area == "outputarea")
@@ -213,23 +244,45 @@ void MainGUI::setFont(const QString& area, const QFont& font)
     }
 }
 
+/**
+ * Event for the window resize request.
+ *
+ * @param event QResizeEvent*
+ */
 void MainGUI::resizeEvent (QResizeEvent* event)
 {
+    // Resize the window.
     QWidget::resizeEvent(event);
+    // Apply layout changes.
     initLayout();
 }
 
+/**
+ * The slot which is emitted after the text of the inputTextArea has changed.
+ * Used to execute commands or send text.
+ */
 void MainGUI::onInputTextAreaTextChanged ()
 {
-    if (widget.inputTextArea->toPlainText().contains("\n")
-            && widget.inputTextArea->toPlainText().size() > 1)
+    if (widget.inputTextArea->toPlainText().contains("\n"))
     {
+        if (widget.inputTextArea->toPlainText().length() == 1)
+        {
+            widget.inputTextArea->clear();
+            return;
+        }
+
         QString input = widget.inputTextArea->toPlainText();
-        input.replace("\n", "");
+        widget.inputTextArea->clear();
 
-        widget.inputTextArea->setPlainText("");
+        if (input.endsWith('\n')) {
+            input.chop(1);
+        }
 
-        processInput(input);
+        QStringList lines = input.split("\n");
+        foreach (QString line, lines)
+        {
+            processInput(line);
+        }
     }
     else if (widget.inputTextArea->toPlainText().toLower() == "/r "
             && !gproxy->m_BNET->GetReplyTarget().empty())
@@ -240,6 +293,10 @@ void MainGUI::onInputTextAreaTextChanged ()
     }
 }
 
+/**
+ * The slot which is emitted after the text of the titleLabel has changed.
+ * Used to resize the text to fit into the label.
+ */
 void MainGUI::onTitleLabelTextChanged ()
 {
     QString text = widget.titleLabel->text();
@@ -257,6 +314,11 @@ void MainGUI::onTitleLabelTextChanged ()
     widget.titleLabel->setFont(font);
 }
 
+/**
+ * Slot to build the requested context menu for the channellist.
+ *
+ * @param pos The position of the mouse event.
+ */
 void MainGUI::onChannelContextMenu (const QPoint& pos)
 {
     QPoint globalPos = widget.channelList->mapToGlobal(pos);
@@ -347,6 +409,11 @@ void MainGUI::onChannelContextMenu (const QPoint& pos)
     }
 }
 
+/**
+ * Slot to build the requested context menu for the friendlist.
+ *
+ * @param pos The position of the mouse event.
+ */
 void MainGUI::onFriendsContextMenu (const QPoint& pos)
 {
     QPoint globalPos = widget.friendList->mapToGlobal(pos);
@@ -405,6 +472,11 @@ void MainGUI::onFriendsContextMenu (const QPoint& pos)
     }
 }
 
+/**
+ * The slot which is emitted a click event on the gamelist occured.
+ *
+ * @param mouseEvent The MouseEvent*.
+ */
 void MainGUI::onGameListItemClicked (QMouseEvent *mouseEvent)
 {
     widget.inputTextArea->setFocus();
@@ -431,6 +503,9 @@ void MainGUI::onGameListItemClicked (QMouseEvent *mouseEvent)
     }
 }
 
+/**
+ * Slot which is emitted when the slider of the outputTextArea scroll has moved.
+ */
 void MainGUI::onOutputFieldSliderMoved ()
 {
     QScrollBar* vsb = widget.outputTextArea->verticalScrollBar();
@@ -440,6 +515,9 @@ void MainGUI::onOutputFieldSliderMoved ()
     }
 }
 
+/**
+ * Slot which is emitted when the refresh button was clicked.
+ */
 void MainGUI::onRefreshButtonClicked ()
 {
     widget.refreshButton->setEnabled(false);
@@ -457,6 +535,9 @@ void MainGUI::onRefreshButtonClicked ()
     QTimer::singleShot(1000, this, SLOT(updateRefreshButton()));
 }
 
+/**
+ * Updates the text of the refresh button and enables it if the wait time has elapsed.
+ */
 void MainGUI::updateRefreshButton ()
 {
     QString text = widget.refreshButton->text();
@@ -475,8 +556,14 @@ void MainGUI::updateRefreshButton ()
     }
 }
 
+/**
+ * Processed the input of the inputTextArea. E.g: Execute commands or send text to Battle.net.
+ *
+ * @param input The user input text.
+ */
 void MainGUI::processInput (const QString& input)
 {
+    // Variable holding the input text in lower case for command comparison.
     QString command = input.toLower();
 
     if (command == "/commands")
@@ -503,9 +590,7 @@ void MainGUI::processInput (const QString& input)
         addMessage("   /parrot <plname>    : repeats anything that Player <plname> sais in Chat with [PARROT] <Player's message>", false);
         addMessage("   /parrotall          : repeats anything that Players say in Chat with [PARROT] <Player's message>", false);
         addMessage("   /parrotoff          : stops /parrot and /parrotall", false);
-#ifdef WIN32
         addMessage("   /start              : start warcraft 3", false);
-#endif
         addMessage("   /version            : show version text", false);
         addMessage("", false);
         addMessage("  In game:", false);
@@ -747,19 +832,24 @@ void MainGUI::processInput (const QString& input)
         else
             addMessage("[BNET] nobody has whispered you yet");
     }
-#ifdef WIN32
     else if (command == "/start")
     {
         startWarcraft();
     }
-#endif
     else if (command == "/version")
     {
-        addMessage("[GPROXY] Customized GProxy++ Version " + QString::fromStdString(gproxy->m_Version));
-        addMessage("[GPROXY] |CFFE6E6E6"
-                "This mod is by |CFF006400Phyton|r, "
-                "|CFFFF1493Pr0gm4n|r and "
-                "|CFFFFD700Manufactoring|r.");
+        addMessage("[GPROXY] Customized "
+                + Util::toString(this->getGproxy()->getConfig()->getColor("gproxy_foregroundcolor"))
+                + "GProxy++|r Version " + QString::fromStdString(gproxy->m_Version));
+        addMessage("[GPROXY] "
+                + Util::toString(this->getGproxy()->getConfig()->getColor("chat_foregroundcolor"))
+                + "This mod is by "
+                + Util::toString(this->getGproxy()->getConfig()->getColor("whisper_foregroundcolor"))
+                + "Phyton|r, "
+                + Util::toString(this->getGproxy()->getConfig()->getColor("info_foregroundcolor"))
+                + "Pr0gm4n|r and "
+                + Util::toString(this->getGproxy()->getConfig()->getColor("gameinfo_foregroundcolor"))
+                + "Manufactoring|r.");
     }
     else if (command.startsWith("/test"))
     {
@@ -843,6 +933,12 @@ void MainGUI::processInput (const QString& input)
     }
 }
 
+/**
+ * Displays the message at the output area of GProxy.
+ *
+ * @param message The message to be displayed.
+ * @param log If the message should be logged. Default: <code>true</code>.
+ */
 void MainGUI::addMessage (QString message, bool log)
 {
     if (log)
@@ -888,30 +984,32 @@ void MainGUI::addMessage (QString message, bool log)
     widget.outputTextArea->setTextColor(QColor(230, 230, 230));
 }
 
+/**
+ * Adds a color code to the message, depending on its message type.
+ *
+ * @param message The message to be modified.
+ */
 void MainGUI::addColor (QString& message)
 {
-    // TODO Performance enhancement:
+    // FIXME Performance enhancement:
     // The config->getColor method has to loop
-    // through every config value to find the right one => Caching needed.
+    // through every config value to find the right one.
     if (message.startsWith("[WHISPER]")
             || message.startsWith("[QUEUED] /w ")
             || message.startsWith("[WHISPER TO]"))
     {
-//        message.prepend("|CFF00FF00");
-        message.prepend(Util::toString(gproxy->getConfig()->getColor("whipser_color")));
+        message.prepend(Util::toString(gproxy->getConfig()->getColor("whipser_foregroundcolor")));
     }
     else if (message.startsWith("[Phyton]")
             || message.startsWith("[Pr0gm4n]")
             || message.startsWith("[CONFIG]")
             || message.startsWith("Bot ["))
     {
-//        message.prepend("|CFF006400");
-        message.prepend(Util::toString(gproxy->getConfig()->getColor("gameinfo_color")));
+        message.prepend(Util::toString(gproxy->getConfig()->getColor("gameinfo_foregroundcolor")));
     }
     else if (message.startsWith("[Manufactoring]"))
     {
-//        message.prepend("|CFFFFD700");
-        message.prepend(Util::toString(gproxy->getConfig()->getColor("gameinfo_color")));
+        message.prepend(Util::toString(gproxy->getConfig()->getColor("gameinfo_foregroundcolor")));
     }
     else if (message.startsWith("[LOCAL]"))
     {
@@ -922,13 +1020,11 @@ void MainGUI::addColor (QString& message)
         if (message.startsWith("[baerli_graz]")
                 || message.startsWith("[klingone_graz]"))
         {
-//            message.insert(1, "|CFFFF0000");
-            message.insert(1, Util::toString(gproxy->getConfig()->getColor("error_color")));
+            message.insert(1, Util::toString(gproxy->getConfig()->getColor("error_foregroundcolor")));
             message.insert(message.indexOf("]"), "|r");
         }
 
-//        message.prepend("|CFFE6E6E6");
-        message.prepend(Util::toString(gproxy->getConfig()->getColor("chat_color")));
+        message.prepend(Util::toString(gproxy->getConfig()->getColor("chat_foregroundcolor")));
     }
     else if (message.startsWith("[QUEUED]"))
     {
@@ -940,69 +1036,62 @@ void MainGUI::addColor (QString& message)
         if (message.startsWith("[baerli_graz]")
                 || message.startsWith("[klingone_graz]"))
         {
-//            message.insert(1, "|CFFFF0000");
-            message.insert(1, Util::toString(gproxy->getConfig()->getColor("whipser_color")));
+            message.insert(1, Util::toString(gproxy->getConfig()->getColor("whipser_foregroundcolor")));
             message.insert(message.indexOf("]"), "|r");
         }
 
-//        message.prepend("|CFFE6E6E6");
-        message.prepend(Util::toString(gproxy->getConfig()->getColor("chat_color")));
+        message.prepend(Util::toString(gproxy->getConfig()->getColor("chat_foregroundcolor")));
     }
     else if (message.startsWith("[INFO]"))
     {
         message.remove(0, 7);
-//        message.prepend("|CFF00FFFF");
-        message.prepend(Util::toString(gproxy->getConfig()->getColor("info_color")));
+        message.prepend(Util::toString(gproxy->getConfig()->getColor("info_foregroundcolor")));
     }
     else if (message.startsWith("[TCPSOCKET]"))
     {
-//        message.prepend("|CFF4B0082");
-        message.prepend(Util::toString(gproxy->getConfig()->getColor("gproxy_color")));
+        message.prepend(Util::toString(gproxy->getConfig()->getColor("gproxy_foregroundcolor")));
     }
     else if (message.startsWith("[GPROXY]")
             || message.startsWith("[UDPSOCKET]"))
     {
-//        message.prepend("|CFF4B0082");
-        message.prepend(Util::toString(gproxy->getConfig()->getColor("gproxy_color")));
+        message.prepend(Util::toString(gproxy->getConfig()->getColor("gproxy_foregroundcolor")));
     }
     else if (message.startsWith("[BNET]"))
     {
-//        message.prepend("|CFF8B0000");
-        message.prepend(Util::toString(gproxy->getConfig()->getColor("bnet_color")));
+        message.prepend(Util::toString(gproxy->getConfig()->getColor("bnet_foregroundcolor")));
     }
     else if (message.startsWith("[EMOTE]"))
     {
         message.remove(0, 8);
-//        message.prepend("|CFF808080");
-        message.prepend(Util::toString(gproxy->getConfig()->getColor("emote_color")));
+        message.prepend(Util::toString(gproxy->getConfig()->getColor("emote_foregroundcolor")));
     }
     else if (message.endsWith(" has joined the game.")
             || message.endsWith(" has left the game."))
     {
-//        message.prepend("|CFFFFD700");
-        message.prepend(Util::toString(gproxy->getConfig()->getColor("gameinfo_color")));
+        message.prepend(Util::toString(gproxy->getConfig()->getColor("gameinfo_foregroundcolor")));
         // Set the color here again. Has to be done for players with colored names.
-//        message.insert(message.indexOf(" has "), "|CFFFFD700");
-        message.insert(message.indexOf(" has "), Util::toString(gproxy->getConfig()->getColor("gameinfo_color")));
+        message.insert(message.indexOf(" has "), Util::toString(gproxy->getConfig()->getColor("gameinfo_foregroundcolor")));
     }
     else if (message.startsWith("[ERROR]")
             || message.startsWith("[Manufactoring][ERROR]"))
     {
-//        message.prepend("|CFFFF0000");
-        message.prepend(Util::toString(gproxy->getConfig()->getColor("error_color")));
+        message.prepend(Util::toString(gproxy->getConfig()->getColor("error_foregroundcolor")));
     }
     else if (message.startsWith("[WARNING]"))
     {
-//        message.prepend("|CFFFF4500");
-        message.prepend(Util::toString(gproxy->getConfig()->getColor("warning_color")));
+        message.prepend(Util::toString(gproxy->getConfig()->getColor("warning_foregroundcolor")));
     }
     else
     {
-//        message.prepend("|CFFE6E6E6");
-        message.prepend(Util::toString(gproxy->getConfig()->getColor("chat_color")));
+        message.prepend(Util::toString(gproxy->getConfig()->getColor("chat_foregroundcolor")));
     }
 }
 
+/**
+ * Adds color data and tooltip information to the QListWidgetItem.
+ *
+ * @param item QListWidgetItem*.
+ */
 void MainGUI::addColor (QListWidgetItem *item)
 {
     QString username = item->data(ChannellistDelegate::USER).toString();
@@ -1030,47 +1119,29 @@ void MainGUI::addColor (QListWidgetItem *item)
     }
 }
 
-void MainGUI::sortChannelList ()
-{
-    for (int i = widget.channelList->count() - 1; i >= 0; i--)
-    {
-        QListWidgetItem *item = widget.channelList->item(i);
-        if (item->data(ChannellistDelegate::USER).toString() == "baerli_graz"
-                || item->data(ChannellistDelegate::USER).toString() == "klingone_graz"
-                || item->data(ChannellistDelegate::USER).toString().startsWith("GhostGraz")
-                || item->data(ChannellistDelegate::USER).toString() == "Phyton"
-                || item->data(ChannellistDelegate::USER).toString() == "Manufactoring")
-        {
-
-            QListWidgetItem *newItem = new QListWidgetItem();
-            newItem->setData(ChannellistDelegate::USER,
-                    item->data(ChannellistDelegate::USER));
-            newItem->setData(ChannellistDelegate::CLAN_TAG,
-                    item->data(ChannellistDelegate::CLAN_TAG));
-            addColor(newItem);
-            delete widget.channelList->takeItem(i);
-            widget.channelList->insertItem(0, newItem);
-        }
-    }
-}
-
+/**
+ * Sorts the friendlist to display online users on top.
+ */
 void MainGUI::sortFriendList ()
 {
-    for (int i = widget.friendList->count() - 1; i >= 0; i--)
+    for (int currentRow = widget.friendList->count() - 1; currentRow > 0; --currentRow)
     {
-        QListWidgetItem *item = widget.friendList->item(i);
-        if (item->foreground() == Qt::green)
+        QListWidgetItem* currentItem = widget.friendList->item(currentRow);
+        if (currentItem->foreground() == Qt::green)
         {
-
-            QListWidgetItem *newItem = new QListWidgetItem();
-            newItem->setText(item->text());
-            newItem->setForeground(Qt::green);
-            delete widget.friendList->takeItem(i);
-            widget.friendList->insertItem(0, newItem);
+            widget.friendList->takeItem(currentRow);
+            widget.friendList->insertItem(currentRow - 1, currentItem);
+            widget.friendList->setCurrentRow(currentRow - 1);
         }
     }
 }
 
+/**
+ * Adds a user to the channellist.
+ *
+ * @param username The name of the user.
+ * @param clanTag The clantag of the user.
+ */
 void MainGUI::addChannelUser (QString username, QString clanTag)
 {
     for (int i = 0; i < widget.channelList->count(); i++)
@@ -1091,7 +1162,6 @@ void MainGUI::addChannelUser (QString username, QString clanTag)
                 addColor(newItem);
                 delete widget.channelList->takeItem(i);
                 widget.channelList->addItem(newItem);
-                //                sortChannelList();
                 return;
             }
         }
@@ -1106,9 +1176,13 @@ void MainGUI::addChannelUser (QString username, QString clanTag)
     }
     addColor(newItem);
     widget.channelList->addItem(newItem);
-    //    sortChannelList();
 }
 
+/**
+ * Removes a user with the given username from the channellist.
+ *
+ * @param username The name of the user.
+ */
 void MainGUI::removeChannelUser (QString username)
 {
     for (int i = 0; i < widget.channelList->count(); i++)
@@ -1124,18 +1198,32 @@ void MainGUI::removeChannelUser (QString username)
     }
 }
 
+/**
+ * Slot which is emitted if the channel has been changed.
+ *
+ * @param channel The new channel name.
+ */
 void MainGUI::changeChannel (QString channel)
 {
     widget.channelList->clear();
     widget.titleLabel->setText(channel);
 }
 
+/**
+ * Removes and deletes every item from the friendlist.
+ */
 void MainGUI::clearFriendlist ()
 {
-
     widget.friendList->clear();
 }
 
+/**
+ * Adds a friend to the friendlist.
+ *
+ * @param username The name of the friend.
+ * @param online The online status.
+ * @param location The current location of this friend.
+ */
 void MainGUI::addFriend (QString username, bool online, QString location)
 {
     QListWidgetItem *newItem = new QListWidgetItem();
@@ -1156,6 +1244,13 @@ void MainGUI::addFriend (QString username, bool online, QString location)
     sortFriendList();
 }
 
+/**
+ * Adds a game to the gamelist.
+ *
+ * @param botname The name of the hosting bot.
+ * @param gamename The name of the hosted game.
+ * @param openSlots The remaining slots to join.
+ */
 void MainGUI::addGame (QString botname, QString gamename, QString openSlots)
 {
 
@@ -1166,12 +1261,20 @@ void MainGUI::addGame (QString botname, QString gamename, QString openSlots)
     widget.gameList->addItem(newItem);
 }
 
+/**
+ * Removes and deletes every item from the gamelist.
+ */
 void MainGUI::clearGamelist ()
 {
 
     widget.gameList->clear();
 }
 
+/**
+ * Sets the new slotlist of the game.
+ *
+ * @param slotList The new slotlist.
+ */
 void MainGUI::setGameslots (QList<Slot*> slotList)
 {
     widget.channelList->clear();
@@ -1232,6 +1335,9 @@ void MainGUI::setGameslots (QList<Slot*> slotList)
     }
 }
 
+/**
+ * Starts Warcraft 3 Reign of Chaos or The Frozen Throne (depending on the configuration) as detached process.
+ */
 void MainGUI::startWarcraft ()
 {
     QString exePath;
@@ -1251,6 +1357,11 @@ void MainGUI::startWarcraft ()
     }
 }
 
+/**
+ * Displays a errormessage dialog.
+ *
+ * @param errorMessage The error as QString.
+ */
 void MainGUI::showErrorMessage (QString errorMessage)
 {
     addMessage("[ERROR] " + errorMessage);
@@ -1262,19 +1373,23 @@ void MainGUI::showErrorMessage (QString errorMessage)
     msgBox.exec();
 }
 
+/**
+ * Displays the Options dialog.
+ * If exitOnReject is true GProxy will be restarted or closed when the dialog returns.
+ *
+ * @param exitOnReject Determines if GProxy should restarted/closed after the dialog returns.
+ */
 void MainGUI::showConfigDialog (bool exitOnReject)
 {
-    ConfigGUI* config = new ConfigGUI(this);
-    int exitCode = config->exec();
+    ConfigGUI* configGUI = new ConfigGUI(this);
+    int exitCode = configGUI->exec();
     if (exitOnReject)
     {
         if (exitCode == QDialog::Accepted)
         {
             // Restart GProxy.
             showErrorMessage("Restarting GProxy...");
-            QString applicationName = QFileInfo(QApplication::applicationFilePath()).fileName();
-            QProcess::startDetached(applicationName , QStringList());
-            QApplication::quit();
+            onRestart();
         }
         else
         {
@@ -1282,8 +1397,17 @@ void MainGUI::showConfigDialog (bool exitOnReject)
             QApplication::quit();
         }
     }
+
+    delete configGUI;
 }
 
+/**
+ * Slot which is emitted when a player joins the game.
+ * Will play a sound if a VIP joins. A player is considered VIP if he is admin or on the friendlist.
+ * Also requests additional player information from the statspage.
+ *
+ * @param playername The name of player.
+ */
 void MainGUI::playerJoined (const QString& playername)
 {
     addMessage("[LOBBY] " + playername + " has joined the game.");
@@ -1314,6 +1438,11 @@ void MainGUI::playerJoined (const QString& playername)
     }
 }
 
+/**
+ * Slot which is emitted when the channellist was clicked.
+ *
+ * @param mouseEvent QMouseEvent* holding additional information.
+ */
 void MainGUI::onChannellistItemClicked (QMouseEvent *mouseEvent)
 {
     widget.inputTextArea->setFocus();
@@ -1440,6 +1569,11 @@ void MainGUI::onChannellistItemClicked (QMouseEvent *mouseEvent)
     }
 }
 
+/**
+ * Slot which is emitted when the friendlist was clicked.
+ *
+ * @param mouseEvent QMouseEvent* holding additional information.
+ */
 void MainGUI::onFriendlistItemClicked (QMouseEvent *mouseEvent)
 {
     widget.inputTextArea->setFocus();
@@ -1457,6 +1591,9 @@ void MainGUI::onFriendlistItemClicked (QMouseEvent *mouseEvent)
     }
 }
 
+/**
+ * Slot which is emitted when the statspage login was finished.
+ */
 void MainGUI::statspageLoginFinished ()
 {
     if (statspage->isLoggedIn())
@@ -1471,6 +1608,11 @@ void MainGUI::statspageLoginFinished ()
     }
 }
 
+/**
+ * Slot which is emitted when the statspage finished parsing the playerinformation.
+ *
+ * @param player The player with every available information from the statspage.
+ */
 void MainGUI::receivedPlayerInformation (Player *player)
 {
     QList<Player*> players = gproxy->getPlayers();
@@ -1508,6 +1650,7 @@ void MainGUI::receivedPlayerInformation (Player *player)
 
 /**
  * Slot: Executed when the adminlist was downloaded and parsed successfully.
+ * 
  * @param admins The adminlist.
  */
 void MainGUI::onAdminlistReceived (QList<QString> admins)

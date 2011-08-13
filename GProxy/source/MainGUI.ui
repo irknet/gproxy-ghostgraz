@@ -296,6 +296,7 @@
     </property>
     <addaction name="optionsAction"/>
     <addaction name="separator"/>
+    <addaction name="restartAction"/>
     <addaction name="exitAction"/>
    </widget>
    <addaction name="fileMenu"/>
@@ -316,6 +317,15 @@
    </property>
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="restartAction">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/images/Refresh.png</normaloff>:/images/Refresh.png</iconset>
+   </property>
+   <property name="text">
+    <string>Restart</string>
    </property>
   </action>
  </widget>
@@ -493,6 +503,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>restartAction</sender>
+   <signal>triggered()</signal>
+   <receiver>MainGUI</receiver>
+   <slot>onRestart()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>543</x>
+     <y>285</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>showConfigDialog()</slot>
@@ -504,5 +530,6 @@
   <slot>onFriendsContextMenu(QPoint)</slot>
   <slot>onChannellistItemClicked(QMouseEvent*)</slot>
   <slot>onFriendlistItemClicked(QMouseEvent*)</slot>
+  <slot>onRestart()</slot>
  </slots>
 </ui>

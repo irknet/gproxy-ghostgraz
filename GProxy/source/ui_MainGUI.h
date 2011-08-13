@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainGUI.ui'
 **
-** Created: Sat 16. Jul 11:20:38 2011
+** Created: Sat 13. Aug 09:42:51 2011
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -32,6 +32,7 @@ class Ui_MainGUI
 public:
     QAction *optionsAction;
     QAction *exitAction;
+    QAction *restartAction;
     QWidget *centralwidget;
     QPlainTextEdit *inputTextArea;
     ClickableListWidget *channelList;
@@ -62,6 +63,11 @@ public:
         QIcon icon2;
         icon2.addFile(QString::fromUtf8(":/images/Cancel.png"), QSize(), QIcon::Normal, QIcon::Off);
         exitAction->setIcon(icon2);
+        restartAction = new QAction(MainGUI);
+        restartAction->setObjectName(QString::fromUtf8("restartAction"));
+        QIcon icon3;
+        icon3.addFile(QString::fromUtf8(":/images/Refresh.png"), QSize(), QIcon::Normal, QIcon::Off);
+        restartAction->setIcon(icon3);
         centralwidget = new QWidget(MainGUI);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         QPalette palette;
@@ -149,6 +155,7 @@ public:
         menuBar->addAction(fileMenu->menuAction());
         fileMenu->addAction(optionsAction);
         fileMenu->addSeparator();
+        fileMenu->addAction(restartAction);
         fileMenu->addAction(exitAction);
 
         retranslateUi(MainGUI);
@@ -162,6 +169,7 @@ public:
         QObject::connect(channelList, SIGNAL(clicked(QMouseEvent*)), MainGUI, SLOT(onChannellistItemClicked(QMouseEvent*)));
         QObject::connect(friendList, SIGNAL(clicked(QMouseEvent*)), MainGUI, SLOT(onFriendlistItemClicked(QMouseEvent*)));
         QObject::connect(optionsAction, SIGNAL(triggered()), MainGUI, SLOT(showConfigDialog()));
+        QObject::connect(restartAction, SIGNAL(triggered()), MainGUI, SLOT(onRestart()));
 
         QMetaObject::connectSlotsByName(MainGUI);
     } // setupUi
@@ -171,6 +179,7 @@ public:
         MainGUI->setWindowTitle(QApplication::translate("MainGUI", "GProxy GhostGraz v2.2", 0, QApplication::UnicodeUTF8));
         optionsAction->setText(QApplication::translate("MainGUI", "Options", 0, QApplication::UnicodeUTF8));
         exitAction->setText(QApplication::translate("MainGUI", "Exit", 0, QApplication::UnicodeUTF8));
+        restartAction->setText(QApplication::translate("MainGUI", "Restart", 0, QApplication::UnicodeUTF8));
         inputTextArea->setPlainText(QString());
         titleLabel->setText(QApplication::translate("MainGUI", "Channel", 0, QApplication::UnicodeUTF8));
         refreshButton->setText(QApplication::translate("MainGUI", "Refresh", 0, QApplication::UnicodeUTF8));

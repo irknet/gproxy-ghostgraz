@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'gproxy.h'
 **
-** Created: Sun 31. Jul 20:12:31 2011
+** Created: Sat 13. Aug 21:50:47 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,12 +23,12 @@ static const uint qt_meta_data_CGProxy[] = {
        5,       // revision
        0,       // classname
        0,    0, // classinfo
-      14,   14, // methods
+      15,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-      13,       // signalCount
+      14,       // signalCount
 
  // signals: signature, parameters, type, tag, flags
        9,    8,    8,    8, 0x05,
@@ -44,9 +44,10 @@ static const uint qt_meta_data_CGProxy[] = {
      336,    8,    8,    8, 0x05,
      364,    8,    8,    8, 0x05,
      394,    8,    8,    8, 0x05,
+     422,    8,    8,    8, 0x05,
 
  // slots: signature, parameters, type, tag, flags
-     415,    8,    8,    8, 0x0a,
+     443,    8,    8,    8, 0x0a,
 
        0        // eod
 };
@@ -64,6 +65,7 @@ static const char qt_meta_stringdata_CGProxy[] = {
     "signal_playerJoined(QString)\0"
     "signal_stopDownloadThread()\0"
     "signal_showConfigDialog(bool)\0"
+    "signal_initConfigurations()\0"
     "signal_applyConfig()\0applyConfig()\0"
 };
 
@@ -108,11 +110,12 @@ int CGProxy::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         case 9: signal_playerJoined((*reinterpret_cast< const QString(*)>(_a[1]))); break;
         case 10: signal_stopDownloadThread(); break;
         case 11: signal_showConfigDialog((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 12: signal_applyConfig(); break;
-        case 13: applyConfig(); break;
+        case 12: signal_initConfigurations(); break;
+        case 13: signal_applyConfig(); break;
+        case 14: applyConfig(); break;
         default: ;
         }
-        _id -= 14;
+        _id -= 15;
     }
     return _id;
 }
@@ -199,8 +202,14 @@ void CGProxy::signal_showConfigDialog(bool _t1)
 }
 
 // SIGNAL 12
-void CGProxy::signal_applyConfig()
+void CGProxy::signal_initConfigurations()
 {
     QMetaObject::activate(this, &staticMetaObject, 12, 0);
+}
+
+// SIGNAL 13
+void CGProxy::signal_applyConfig()
+{
+    QMetaObject::activate(this, &staticMetaObject, 13, 0);
 }
 QT_END_MOC_NAMESPACE

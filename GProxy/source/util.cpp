@@ -361,9 +361,9 @@ string Util::toString( double d, int digits )
 QString Util::toString(const QColor& color)
 {
     return "|cff"
-            + QString("%1").arg(color.red(), -2, 16, QChar('0'))
-            + QString("%1").arg(color.green(), -2, 16, QChar('0'))
-            + QString("%1").arg(color.blue(), -2, 16, QChar('0'));
+            + QString("%1").arg(color.red(), 2, 16, QChar('0'))
+            + QString("%1").arg(color.green(), 2, 16, QChar('0'))
+            + QString("%1").arg(color.blue(), 2, 16, QChar('0'));
 }
 
 string Util::toHexString( uint32_t i )

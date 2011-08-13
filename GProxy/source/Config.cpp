@@ -45,6 +45,7 @@ int Config::loadConfig ()
 
 void Config::addKeys ()
 {
+    // BEWARE: Everything that ends with "_foregroundcolor" is considered to be a foregroundcolor.
     keys.append("# Required config values");
     keys.append("war3path");
     keys.append("cdkeyroc");
@@ -77,16 +78,17 @@ void Config::addKeys ()
     keys.append("# Appearance");
     keys.append("backgroundcolor");
     keys.append("outputareaFont");
+
     keys.append("# Foregroundcolors");
-    keys.append("chat_color");
-    keys.append("whisper_color");
-    keys.append("gameinfo_color");
-    keys.append("gproxy_color");
-    keys.append("bnet_color");
-    keys.append("info_color");
-    keys.append("emote_color");
-    keys.append("error_color");
-    keys.append("warning_color");
+    keys.append("chat_foregroundcolor");
+    keys.append("whisper_foregroundcolor");
+    keys.append("gameinfo_foregroundcolor");
+    keys.append("gproxy_foregroundcolor");
+    keys.append("bnet_foregroundcolor");
+    keys.append("info_foregroundcolor");
+    keys.append("emote_foregroundcolor");
+    keys.append("error_foregroundcolor");
+    keys.append("warning_foregroundcolor");
 }
 
 void Config::addValues (QString content)
@@ -172,43 +174,43 @@ void Config::addDefaultValue (const QString &key)
     {
         values.append(QFont("Arial", 9, QFont::Normal).toString());
     }
-    else if(key == "chat_color")
+    else if(key == "chat_foregroundcolor")
     {
         values.append("240,240,240");
     }
-    else if(key == "whisper_color")
+    else if(key == "whisper_foregroundcolor")
     {
         values.append("0,255,0");
     }
-    else if(key == "gameinfo_color")
+    else if(key == "gameinfo_foregroundcolor")
     {
         values.append("255,215,0");
     }
-    else if(key == "gproxy_color")
+    else if(key == "gproxy_foregroundcolor")
     {
         values.append("75,0,130");
     }
-    else if(key == "bnet_color")
+    else if(key == "bnet_foregroundcolor")
     {
         values.append("139,0,0");
     }
-    else if(key == "info_color")
+    else if(key == "info_foregroundcolor")
     {
         values.append("0,255,255");
     }
-    else if(key == "emote_color")
+    else if(key == "emote_foregroundcolor")
     {
         values.append("128,128,128");
     }
-    else if(key == "error_color")
+    else if(key == "error_foregroundcolor")
     {
         values.append("255,0,0");
     }
-    else if(key == "warning_color")
+    else if(key == "warning_foregroundcolor")
     {
         values.append("255,69,0");
     }
-    else // add an empty string (THIS IS NEEDED!)
+    else // Add an empty string (DO NOT DELETE THIS ELSE CLAUSE!)
     {
         values.append("");
     }

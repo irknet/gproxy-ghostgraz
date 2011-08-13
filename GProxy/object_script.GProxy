@@ -19,6 +19,7 @@ INPUT(
 ./build/Release/Qt_MinGW-Windows/ChannellistDelegate.o
 ./build/Release/Qt_MinGW-Windows/MainGUI.o
 ./build/Release/Qt_MinGW-Windows/commandpacket.o
+./build/Release/Qt_MinGW-Windows/MButton.o
 ./build/Release/Qt_MinGW-Windows/Util.o
 ./build/Release/Qt_MinGW-Windows/gpsprotocol.o
 ./build/Release/Qt_MinGW-Windows/gproxy.o
@@ -27,6 +28,7 @@ INPUT(
 ./build/Release/Qt_MinGW-Windows/moc_ConfigGUI.o
 ./build/Release/Qt_MinGW-Windows/moc_GhostGrazLogininformationDialog.o
 ./build/Release/Qt_MinGW-Windows/moc_GproxyUpdateThread.o
+./build/Release/Qt_MinGW-Windows/moc_MButton.o
 ./build/Release/Qt_MinGW-Windows/moc_bnet.o
 ./build/Release/Qt_MinGW-Windows/moc_Packet.o
 ./build/Release/Qt_MinGW-Windows/moc_ClickableLineEdit.o

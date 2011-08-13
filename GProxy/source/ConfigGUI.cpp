@@ -2,6 +2,7 @@
 #include "gproxy.h"
 
 #ifdef WIN32
+// For reading Warcraft 3 path from registry
 #include "windows.h"
 #endif
 
@@ -473,7 +474,6 @@ void ConfigGUI::showErrorMessage (const QString &errorMessage)
 
 void ConfigGUI::onBackgroundcolorButtonClicked ()
 {
-    this->setVisible(false);
     QColorDialog* colorDialog = new QColorDialog(config->getColor("backgroundcolor"), this);
 
     connect(colorDialog, SIGNAL(currentColorChanged(const QColor&)),
@@ -492,8 +492,6 @@ void ConfigGUI::onBackgroundcolorButtonClicked ()
         emit colorChanged("all", QPalette::Base, config->getColor("backgroundcolor"));
     }
     delete colorDialog;
-
-    this->setVisible(true);
 }
 
 void ConfigGUI::onBackgroundColorChanged(const QColor& color)
@@ -503,7 +501,6 @@ void ConfigGUI::onBackgroundColorChanged(const QColor& color)
 
 void ConfigGUI::onOutputareaFontButtonClicked()
 {
-    this->setVisible(false);
     QFontDialog* fontDialog = new QFontDialog(config->getFont("outputareaFont"), this);
 
     connect(fontDialog, SIGNAL(currentFontChanged(const QFont&)),
@@ -519,8 +516,6 @@ void ConfigGUI::onOutputareaFontButtonClicked()
         emit fontChanged("outputarea", config->getFont("outputareaFont"));
     }
     delete fontDialog;
-
-    this->setVisible(true);
 }
 
 void ConfigGUI::onOutputareaFontChanged(const QFont& font)
@@ -528,43 +523,30 @@ void ConfigGUI::onOutputareaFontChanged(const QFont& font)
     emit fontChanged("outputarea", font);
 }
 
-void ConfigGUI::onOutputareaForegroundcolorButtonClicked()
+void ConfigGUI::onOutputareaForegroundcolorButtonClicked(MButton* button)
 {
-    this->setVisible(false);
-    QDialog* foregroundcolorDialog = new QDialog(this);
-    QLabel* label = new QLabel("Foreground colors", foregroundcolorDialog);
-    label->setGeometry(0, 0, 250, 40);
-    label->setAlignment(Qt::AlignCenter);
-    label->setFont(QFont("Calibri", 16, QFont::Bold));
+    QString element = button->objectName();
+    // Example name "outputareaChatColorButton".
+    // Removing "outputarea" and "ColorButton" and changing case to lower case.
+    element = element.mid(10, element.length() - 21).toLower();
+    CONSOLE_Print(element);
 
-    QPushButton* button;
-    int height = 60;
-    QList<QString> keys = config->getKeys();
-    foreach(QString key, keys)
+    QColorDialog* colorDialog = new QColorDialog(config->getColor(element + "_foregroundcolor"), this);
+
+//    connect(colorDialog, SIGNAL(currentColorChanged(const QColor&)),
+//            this, SLOT(onBackgroundColorChanged(const QColor&)), Qt::QueuedConnection);
+
+    if (colorDialog->exec() == QDialog::Accepted)
     {
-        if (key.endsWith("_color"))
+        QColor color = colorDialog->selectedColor();
+        if (color.isValid())
         {
-            QString element = key.left(key.length() - 6);
-
-            label = new QLabel(element.left(1).toUpper() + element.mid(1) + " color:", foregroundcolorDialog);
-            label->setGeometry(10, height, 100, 20);
-
-            button = new QPushButton("Change " + element + " color", foregroundcolorDialog);
-            button->setGeometry(110, height, 140, 20);
-
-            height += 30;
+            config->setColor(element + "_foregroundcolor", color);
         }
-    }
-
-    if (foregroundcolorDialog->exec() == QDialog::Accepted)
-    {
-
     }
     else
     {
-//        emit colorChanged("all", QPalette::Base, cfg->getColor("backgroundcolor"));
+//        emit colorChanged("all", QPalette::Base, config->getColor("backgroundcolor"));
     }
-    delete foregroundcolorDialog;
-
-    this->setVisible(true);
+    delete colorDialog;
 }

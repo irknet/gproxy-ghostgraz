@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'ConfigGUI.ui'
 **
-** Created: Fri 5. Aug 20:11:19 2011
+** Created: Sat 13. Aug 21:29:15 2011
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -25,6 +25,7 @@
 #include <QtGui/QTabWidget>
 #include <QtGui/QWidget>
 #include "widget/ClickableLineEdit.h"
+#include "widget/MButton.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -70,11 +71,28 @@ public:
     QLabel *backgroundcolorLabel;
     QPushButton *backgroundcolorButton;
     QWidget *appearanceOutputareaTab;
-    QLabel *outputareaForegroundcolorLabel;
     QLabel *outputareaHeaderLabel;
     QLabel *outputareaFontLabel;
-    QPushButton *outputareaForegroundcolorButton;
     QPushButton *outputareaFontButton;
+    QLabel *outputareaChatColorLabel;
+    QLabel *outputareaWhisperColorLabel;
+    QLabel *outputareaGProxyColorLabel;
+    QLabel *outputareaEmoteColorLabel;
+    QLabel *outputareaWarningColorLabel;
+    QLabel *outputareaErrorColorLabel;
+    QLabel *outputareaInfoColorLabel;
+    QLabel *outputareaBnetColorLabel;
+    QLabel *outputareaGameinfoColorLabel;
+    MButton *outputareaChatColorButton;
+    MButton *outputareaWhisperColorButton;
+    MButton *outputareaGameinfoColorButton;
+    MButton *outputareaGProxyColorButton;
+    MButton *outputareaBnetColorButton;
+    MButton *outputareaInfoColorButton;
+    MButton *outputareaEmoteColorButton;
+    MButton *outputareaWarningColorButton;
+    MButton *outputareaErrorColorButton;
+    QLabel *outputareaForegroundcolorHeaderLabel;
     QWidget *appearanceInputareaTab;
     QWidget *appearanceGamelistTab;
     QWidget *miscellaneousTab;
@@ -103,16 +121,15 @@ public:
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(ConfigGUI->sizePolicy().hasHeightForWidth());
         ConfigGUI->setSizePolicy(sizePolicy);
+        ConfigGUI->setMinimumSize(QSize(450, 550));
+        ConfigGUI->setMaximumSize(QSize(450, 550));
         QIcon icon;
         icon.addFile(QString::fromUtf8(":/images/Tool.png"), QSize(), QIcon::Normal, QIcon::Off);
         ConfigGUI->setWindowIcon(icon);
         buttonBox = new QDialogButtonBox(ConfigGUI);
         buttonBox->setObjectName(QString::fromUtf8("buttonBox"));
         buttonBox->setGeometry(QRect(0, 520, 450, 30));
-        sizePolicy.setHeightForWidth(buttonBox->sizePolicy().hasHeightForWidth());
-        buttonBox->setSizePolicy(sizePolicy);
         buttonBox->setLocale(QLocale(QLocale::English, QLocale::UnitedStates));
-        buttonBox->setOrientation(Qt::Horizontal);
         buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         buttonBox->setCenterButtons(true);
         optionsTabWidget = new QTabWidget(ConfigGUI);
@@ -298,10 +315,6 @@ public:
         appearanceTabWidget->addTab(appearanceGeneralTab, QString());
         appearanceOutputareaTab = new QWidget();
         appearanceOutputareaTab->setObjectName(QString::fromUtf8("appearanceOutputareaTab"));
-        outputareaForegroundcolorLabel = new QLabel(appearanceOutputareaTab);
-        outputareaForegroundcolorLabel->setObjectName(QString::fromUtf8("outputareaForegroundcolorLabel"));
-        outputareaForegroundcolorLabel->setGeometry(QRect(10, 60, 160, 20));
-        outputareaForegroundcolorLabel->setFont(font);
         outputareaHeaderLabel = new QLabel(appearanceOutputareaTab);
         outputareaHeaderLabel->setObjectName(QString::fromUtf8("outputareaHeaderLabel"));
         outputareaHeaderLabel->setGeometry(QRect(0, 0, 450, 40));
@@ -311,14 +324,86 @@ public:
         outputareaHeaderLabel->setAlignment(Qt::AlignCenter);
         outputareaFontLabel = new QLabel(appearanceOutputareaTab);
         outputareaFontLabel->setObjectName(QString::fromUtf8("outputareaFontLabel"));
-        outputareaFontLabel->setGeometry(QRect(10, 100, 160, 20));
+        outputareaFontLabel->setGeometry(QRect(10, 60, 160, 20));
         outputareaFontLabel->setFont(font);
-        outputareaForegroundcolorButton = new QPushButton(appearanceOutputareaTab);
-        outputareaForegroundcolorButton->setObjectName(QString::fromUtf8("outputareaForegroundcolorButton"));
-        outputareaForegroundcolorButton->setGeometry(QRect(180, 60, 240, 20));
         outputareaFontButton = new QPushButton(appearanceOutputareaTab);
         outputareaFontButton->setObjectName(QString::fromUtf8("outputareaFontButton"));
-        outputareaFontButton->setGeometry(QRect(180, 100, 240, 20));
+        outputareaFontButton->setGeometry(QRect(180, 60, 240, 20));
+        outputareaChatColorLabel = new QLabel(appearanceOutputareaTab);
+        outputareaChatColorLabel->setObjectName(QString::fromUtf8("outputareaChatColorLabel"));
+        outputareaChatColorLabel->setGeometry(QRect(10, 140, 160, 20));
+        outputareaChatColorLabel->setFont(font);
+        outputareaWhisperColorLabel = new QLabel(appearanceOutputareaTab);
+        outputareaWhisperColorLabel->setObjectName(QString::fromUtf8("outputareaWhisperColorLabel"));
+        outputareaWhisperColorLabel->setGeometry(QRect(10, 170, 160, 20));
+        outputareaWhisperColorLabel->setFont(font);
+        outputareaGProxyColorLabel = new QLabel(appearanceOutputareaTab);
+        outputareaGProxyColorLabel->setObjectName(QString::fromUtf8("outputareaGProxyColorLabel"));
+        outputareaGProxyColorLabel->setGeometry(QRect(10, 230, 160, 20));
+        outputareaGProxyColorLabel->setFont(font);
+        outputareaEmoteColorLabel = new QLabel(appearanceOutputareaTab);
+        outputareaEmoteColorLabel->setObjectName(QString::fromUtf8("outputareaEmoteColorLabel"));
+        outputareaEmoteColorLabel->setGeometry(QRect(10, 320, 160, 20));
+        outputareaEmoteColorLabel->setFont(font);
+        outputareaWarningColorLabel = new QLabel(appearanceOutputareaTab);
+        outputareaWarningColorLabel->setObjectName(QString::fromUtf8("outputareaWarningColorLabel"));
+        outputareaWarningColorLabel->setGeometry(QRect(10, 350, 160, 20));
+        outputareaWarningColorLabel->setFont(font);
+        outputareaErrorColorLabel = new QLabel(appearanceOutputareaTab);
+        outputareaErrorColorLabel->setObjectName(QString::fromUtf8("outputareaErrorColorLabel"));
+        outputareaErrorColorLabel->setGeometry(QRect(10, 380, 160, 20));
+        outputareaErrorColorLabel->setFont(font);
+        outputareaInfoColorLabel = new QLabel(appearanceOutputareaTab);
+        outputareaInfoColorLabel->setObjectName(QString::fromUtf8("outputareaInfoColorLabel"));
+        outputareaInfoColorLabel->setGeometry(QRect(10, 290, 160, 20));
+        outputareaInfoColorLabel->setFont(font);
+        outputareaBnetColorLabel = new QLabel(appearanceOutputareaTab);
+        outputareaBnetColorLabel->setObjectName(QString::fromUtf8("outputareaBnetColorLabel"));
+        outputareaBnetColorLabel->setGeometry(QRect(10, 260, 160, 20));
+        outputareaBnetColorLabel->setFont(font);
+        outputareaGameinfoColorLabel = new QLabel(appearanceOutputareaTab);
+        outputareaGameinfoColorLabel->setObjectName(QString::fromUtf8("outputareaGameinfoColorLabel"));
+        outputareaGameinfoColorLabel->setGeometry(QRect(10, 200, 160, 20));
+        outputareaGameinfoColorLabel->setFont(font);
+        outputareaChatColorButton = new MButton(appearanceOutputareaTab);
+        outputareaChatColorButton->setObjectName(QString::fromUtf8("outputareaChatColorButton"));
+        outputareaChatColorButton->setGeometry(QRect(180, 140, 240, 20));
+        outputareaWhisperColorButton = new MButton(appearanceOutputareaTab);
+        outputareaWhisperColorButton->setObjectName(QString::fromUtf8("outputareaWhisperColorButton"));
+        outputareaWhisperColorButton->setGeometry(QRect(180, 170, 240, 20));
+        outputareaGameinfoColorButton = new MButton(appearanceOutputareaTab);
+        outputareaGameinfoColorButton->setObjectName(QString::fromUtf8("outputareaGameinfoColorButton"));
+        outputareaGameinfoColorButton->setGeometry(QRect(180, 200, 240, 20));
+        outputareaGProxyColorButton = new MButton(appearanceOutputareaTab);
+        outputareaGProxyColorButton->setObjectName(QString::fromUtf8("outputareaGProxyColorButton"));
+        outputareaGProxyColorButton->setGeometry(QRect(180, 230, 240, 20));
+        outputareaBnetColorButton = new MButton(appearanceOutputareaTab);
+        outputareaBnetColorButton->setObjectName(QString::fromUtf8("outputareaBnetColorButton"));
+        outputareaBnetColorButton->setGeometry(QRect(180, 260, 240, 20));
+        outputareaInfoColorButton = new MButton(appearanceOutputareaTab);
+        outputareaInfoColorButton->setObjectName(QString::fromUtf8("outputareaInfoColorButton"));
+        outputareaInfoColorButton->setGeometry(QRect(180, 290, 240, 20));
+        outputareaEmoteColorButton = new MButton(appearanceOutputareaTab);
+        outputareaEmoteColorButton->setObjectName(QString::fromUtf8("outputareaEmoteColorButton"));
+        outputareaEmoteColorButton->setGeometry(QRect(180, 320, 240, 20));
+        outputareaWarningColorButton = new MButton(appearanceOutputareaTab);
+        outputareaWarningColorButton->setObjectName(QString::fromUtf8("outputareaWarningColorButton"));
+        outputareaWarningColorButton->setGeometry(QRect(180, 350, 240, 20));
+        outputareaErrorColorButton = new MButton(appearanceOutputareaTab);
+        outputareaErrorColorButton->setObjectName(QString::fromUtf8("outputareaErrorColorButton"));
+        outputareaErrorColorButton->setGeometry(QRect(180, 380, 240, 20));
+        outputareaForegroundcolorHeaderLabel = new QLabel(appearanceOutputareaTab);
+        outputareaForegroundcolorHeaderLabel->setObjectName(QString::fromUtf8("outputareaForegroundcolorHeaderLabel"));
+        outputareaForegroundcolorHeaderLabel->setGeometry(QRect(0, 90, 450, 40));
+        sizePolicy1.setHeightForWidth(outputareaForegroundcolorHeaderLabel->sizePolicy().hasHeightForWidth());
+        outputareaForegroundcolorHeaderLabel->setSizePolicy(sizePolicy1);
+        QFont font6;
+        font6.setFamily(QString::fromUtf8("Calibri"));
+        font6.setPointSize(14);
+        font6.setBold(true);
+        font6.setWeight(75);
+        outputareaForegroundcolorHeaderLabel->setFont(font6);
+        outputareaForegroundcolorHeaderLabel->setAlignment(Qt::AlignCenter);
         appearanceTabWidget->addTab(appearanceOutputareaTab, QString());
         appearanceInputareaTab = new QWidget();
         appearanceInputareaTab->setObjectName(QString::fromUtf8("appearanceInputareaTab"));
@@ -355,12 +440,12 @@ public:
         soundCombobox = new QComboBox(miscellaneousTab);
         soundCombobox->setObjectName(QString::fromUtf8("soundCombobox"));
         soundCombobox->setGeometry(QRect(180, 140, 240, 20));
-        QFont font6;
-        font6.setFamily(QString::fromUtf8("Arial"));
-        font6.setPointSize(9);
-        font6.setBold(false);
-        font6.setWeight(50);
-        soundCombobox->setFont(font6);
+        QFont font7;
+        font7.setFamily(QString::fromUtf8("Arial"));
+        font7.setPointSize(9);
+        font7.setBold(false);
+        font7.setWeight(50);
+        soundCombobox->setFont(font7);
         soundCombobox->setMaxCount(10);
         privategamenameTextfield = new QLineEdit(miscellaneousTab);
         privategamenameTextfield->setObjectName(QString::fromUtf8("privategamenameTextfield"));
@@ -373,7 +458,7 @@ public:
         logCombobox = new QComboBox(miscellaneousTab);
         logCombobox->setObjectName(QString::fromUtf8("logCombobox"));
         logCombobox->setGeometry(QRect(180, 260, 240, 20));
-        logCombobox->setFont(font6);
+        logCombobox->setFont(font7);
         logCombobox->setMaxCount(10);
         ghostgrazPasswordLabel = new QLabel(miscellaneousTab);
         ghostgrazPasswordLabel->setObjectName(QString::fromUtf8("ghostgrazPasswordLabel"));
@@ -401,10 +486,18 @@ public:
         QObject::connect(war3pathButton, SIGNAL(clicked()), ConfigGUI, SLOT(onWar3pathChangeRequest()));
         QObject::connect(backgroundcolorButton, SIGNAL(clicked()), ConfigGUI, SLOT(onBackgroundcolorButtonClicked()));
         QObject::connect(outputareaFontButton, SIGNAL(clicked()), ConfigGUI, SLOT(onOutputareaFontButtonClicked()));
-        QObject::connect(outputareaForegroundcolorButton, SIGNAL(clicked()), ConfigGUI, SLOT(onOutputareaForegroundcolorButtonClicked()));
+        QObject::connect(outputareaChatColorButton, SIGNAL(clicked(MButton*)), ConfigGUI, SLOT(onOutputareaForegroundcolorButtonClicked(MButton*)));
+        QObject::connect(outputareaWhisperColorButton, SIGNAL(clicked(MButton*)), ConfigGUI, SLOT(onOutputareaForegroundcolorButtonClicked(MButton*)));
+        QObject::connect(outputareaGameinfoColorButton, SIGNAL(clicked(MButton*)), ConfigGUI, SLOT(onOutputareaForegroundcolorButtonClicked(MButton*)));
+        QObject::connect(outputareaGProxyColorButton, SIGNAL(clicked(MButton*)), ConfigGUI, SLOT(onOutputareaForegroundcolorButtonClicked(MButton*)));
+        QObject::connect(outputareaBnetColorButton, SIGNAL(clicked(MButton*)), ConfigGUI, SLOT(onOutputareaForegroundcolorButtonClicked(MButton*)));
+        QObject::connect(outputareaInfoColorButton, SIGNAL(clicked(MButton*)), ConfigGUI, SLOT(onOutputareaForegroundcolorButtonClicked(MButton*)));
+        QObject::connect(outputareaEmoteColorButton, SIGNAL(clicked(MButton*)), ConfigGUI, SLOT(onOutputareaForegroundcolorButtonClicked(MButton*)));
+        QObject::connect(outputareaWarningColorButton, SIGNAL(clicked(MButton*)), ConfigGUI, SLOT(onOutputareaForegroundcolorButtonClicked(MButton*)));
+        QObject::connect(outputareaErrorColorButton, SIGNAL(clicked(MButton*)), ConfigGUI, SLOT(onOutputareaForegroundcolorButtonClicked(MButton*)));
 
-        optionsTabWidget->setCurrentIndex(2);
-        appearanceTabWidget->setCurrentIndex(1);
+        optionsTabWidget->setCurrentIndex(0);
+        appearanceTabWidget->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(ConfigGUI);
@@ -530,11 +623,28 @@ public:
         appearanceOutputareaTab->setWhatsThis(QApplication::translate("ConfigGUI", "The output area is the big field at the left side of GProxy.\n"
 "Here you can will see all chat messages and much more.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_WHATSTHIS
-        outputareaForegroundcolorLabel->setText(QApplication::translate("ConfigGUI", "Foreground color:", 0, QApplication::UnicodeUTF8));
         outputareaHeaderLabel->setText(QApplication::translate("ConfigGUI", "Output area", 0, QApplication::UnicodeUTF8));
         outputareaFontLabel->setText(QApplication::translate("ConfigGUI", "Font:", 0, QApplication::UnicodeUTF8));
-        outputareaForegroundcolorButton->setText(QApplication::translate("ConfigGUI", "Change foreground color", 0, QApplication::UnicodeUTF8));
-        outputareaFontButton->setText(QApplication::translate("ConfigGUI", "Change font", 0, QApplication::UnicodeUTF8));
+        outputareaFontButton->setText(QApplication::translate("ConfigGUI", "Change foreground color", 0, QApplication::UnicodeUTF8));
+        outputareaChatColorLabel->setText(QApplication::translate("ConfigGUI", "Chat color:", 0, QApplication::UnicodeUTF8));
+        outputareaWhisperColorLabel->setText(QApplication::translate("ConfigGUI", "Whisper color:", 0, QApplication::UnicodeUTF8));
+        outputareaGProxyColorLabel->setText(QApplication::translate("ConfigGUI", "GProxy color:", 0, QApplication::UnicodeUTF8));
+        outputareaEmoteColorLabel->setText(QApplication::translate("ConfigGUI", "Emote color:", 0, QApplication::UnicodeUTF8));
+        outputareaWarningColorLabel->setText(QApplication::translate("ConfigGUI", "Warning color:", 0, QApplication::UnicodeUTF8));
+        outputareaErrorColorLabel->setText(QApplication::translate("ConfigGUI", "Error color:", 0, QApplication::UnicodeUTF8));
+        outputareaInfoColorLabel->setText(QApplication::translate("ConfigGUI", "Info color:", 0, QApplication::UnicodeUTF8));
+        outputareaBnetColorLabel->setText(QApplication::translate("ConfigGUI", "Bnet color:", 0, QApplication::UnicodeUTF8));
+        outputareaGameinfoColorLabel->setText(QApplication::translate("ConfigGUI", "Gameinfo color:", 0, QApplication::UnicodeUTF8));
+        outputareaChatColorButton->setText(QApplication::translate("ConfigGUI", "Change chat color", 0, QApplication::UnicodeUTF8));
+        outputareaWhisperColorButton->setText(QApplication::translate("ConfigGUI", "Change whisper color", 0, QApplication::UnicodeUTF8));
+        outputareaGameinfoColorButton->setText(QApplication::translate("ConfigGUI", "Change gameinfo color", 0, QApplication::UnicodeUTF8));
+        outputareaGProxyColorButton->setText(QApplication::translate("ConfigGUI", "Change gproxy color", 0, QApplication::UnicodeUTF8));
+        outputareaBnetColorButton->setText(QApplication::translate("ConfigGUI", "Change bnet color", 0, QApplication::UnicodeUTF8));
+        outputareaInfoColorButton->setText(QApplication::translate("ConfigGUI", "Change info color", 0, QApplication::UnicodeUTF8));
+        outputareaEmoteColorButton->setText(QApplication::translate("ConfigGUI", "Change emote color", 0, QApplication::UnicodeUTF8));
+        outputareaWarningColorButton->setText(QApplication::translate("ConfigGUI", "Change warning color", 0, QApplication::UnicodeUTF8));
+        outputareaErrorColorButton->setText(QApplication::translate("ConfigGUI", "Change error color", 0, QApplication::UnicodeUTF8));
+        outputareaForegroundcolorHeaderLabel->setText(QApplication::translate("ConfigGUI", "Foregroundcolor", 0, QApplication::UnicodeUTF8));
         appearanceTabWidget->setTabText(appearanceTabWidget->indexOf(appearanceOutputareaTab), QApplication::translate("ConfigGUI", "Ouput area", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_WHATSTHIS
         appearanceInputareaTab->setWhatsThis(QApplication::translate("ConfigGUI", "The input area is the small textfield at the bottom.\n"

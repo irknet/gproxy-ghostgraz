@@ -192,7 +192,7 @@ int main (int argc, char** argv)
 
     mainGUI->init();
 
-    gproxy->applyConfig();
+    gproxy->initConfigurations();
 
 #ifdef WIN32
     // Initialize winsock
@@ -322,6 +322,9 @@ void CGProxy::connectSignalsAndSlots()
     connect(this, SIGNAL(signal_showConfigDialog(bool)),
             mainGUI, SLOT(showConfigDialog(bool)), Qt::QueuedConnection);
 
+    connect(this, SIGNAL(signal_initConfigurations()),
+            mainGUI, SLOT(initConfigurations()), Qt::QueuedConnection);
+
     connect(this, SIGNAL(signal_applyConfig()),
             mainGUI, SLOT(applyConfig()), Qt::QueuedConnection);
 }
@@ -397,6 +400,12 @@ void CGProxy::initVariables (string cpublic, string cfilter, bool temp_displayau
     CONSOLE_Print("[GPROXY] Customized GProxy++ Version " + QString::fromStdString(m_Version));
 }
 
+void CGProxy::initConfigurations()
+{
+    emit signal_initConfigurations();
+    applyConfig();
+}
+
 /**
  * Cleanup function before exiting. (Deleting all pointers)
  */
@@ -463,10 +472,16 @@ void CGProxy::showWelcomeMessages()
     CONSOLE_Print("", false);
     CONSOLE_Print("  Type /help at any time for help.", false);
     CONSOLE_Print("", false);
-    CONSOLE_Print("Welcome to |CFFFF0000GProxy++|r, "
-            "this mod is by |CFF006400Phyton|r, "
-            "|CFFFF1493Pr0gm4n|r and "
-            "|CFFFFD700Manufactoring|r.", false);
+    CONSOLE_Print("Welcome to "
+            + Util::toString(config->getColor("gproxy_foregroundcolor"))
+            + "GProxy++|r. "
+            + "This mod is by "
+            + Util::toString(config->getColor("whisper_foregroundcolor"))
+            + "Phyton|r, "
+            + Util::toString(config->getColor("info_foregroundcolor"))
+            + "Pr0gm4n|r and "
+            + Util::toString(config->getColor("gameinfo_foregroundcolor"))
+            + "Manufactoring|r.", false);
 }
 
 /**
@@ -2308,7 +2323,10 @@ void CGProxy::sendGamemessage (QString message, bool alliesOnly)
     {
         foreach(Slot* slot, slotList)
         {
-            toPIDs.push_back(slot->getPlayerId());
+            if (slot->getSlotStatus() == Slot::OCCUPIED && slot->getComputerStatus() == Slot::NO_COMPUTER)
+            {
+                toPIDs.push_back(slot->getPlayerId());
+            }
         }
 
         packet = gproxy->m_GameProtocol->SEND_W3GS_CHAT_TO_HOST(gproxy->m_ChatPID, toPIDs, 16, BYTEARRAY(), message);
@@ -2317,7 +2335,8 @@ void CGProxy::sendGamemessage (QString message, bool alliesOnly)
     {
         foreach(Slot* slot, slotList)
         {
-            if (slot->getTeam() == teamNumber)
+            if (slot->getTeam() == teamNumber && slot->getSlotStatus() == Slot::OCCUPIED
+                    && slot->getComputerStatus() == Slot::NO_COMPUTER)
             {
                 toPIDs.push_back(slot->getPlayerId());
             }
@@ -2335,7 +2354,10 @@ void CGProxy::sendGamemessage (QString message, bool alliesOnly)
     {
         foreach (Slot* slot, slotList)
         {
-            toPIDs.push_back(slot->getPlayerId());
+            if (slot->getSlotStatus() == Slot::OCCUPIED && slot->getComputerStatus() == Slot::NO_COMPUTER)
+            {
+                toPIDs.push_back(slot->getPlayerId());
+            }
         }
 
         BYTEARRAY extraFlags;

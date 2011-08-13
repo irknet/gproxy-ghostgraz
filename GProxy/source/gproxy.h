@@ -185,6 +185,7 @@ public:
     void connectSignalsAndSlots();
     void initVariables(string cpublic ,string cfilter, bool temp_displayautocreated,
         bool listing_current_games, bool connect);
+    void initConfigurations();
     void cleanup();
     bool checkStatus( int statusCode );
     bool Update( long usecBlock );
@@ -306,6 +307,7 @@ signals:
     void signal_playerJoined(const QString&);
     void signal_stopDownloadThread();
     void signal_showConfigDialog(bool);
+    void signal_initConfigurations();
     void signal_applyConfig();
 };
 
