@@ -10,13 +10,13 @@ GproxyUpdateThread::~GproxyUpdateThread () { }
 
 void GproxyUpdateThread::run ()
 {
-    while (!stopped)
-    {
-        if (gproxy->Update(40000))
-        {
-            break;
-        }
-    }
+//    while (!stopped)
+//    {
+//        if (gproxy->Update(40000))
+//        {
+//            break;
+//        }
+//    }
 }
 
 void GproxyUpdateThread::stop ()

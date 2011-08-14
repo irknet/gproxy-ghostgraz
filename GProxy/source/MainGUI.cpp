@@ -216,17 +216,26 @@ void MainGUI::applyConfig()
  * Slot for changing the color.
  *
  * @param area The area where the color change should be applied.
- * @param colorRole The ColorRole of the palette. (Which color has changed?)
  * @param color The new color.
  */
-void MainGUI::setColor(const QString& area, const QPalette::ColorRole& colorRole, const QColor& color)
+void MainGUI::setColor(const QString& area, const QColor& color)
 {
-    if (area == "all")
+    if (area == "background")
     {
         QPalette palette = widget.centralwidget->palette();
-        palette.setColor(colorRole, color);
+        palette.setColor(QPalette::Base, color);
         widget.centralwidget->setPalette(palette);
         widget.titleLabel->setPalette(palette);
+    }
+    else if (area == "foreground")
+    {
+        QString text = widget.outputTextArea->toPlainText();
+        widget.outputTextArea->clear();
+        QStringList lines = text.split("\n");
+        foreach (QString line, lines)
+        {
+            addMessage(line.mid(11));
+        }
     }
 }
 
@@ -974,7 +983,7 @@ void MainGUI::addMessage (QString message, bool log)
             if (nextColorStartIndex == -1 || nextColorStartIndex > colorEndIndex)
             {
                 widget.outputTextArea->insertPlainText(message.mid(i, colorEndIndex - i));
-                widget.outputTextArea->setTextColor(QColor(230, 230, 230));
+                widget.outputTextArea->setTextColor(this->getGproxy()->getConfig()->getColor("chat_foregroundcolor"));
                 i = colorEndIndex + 2;
             }
         }
@@ -1047,12 +1056,9 @@ void MainGUI::addColor (QString& message)
         message.remove(0, 7);
         message.prepend(Util::toString(gproxy->getConfig()->getColor("info_foregroundcolor")));
     }
-    else if (message.startsWith("[TCPSOCKET]"))
-    {
-        message.prepend(Util::toString(gproxy->getConfig()->getColor("gproxy_foregroundcolor")));
-    }
     else if (message.startsWith("[GPROXY]")
-            || message.startsWith("[UDPSOCKET]"))
+            || message.startsWith("[UDPSOCKET]")
+            || message.startsWith("[TCPSOCKET]"))
     {
         message.prepend(Util::toString(gproxy->getConfig()->getColor("gproxy_foregroundcolor")));
     }
@@ -1650,7 +1656,7 @@ void MainGUI::receivedPlayerInformation (Player *player)
 
 /**
  * Slot: Executed when the adminlist was downloaded and parsed successfully.
- * 
+ *
  * @param admins The adminlist.
  */
 void MainGUI::onAdminlistReceived (QList<QString> admins)

@@ -22,7 +22,7 @@ public:
 
 signals:
     void applyConfig();
-    void colorChanged(const QString&, const QPalette::ColorRole&, const QColor&);
+    void colorChanged(const QString&, const QColor&);
     void fontChanged(const QString&, const QFont&);
 
 private:
@@ -50,6 +50,7 @@ private slots:
     void onOutputareaFontButtonClicked();
     void onOutputareaFontChanged(const QFont& font);
     void onOutputareaForegroundcolorButtonClicked(MButton* button);
+    void onForegroundColorChanged(const QColor& color);
 };
 
 #endif	/* _CONFIGGUI_H */

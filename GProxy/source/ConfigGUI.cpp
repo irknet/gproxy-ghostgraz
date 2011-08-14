@@ -23,17 +23,14 @@ ConfigGUI::ConfigGUI (MainGUI* mainGUI)
     this->config = mainGUI->getGproxy()->getConfig();
 //    widget.appearanceTab->setEnabled(false);
 
-    connect(this, SIGNAL(applyConfig()), mainGUI->getGproxy(), SLOT(applyConfig()));
+    connect(this, SIGNAL(applyConfig()),
+            mainGUI->getGproxy(), SLOT(applyConfig()));
 
-    connect(this,
-            SIGNAL(colorChanged(const QString&, const QPalette::ColorRole&, const QColor&)),
-            mainGUI,
-            SLOT(setColor(const QString&, const QPalette::ColorRole&, const QColor&)));
+    connect(this, SIGNAL(colorChanged(const QString&, const QColor&)),
+            mainGUI, SLOT(setColor(const QString&, const QColor&)));
 
-    connect(this,
-            SIGNAL(fontChanged(const QString&, const QFont&)),
-            mainGUI,
-            SLOT(setFont(const QString&, const QFont&)));
+    connect(this, SIGNAL(fontChanged(const QString&, const QFont&)),
+            mainGUI, SLOT(setFont(const QString&, const QFont&)));
 
     initValues();
     initSlots();
@@ -489,14 +486,14 @@ void ConfigGUI::onBackgroundcolorButtonClicked ()
     }
     else
     {
-        emit colorChanged("all", QPalette::Base, config->getColor("backgroundcolor"));
+        emit colorChanged("background", config->getColor("backgroundcolor"));
     }
     delete colorDialog;
 }
 
 void ConfigGUI::onBackgroundColorChanged(const QColor& color)
 {
-    emit colorChanged("all", QPalette::Base, color);
+    emit colorChanged("background", color);
 }
 
 void ConfigGUI::onOutputareaFontButtonClicked()
@@ -526,15 +523,14 @@ void ConfigGUI::onOutputareaFontChanged(const QFont& font)
 void ConfigGUI::onOutputareaForegroundcolorButtonClicked(MButton* button)
 {
     QString element = button->objectName();
-    // Example name "outputareaChatColorButton".
+    // Example name is "outputareaChatColorButton". Expected element name is "chat".
     // Removing "outputarea" and "ColorButton" and changing case to lower case.
     element = element.mid(10, element.length() - 21).toLower();
-    CONSOLE_Print(element);
 
     QColorDialog* colorDialog = new QColorDialog(config->getColor(element + "_foregroundcolor"), this);
 
-//    connect(colorDialog, SIGNAL(currentColorChanged(const QColor&)),
-//            this, SLOT(onBackgroundColorChanged(const QColor&)), Qt::QueuedConnection);
+    connect(colorDialog, SIGNAL(currentColorChanged(const QColor&)),
+            this, SLOT(onForegroundColorChanged(const QColor&)), Qt::QueuedConnection);
 
     if (colorDialog->exec() == QDialog::Accepted)
     {
@@ -546,7 +542,12 @@ void ConfigGUI::onOutputareaForegroundcolorButtonClicked(MButton* button)
     }
     else
     {
-//        emit colorChanged("all", QPalette::Base, config->getColor("backgroundcolor"));
+        emit colorChanged("foreground", config->getColor(element + "_foregroundcolor"));
     }
     delete colorDialog;
+}
+
+void ConfigGUI::onForegroundColorChanged(const QColor& color)
+{
+    emit colorChanged("foreground", color);
 }

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'ConfigGUI.h'
 **
-** Created: Sat 13. Aug 22:27:32 2011
+** Created: Sun 14. Aug 11:05:38 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_ConfigGUI[] = {
        5,       // revision
        0,       // classname
        0,    0, // classinfo
-      17,   14, // methods
+      18,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -32,32 +32,33 @@ static const uint qt_meta_data_ConfigGUI[] = {
 
  // signals: signature, parameters, type, tag, flags
       11,   10,   10,   10, 0x05,
-      28,   25,   10,   10, 0x05,
-      79,   77,   10,   10, 0x05,
+      27,   25,   10,   10, 0x05,
+      56,   25,   10,   10, 0x05,
 
  // slots: signature, parameters, type, tag, flags
-     106,   10,   10,   10, 0x08,
-     115,   10,   10,   10, 0x08,
-     129,  124,   10,   10, 0x08,
-     156,  124,   10,   10, 0x08,
-     183,  124,   10,   10, 0x08,
-     210,  124,   10,   10, 0x08,
-     237,  124,   10,   10, 0x08,
-     263,   10,   10,   10, 0x08,
-     289,  124,   10,   10, 0x08,
-     326,   10,   10,   10, 0x08,
-     365,  359,   10,   10, 0x08,
-     398,   10,   10,   10, 0x08,
-     435,  430,   10,   10, 0x08,
-     473,  466,   10,   10, 0x08,
+      83,   10,   10,   10, 0x08,
+      92,   10,   10,   10, 0x08,
+     106,  101,   10,   10, 0x08,
+     133,  101,   10,   10, 0x08,
+     160,  101,   10,   10, 0x08,
+     187,  101,   10,   10, 0x08,
+     214,  101,   10,   10, 0x08,
+     240,   10,   10,   10, 0x08,
+     266,  101,   10,   10, 0x08,
+     303,   10,   10,   10, 0x08,
+     342,  336,   10,   10, 0x08,
+     375,   10,   10,   10, 0x08,
+     412,  407,   10,   10, 0x08,
+     450,  443,   10,   10, 0x08,
+     501,  336,   10,   10, 0x08,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_ConfigGUI[] = {
-    "ConfigGUI\0\0applyConfig()\0,,\0"
-    "colorChanged(QString,QPalette::ColorRole,QColor)\0"
-    ",\0fontChanged(QString,QFont)\0accept()\0"
+    "ConfigGUI\0\0applyConfig()\0,\0"
+    "colorChanged(QString,QColor)\0"
+    "fontChanged(QString,QFont)\0accept()\0"
     "reject()\0text\0onCDKeyROCChanged(QString)\0"
     "onCDKeyTFTChanged(QString)\0"
     "onUsernameChanged(QString)\0"
@@ -70,6 +71,7 @@ static const char qt_meta_stringdata_ConfigGUI[] = {
     "onOutputareaFontButtonClicked()\0font\0"
     "onOutputareaFontChanged(QFont)\0button\0"
     "onOutputareaForegroundcolorButtonClicked(MButton*)\0"
+    "onForegroundColorChanged(QColor)\0"
 };
 
 const QMetaObject ConfigGUI::staticMetaObject = {
@@ -102,7 +104,7 @@ int ConfigGUI::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
         case 0: applyConfig(); break;
-        case 1: colorChanged((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QPalette::ColorRole(*)>(_a[2])),(*reinterpret_cast< const QColor(*)>(_a[3]))); break;
+        case 1: colorChanged((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QColor(*)>(_a[2]))); break;
         case 2: fontChanged((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QFont(*)>(_a[2]))); break;
         case 3: accept(); break;
         case 4: reject(); break;
@@ -118,9 +120,10 @@ int ConfigGUI::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         case 14: onOutputareaFontButtonClicked(); break;
         case 15: onOutputareaFontChanged((*reinterpret_cast< const QFont(*)>(_a[1]))); break;
         case 16: onOutputareaForegroundcolorButtonClicked((*reinterpret_cast< MButton*(*)>(_a[1]))); break;
+        case 17: onForegroundColorChanged((*reinterpret_cast< const QColor(*)>(_a[1]))); break;
         default: ;
         }
-        _id -= 17;
+        _id -= 18;
     }
     return _id;
 }
@@ -132,9 +135,9 @@ void ConfigGUI::applyConfig()
 }
 
 // SIGNAL 1
-void ConfigGUI::colorChanged(const QString & _t1, const QPalette::ColorRole & _t2, const QColor & _t3)
+void ConfigGUI::colorChanged(const QString & _t1, const QColor & _t2)
 {
-    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)), const_cast<void*>(reinterpret_cast<const void*>(&_t2)), const_cast<void*>(reinterpret_cast<const void*>(&_t3)) };
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)), const_cast<void*>(reinterpret_cast<const void*>(&_t2)) };
     QMetaObject::activate(this, &staticMetaObject, 1, _a);
 }
 

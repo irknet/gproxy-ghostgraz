@@ -48,7 +48,7 @@ public slots:
     void playerJoined(const QString &playerName);
     void initConfigurations();
     void applyConfig();
-    void setColor(const QString& area, const QPalette::ColorRole& colorRole, const QColor& color);
+    void setColor(const QString& area, const QColor& color);
     void setFont(const QString& area, const QFont& font);
 
 private:
