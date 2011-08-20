@@ -34,6 +34,7 @@
       <itemPath>source/Packet.h</itemPath>
       <itemPath>source/Player.h</itemPath>
       <itemPath>source/Slot.h</itemPath>
+      <itemPath>source/Util.h</itemPath>
       <itemPath>source/bncsutilinterface.h</itemPath>
       <itemPath>source/bnet.h</itemPath>
       <itemPath>source/bnetprotocol.h</itemPath>
@@ -84,6 +85,7 @@
       <itemPath>source/Packet.cpp</itemPath>
       <itemPath>source/Player.cpp</itemPath>
       <itemPath>source/Slot.cpp</itemPath>
+      <itemPath>source/Util.cpp</itemPath>
       <itemPath>source/bncsutilinterface.cpp</itemPath>
       <itemPath>source/bnet.cpp</itemPath>
       <itemPath>source/bnetprotocol.cpp</itemPath>
