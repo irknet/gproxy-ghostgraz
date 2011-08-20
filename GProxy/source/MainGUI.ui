@@ -165,6 +165,12 @@
       <height>521</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
     <property name="contextMenuPolicy">
      <enum>Qt::NoContextMenu</enum>
     </property>
@@ -258,7 +264,7 @@
      <string>Refresh</string>
     </property>
    </widget>
-   <widget class="QTextEdit" name="outputTextArea">
+   <widget class="MTextEdit" name="outputTextArea">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -337,6 +343,11 @@
    <slots>
     <signal>clicked(QMouseEvent*)</signal>
    </slots>
+  </customwidget>
+  <customwidget>
+   <class>MTextEdit</class>
+   <extends>QTextEdit</extends>
+   <header>widget/MTextEdit.h</header>
   </customwidget>
  </customwidgets>
  <resources>

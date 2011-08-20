@@ -22,6 +22,9 @@
 #include <QFileInfo>
 #include <QRegExp>
 #include <QTextFrame>
+#include <QVariant>
+
+#undef ERROR /* Undefine ERROR macro. Needed for ColoredMessage::ERROR. */
 
 MainGUI::MainGUI (CGProxy *p_gproxy)
 {
@@ -73,6 +76,8 @@ void MainGUI::init ()
     widget.channelList->setItemDelegate(new ChannellistDelegate(this));
     widget.gameList->setItemDelegate(new GamelistDelegate());
 
+    widget.outputTextArea->setConfig(gproxy->getConfig());
+
     QAction *startWarcraftAction = widget.menuBar->addAction("Start Warcraft");
     connect(startWarcraftAction, SIGNAL(activated()),
             this, SLOT(startWarcraft()));
@@ -90,8 +95,8 @@ void MainGUI::initStatspage ()
             this, SLOT(statspageLoginFinished()));
     connect(statspage, SIGNAL(playerInformationReplyFinished(Player *)),
             this, SLOT(receivedPlayerInformation(Player *)));
-    connect(statspage, SIGNAL(adminlistReplyFinished(QList<QString>)),
-            this, SLOT(onAdminlistReceived(QList<QString>)));
+    connect(statspage, SIGNAL(adminlistReplyFinished(QStringList)),
+            this, SLOT(onAdminlistReceived(QStringList)));
 
     Config* config = gproxy->getConfig();
     QString ghostgrazUsername = config->getString("ghostgrazUsername");
@@ -200,16 +205,9 @@ void MainGUI::applyConfig()
 {
     Config* config = gproxy->getConfig();
 
-    // Set color
-    QPalette palette = widget.centralwidget->palette();
-
-    palette.setColor(QPalette::Base, config->getColor("backgroundcolor"));
-
-    widget.centralwidget->setPalette(palette);
-    widget.titleLabel->setPalette(palette);
-
-    // Set font
-    widget.outputTextArea->setFont(config->getFont("outputareaFont"));
+    setColor("backgroundcolor", config->getColor("backgroundcolor"));
+    setColor("_foregroundcolor", QColor::Invalid);
+    setFont("outputarea", config->getFont("outputareaFont"));
 }
 
 /**
@@ -220,21 +218,25 @@ void MainGUI::applyConfig()
  */
 void MainGUI::setColor(const QString& area, const QColor& color)
 {
-    if (area == "background")
+    if (area == "backgroundcolor")
     {
         QPalette palette = widget.centralwidget->palette();
         palette.setColor(QPalette::Base, color);
         widget.centralwidget->setPalette(palette);
         widget.titleLabel->setPalette(palette);
     }
-    else if (area == "foreground")
+    else if (area.endsWith("_foregroundcolor"))
     {
-        QString text = widget.outputTextArea->toPlainText();
-        widget.outputTextArea->clear();
-        QStringList lines = text.split("\n");
-        foreach (QString line, lines)
+        // Removing "_foregroundcolor".
+        QString element = area.left(area.length() - 16);
+
+        widget.outputTextArea->repaint(element, color);
+
+        if (element.toLower() == "default")
         {
-            addMessage(line.mid(11));
+            QPalette palette = widget.titleLabel->palette();
+            palette.setColor(QPalette::Text, color);
+            widget.titleLabel->setPalette(palette);
         }
     }
 }
@@ -272,7 +274,7 @@ void MainGUI::resizeEvent (QResizeEvent* event)
  */
 void MainGUI::onInputTextAreaTextChanged ()
 {
-    if (widget.inputTextArea->toPlainText().contains("\n"))
+    if (widget.inputTextArea->toPlainText().contains('\n'))
     {
         if (widget.inputTextArea->toPlainText().length() == 1)
         {
@@ -287,7 +289,7 @@ void MainGUI::onInputTextAreaTextChanged ()
             input.chop(1);
         }
 
-        QStringList lines = input.split("\n");
+        QStringList lines = input.split('\n');
         foreach (QString line, lines)
         {
             processInput(line);
@@ -354,6 +356,7 @@ void MainGUI::onChannelContextMenu (const QPoint& pos)
             menu.addAction(QIcon(":/images/Mail.png"), "Whisper");
             menu.addAction(QIcon(":/images/Add.png"), "Add as friend");
             menu.addAction(QIcon(":/images/Applications.png"), "Copy name");
+            menu.addAction(QIcon(":/images/Colors.png"), "Change color");
             menu.addAction(QIcon(":/images/Edit.png"), "!stats");
             menu.addAction(QIcon(":/images/Edit Alt.png"), "!statsdota");
         }
@@ -364,6 +367,7 @@ void MainGUI::onChannelContextMenu (const QPoint& pos)
         menu.addAction(QIcon(":/images/User.png"), "Whois");
         menu.addAction(QIcon(":/images/Applications.png"), "Copy name");
         menu.addAction(QIcon(":/images/Add.png"), "Add as friend");
+        menu.addAction(QIcon(":/images/Colors.png"), "Change color");
     }
 
     QAction* action = menu.exec(globalPos);
@@ -411,9 +415,37 @@ void MainGUI::onChannelContextMenu (const QPoint& pos)
             gproxy->m_BNET->QueueChatCommand("/friends add " + user, false);
             gproxy->m_BNET->UpdateFriendList();
         }
+        else if (action->text() == "Change color")
+        {
+            MColorDialog* colorDialog = new MColorDialog(gproxy->getConfig()->getUserColor(user), this);
+            colorDialog->setObjectName(user + "ColorDialog");
+            QVariant itemVariant = qVariantFromValue((void *) item);
+            colorDialog->setProperty("listItem", itemVariant);
+
+            connect(colorDialog, SIGNAL(currentColorChanged(MColorDialog*)),
+                    this, SLOT(userColorChanged(MColorDialog*)), Qt::QueuedConnection);
+
+            if (colorDialog->exec() == QDialog::Accepted)
+            {
+                QColor color = colorDialog->selectedColor();
+                if (color.isValid())
+                {
+                    gproxy->getConfig()->setUserColor(user, color);
+                    gproxy->getConfig()->commit();
+                    item->setData(ChannellistDelegate::COLOR_USER, color);
+                }
+            }
+            else
+            {
+                colorDialog->setVisible(false);
+                userColorChanged(colorDialog);
+            }
+
+            delete colorDialog;
+        }
         else
         {
-            addMessage("[ERROR] Not yet implemented!", false);
+            addMessage(ColoredMessage("[ERROR] Not yet implemented!", ColoredMessage::ERROR), false);
         }
     }
 }
@@ -476,7 +508,7 @@ void MainGUI::onFriendsContextMenu (const QPoint& pos)
         }
         else
         {
-            addMessage("[ERROR] Not yet implemented!", false);
+            addMessage(ColoredMessage("[ERROR] Not yet implemented!", ColoredMessage::ERROR), false);
         }
     }
 }
@@ -503,8 +535,8 @@ void MainGUI::onGameListItemClicked (QMouseEvent *mouseEvent)
     {
         gproxy->m_BNET->SetSearchGameName(gamename.toStdString());
         autosearch(false);
-        addMessage("[BNET] looking for a game named \"" + gamename
-                + "\" for up to two minutes");
+        addMessage(ColoredMessage("[BNET] looking for a game named \"" + gamename
+                + "\" for up to two minutes", ColoredMessage::BNET));
     }
     else if (mouseEvent->button() == Qt::RightButton)
     {
@@ -577,37 +609,37 @@ void MainGUI::processInput (const QString& input)
 
     if (command == "/commands")
     {
-        addMessage(">>> /commands", false);
-        addMessage("", false);
-        addMessage("  In the GProxy++ console:", false);
-        addMessage("   /commands           : show command list", false);
-        addMessage("   /exit or /quit      : close GProxy++", false);
-        addMessage("   /filter <f>         : start filtering public game names for <f>", false);
-        addMessage("   /filteroff          : stop filtering public game names", false);
-        addMessage("   /game <gamename>    : look for a specific game named <gamename>", false);
-        addMessage("   /help               : show help text", false);
-        addMessage("   /public             : enable listing of public games", false);
-        addMessage("   /publicoff          : disable listing of public games", false);
-        addMessage("   /r <message>        : reply to the last received whisper", false);
-        addMessage("   /pgn <privgamename> : sets privategamename temporary to <privgamename> (Alias: /privategamename)", false);
-        addMessage("   /waitgame <option>  : waits for a bot joining channel with the name-prefix set in gproxy.cfg and hosts", false);
-        addMessage("                         a private game named <value of privategamename> (Alias: /wg <option>", false);
-        addMessage("   Optons:   quiet     : doesn't display the message to other users in the channel (Alias: q)", false);
-        addMessage("             off       : stops waiting for a bot to host a game", false);
-        addMessage("", false);
-        addMessage("   /botprefix <prefix> : sets <value of botprefix> temporary to <prefix>", false);
-        addMessage("   /parrot <plname>    : repeats anything that Player <plname> sais in Chat with [PARROT] <Player's message>", false);
-        addMessage("   /parrotall          : repeats anything that Players say in Chat with [PARROT] <Player's message>", false);
-        addMessage("   /parrotoff          : stops /parrot and /parrotall", false);
-        addMessage("   /start              : start warcraft 3", false);
-        addMessage("   /version            : show version text", false);
-        addMessage("", false);
-        addMessage("  In game:", false);
-        addMessage("   /re <message>       : reply to the last received whisper", false);
-        addMessage("   /sc                 : whispers \"spoofcheck\" to the game host", false);
-        addMessage("   /status             : show status information", false);
-        addMessage("   /w <user> <message> : whispers <message> to <user>", false);
-        addMessage("", false);
+        addMessage(ColoredMessage(">>> /commands"), false);
+        addMessage(ColoredMessage(""), false);
+        addMessage(ColoredMessage("  In the GProxy++ console:"), false);
+        addMessage(ColoredMessage("   /commands           : show command list"), false);
+        addMessage(ColoredMessage("   /exit or /quit      : close GProxy++"), false);
+        addMessage(ColoredMessage("   /filter <f>         : start filtering public game names for <f>"), false);
+        addMessage(ColoredMessage("   /filteroff          : stop filtering public game names"), false);
+        addMessage(ColoredMessage("   /game <gamename>    : look for a specific game named <gamename>"), false);
+        addMessage(ColoredMessage("   /help               : show help text"), false);
+        addMessage(ColoredMessage("   /public             : enable listing of public games"), false);
+        addMessage(ColoredMessage("   /publicoff          : disable listing of public games"), false);
+        addMessage(ColoredMessage("   /r <message>        : reply to the last received whisper"), false);
+        addMessage(ColoredMessage("   /pgn <privgamename> : sets privategamename temporary to <privgamename> (Alias: /privategamename)"), false);
+        addMessage(ColoredMessage("   /waitgame <option>  : waits for a bot joining channel with the name-prefix set in gproxy.cfg and hosts"), false);
+        addMessage(ColoredMessage("                         a private game named <value of privategamename> (Alias: /wg <option>"), false);
+        addMessage(ColoredMessage("   Optons:   quiet     : doesn't display the message to other users in the channel (Alias: q)"), false);
+        addMessage(ColoredMessage("             off       : stops waiting for a bot to host a game"), false);
+        addMessage(ColoredMessage(""), false);
+        addMessage(ColoredMessage("   /botprefix <prefix> : sets <value of botprefix> temporary to <prefix>"), false);
+        addMessage(ColoredMessage("   /parrot <plname>    : repeats anything that Player <plname> sais in Chat with [PARROT] <Player's message>"), false);
+        addMessage(ColoredMessage("   /parrotall          : repeats anything that Players say in Chat with [PARROT] <Player's message>"), false);
+        addMessage(ColoredMessage("   /parrotoff          : stops /parrot and /parrotall"), false);
+        addMessage(ColoredMessage("   /start              : start warcraft 3"), false);
+        addMessage(ColoredMessage("   /version            : show version text"), false);
+        addMessage(ColoredMessage(""), false);
+        addMessage(ColoredMessage("  In game:"), false);
+        addMessage(ColoredMessage("   /re <message>       : reply to the last received whisper"), false);
+        addMessage(ColoredMessage("   /sc                 : whispers \"spoofcheck\" to the game host"), false);
+        addMessage(ColoredMessage("   /status             : show status information"), false);
+        addMessage(ColoredMessage("   /w <user> <message> : whispers <message> to <user>"), false);
+        addMessage(ColoredMessage(""), false);
     }
     else if (command == "/exit" || command == "/quit")
     {
@@ -622,7 +654,7 @@ void MainGUI::processInput (const QString& input)
     else if (command == "/filteroff" || command == "/filter off")
     {
         gproxy->m_BNET->SetPublicGameFilter(string());
-        addMessage("[BNET] stopped filtering public game names");
+        addMessage(ColoredMessage("[BNET] stopped filtering public game names", ColoredMessage::BNET));
     }
     else if (command.length() >= 9 && command.startsWith("/filter "))
     {
@@ -632,7 +664,7 @@ void MainGUI::processInput (const QString& input)
         {
             filter = filter.left(31);
             gproxy->m_BNET->SetPublicGameFilter(filter.toStdString());
-            addMessage("[BNET] started filtering public game names for \"" + filter + "\"");
+            addMessage(ColoredMessage("[BNET] started filtering public game names for \"" + filter + "\""), ColoredMessage::BNET);
         }
     }
     else if (command.startsWith("/priv ") && command.length() >= 7
@@ -653,9 +685,9 @@ void MainGUI::processInput (const QString& input)
             }
             gproxy->m_BNET->SetSearchGameName(pgn.toStdString());
             autosearch(true);
-            addMessage("[BNET] try to create a private game named ["
+            addMessage(ColoredMessage("[BNET] try to create a private game named ["
                     + pgn + "] at Bot ["
-                    + botname + "].");
+                    + botname + "]."), ColoredMessage::BNET);
         }
     }
     else if (command.startsWith("/autosearch") || command.startsWith("/as"))
@@ -664,33 +696,33 @@ void MainGUI::processInput (const QString& input)
         {
             if (gproxy->autosearch)
             {
-                addMessage("[Pr0gm4n] 'autosearch' is on.");
+                addMessage(ColoredMessage("[GPROXY] 'autosearch' is on.", ColoredMessage::GPROXY));
             }
             else
             {
-                addMessage("[Pr0gm4n] 'autosearch' is off.");
+                addMessage(ColoredMessage("[GPROXY] 'autosearch' is off.", ColoredMessage::GPROXY));
             }
         }
         else if (command == "/autosearch on" || command == "/as on")
         {
             autosearch(true);
-            addMessage("[Pr0gm4n] Autosearch enabled.");
+            addMessage(ColoredMessage("[GPROXY] Autosearch enabled.", ColoredMessage::GPROXY));
         }
         else if (command == "/autosearch off" || command == "/as off")
         {
             autosearch(false);
-            addMessage("[Pr0gm4n] Autosearch disabled.");
+            addMessage(ColoredMessage("[GPROXY] Autosearch disabled.", ColoredMessage::GPROXY));
         }
         else
         {
-            addMessage("[Pr0gm4n] Invalid input.");
+            addMessage(ColoredMessage("[ERROR] Invalid parameter! Use \"/as\", \"/as on\" or \"/as off\"", ColoredMessage::ERROR));
         }
     }
     else if (command == "/privategamename" || command == "/pgn")
     {
-        addMessage("[Phyton] The value of 'privategamename' is: ["
+        addMessage(ColoredMessage("[GPROXY] The value of 'privategamename' is: ["
                 + gproxy->getPrivategamename() + "]. Change it with the input "
-                + "'/privategamename <value>' alias '/pgn <value>'.");
+                + "'/privategamename <value>' alias '/pgn <value>'.", ColoredMessage::GPROXY));
     }
     else if (command.startsWith("/privategamename ") || command.startsWith("/pgn "))
     {
@@ -703,21 +735,21 @@ void MainGUI::processInput (const QString& input)
             gproxy->setPrivategamename(input.mid(5, (input.size() - 5)));
         }
 
-        addMessage("[Phyton] Change value of 'privategamename' to ["
-                + gproxy->getPrivategamename() + "].");
+        addMessage(ColoredMessage("[GPROXY] Change value of 'privategamename' to ["
+                + gproxy->getPrivategamename() + "].", ColoredMessage::GPROXY));
 
     }
     else if (command == "/botprefix")
     {
-        addMessage("[Phyton] Value of 'botprefix' is ["
+        addMessage(ColoredMessage("[GPROXY] Value of 'botprefix' is ["
                 + gproxy->getBotprefix()
-                + "]. You can change it with '/botprefix <value>'.");
+                + "]. You can change it with '/botprefix <value>'.", ColoredMessage::GPROXY));
     }
     else if (command.startsWith("/botprefix "))
     {
         gproxy->setBotprefix(input.mid(11, input.size() - 11));
-        addMessage("[Phyton] Change value of 'botprefix' to ["
-                + gproxy->getBotprefix() + "].");
+        addMessage(ColoredMessage("[GPROXY] Change value of 'botprefix' to ["
+                + gproxy->getBotprefix() + "].", ColoredMessage::GPROXY));
     }
     else if (command.startsWith("/wg"))
     {
@@ -725,22 +757,22 @@ void MainGUI::processInput (const QString& input)
         {
             gproxy->setVShallCreateQuiet(false);
             gproxy->setVShallCreate(true);
-            addMessage("[Phyton] waiting for a bot and then trying to create a game "
-                    "and say [gn: " + gproxy->getPrivategamename() + "].");
-            gproxy->m_BNET->QueueChatCommand("[GProxy++][Phyton] Waiting for a bot "
+            addMessage(ColoredMessage("[GPROXY] Waiting for a bot and then trying to create a game "
+                    "and say [gn: " + gproxy->getPrivategamename() + "].", ColoredMessage::GPROXY));
+            gproxy->m_BNET->QueueChatCommand("[GProxy++] Waiting for a bot "
                     "and create a game with the name ["
                     + gproxy->getPrivategamename() + "].");
         }
         else if (command == "/wg off")
         {
-            addMessage("[Phyton] stopped waiting for a bot to create a game.");
+            addMessage(ColoredMessage("[GPROXY] stopped waiting for a bot to create a game.", ColoredMessage::GPROXY));
             gproxy->setVShallCreate(false);
         }
         else if (command == "/wg quiet" || command == "/wg q")
         {
             gproxy->setVShallCreate(true);
             gproxy->setVShallCreateQuiet(true);
-            addMessage("[Phyton] waiting for a bot and then trying to create a game [quiet].");
+            addMessage(ColoredMessage("[GPROXY] waiting for a bot and then trying to create a game [quiet].", ColoredMessage::GPROXY));
         }
     }
     else if (command.startsWith("/waitgame") && gproxy->getBotprefix() != "")
@@ -749,33 +781,33 @@ void MainGUI::processInput (const QString& input)
         {
             gproxy->setVShallCreateQuiet(false);
             gproxy->setVShallCreate(true);
-            addMessage("[Phyton] waiting for a bot and then trying to create a game "
-                    "and say [gn: " + gproxy->getPrivategamename() + "].");
+            addMessage(ColoredMessage("[GPROXY] waiting for a bot and then trying to create a game "
+                    "and say [gn: " + gproxy->getPrivategamename() + "].", ColoredMessage::GPROXY));
             gproxy->m_BNET->QueueChatCommand("[GProxy++][Phyton] Waiting for a bot "
                     "and create a game with the name ["
                     + gproxy->getPrivategamename() + "].");
         }
         else if (command == "/waitgame off")
         {
-            addMessage("[Phyton] stopped waiting for a bot to create a game.");
+            addMessage(ColoredMessage("[GPROXY] stopped waiting for a bot to create a game.", ColoredMessage::GPROXY));
             gproxy->setVShallCreate(false);
         }
         else if (command == "/waitgame quiet")
         {
             gproxy->setVShallCreate(true);
             gproxy->setVShallCreateQuiet(true);
-            addMessage("[Phyton] waiting for a bot and then trying to create a game [quiet].");
+            addMessage(ColoredMessage("[GPROXY] waiting for a bot and then trying to create a game [quiet].", ColoredMessage::GPROXY));
         }
     }
     else if (command.startsWith("/parrot "))
     {
         gproxy->setParrot(input.mid(8, input.length() - 8));
-        addMessage("[Phyton] Parrot [" + gproxy->getParrot() + "]!!!111");
+        addMessage(ColoredMessage("[GPROXY] Parrot [" + gproxy->getParrot() + "]!!!111", ColoredMessage::GPROXY));
     }
     else if (command == "/parrotoff")
     {
         gproxy->setParrot("");
-        addMessage("[Phyton] Parrot off");
+        addMessage(ColoredMessage("[GPROXY] Parrot off", ColoredMessage::GPROXY));
     }
     else if (input == "/parrotall")
     {
@@ -793,43 +825,43 @@ void MainGUI::processInput (const QString& input)
         {
             gproxy->m_BNET->SetSearchGameName(GameName);
             autosearch(false);
-            addMessage("[BNET] looking for a game named \"" + QString::fromStdString(GameName)
-                    + "\" for up to two minutes");
+            addMessage(ColoredMessage("[BNET] looking for a game named \"" + QString::fromStdString(GameName)
+                    + "\" for up to two minutes", ColoredMessage::BNET));
         }
     }
     else if (command == "/help")
     {
-        addMessage(">>> /help", false);
-        addMessage("", false);
-        addMessage("  GProxy++ connects to battle.net and looks for games for you to join.", false);
-        addMessage("  If GProxy++ finds any they will be listed on the Warcraft III LAN screen.", false);
-        addMessage("  To join a game, simply open Warcraft III and wait at the LAN screen.", false);
-        addMessage("  Standard games will be white and GProxy++ enabled games will be blue.", false);
-        addMessage("  Note: You must type \"/public\" to enable listing of public games.", false);
-        addMessage("", false);
-        addMessage("  If you want to join a specific game, type \"/game <gamename>\".", false);
-        addMessage("  GProxy++ will look for that game for up to two minutes before giving up.", false);
-        addMessage("  This is useful for private games.", false);
-        addMessage("", false);
-        addMessage("  Please note:", false);
-        addMessage("  GProxy++ will join the game using your battle.net name, not your LAN name.", false);
-        addMessage("  Other players will see your battle.net name even if you choose another name.", false);
-        addMessage("  This is done so that you can be automatically spoof checked.", false);
-        addMessage("", false);
-        addMessage("  Type \"/commands\" for a full command list.", false);
-        addMessage("", false);
+        addMessage(ColoredMessage(">>> /help"), false);
+        addMessage(ColoredMessage(""), false);
+        addMessage(ColoredMessage("  GProxy++ connects to battle.net and looks for games for you to join."), false);
+        addMessage(ColoredMessage("  If GProxy++ finds any they will be listed on the Warcraft III LAN screen."), false);
+        addMessage(ColoredMessage("  To join a game, simply open Warcraft III and wait at the LAN screen."), false);
+        addMessage(ColoredMessage("  Standard games will be white and GProxy++ enabled games will be blue."), false);
+        addMessage(ColoredMessage("  Note: You must type \"/public\" to enable listing of public games."), false);
+        addMessage(ColoredMessage(""), false);
+        addMessage(ColoredMessage("  If you want to join a specific game, type \"/game <gamename>\"."), false);
+        addMessage(ColoredMessage("  GProxy++ will look for that game for up to two minutes before giving up."), false);
+        addMessage(ColoredMessage("  This is useful for private games."), false);
+        addMessage(ColoredMessage(""), false);
+        addMessage(ColoredMessage("  Please note:"), false);
+        addMessage(ColoredMessage("  GProxy++ will join the game using your battle.net name, not your LAN name."), false);
+        addMessage(ColoredMessage("  Other players will see your battle.net name even if you choose another name."), false);
+        addMessage(ColoredMessage("  This is done so that you can be automatically spoof checked."), false);
+        addMessage(ColoredMessage(""), false);
+        addMessage(ColoredMessage("  Type \"/commands\" for a full command list."), false);
+        addMessage(ColoredMessage(""), false);
     }
     else if (command == "/public" || command == "/publicon" || command == "/public on"
             || command == "/list" || command == "/liston" || command == "/list on")
     {
         gproxy->m_BNET->SetListPublicGames(true);
-        addMessage("[BNET] listing of public games enabled");
+        addMessage(ColoredMessage("[BNET] listing of public games enabled", ColoredMessage::BNET));
     }
     else if (command == "/publicoff" || command == "/public off"
             || command == "/listoff" || command == "/list off")
     {
         gproxy->m_BNET->SetListPublicGames(false);
-        addMessage("[BNET] listing of public games disabled");
+        addMessage(ColoredMessage("[BNET] listing of public games disabled", ColoredMessage::BNET));
     }
     else if (command.length() >= 4 && command.startsWith("/r "))
     {
@@ -839,7 +871,7 @@ void MainGUI::processInput (const QString& input)
                     gproxy->m_BNET->GetReplyTarget(), true);
         }
         else
-            addMessage("[BNET] nobody has whispered you yet");
+            addMessage(ColoredMessage("[BNET] nobody has whispered you yet", ColoredMessage::BNET));
     }
     else if (command == "/start")
     {
@@ -847,18 +879,16 @@ void MainGUI::processInput (const QString& input)
     }
     else if (command == "/version")
     {
-        addMessage("[GPROXY] Customized "
-                + Util::toString(this->getGproxy()->getConfig()->getColor("gproxy_foregroundcolor"))
-                + "GProxy++|r Version " + QString::fromStdString(gproxy->m_Version));
-        addMessage("[GPROXY] "
-                + Util::toString(this->getGproxy()->getConfig()->getColor("chat_foregroundcolor"))
-                + "This mod is by "
-                + Util::toString(this->getGproxy()->getConfig()->getColor("whisper_foregroundcolor"))
-                + "Phyton|r, "
-                + Util::toString(this->getGproxy()->getConfig()->getColor("info_foregroundcolor"))
-                + "Pr0gm4n|r and "
-                + Util::toString(this->getGproxy()->getConfig()->getColor("gameinfo_foregroundcolor"))
-                + "Manufactoring|r.");
+        addMessage(ColoredMessage("[GPROXY] Customized "
+                "GProxy++ Version " + QString::fromStdString(gproxy->m_Version), ColoredMessage::GPROXY), false);
+        addMessage(ColoredMessage("[GPROXY] ", ColoredMessage::GPROXY), false, true, false);
+        addMessage(ColoredMessage("This mod is by "), false, false, false);
+        addMessage(ColoredMessage("Phyton", ColoredMessage::WHISPER), false, false, false);
+        addMessage(ColoredMessage(", "), false, false, false);
+        addMessage(ColoredMessage("Pr0gm4n", ColoredMessage::INFO), false, false, false);
+        addMessage(ColoredMessage(" and "), false, false, false);
+        addMessage(ColoredMessage("Manufactoring", ColoredMessage::GAMEINFO), false, false, false);
+        addMessage(ColoredMessage("."), false, false, true);
     }
     else if (command.startsWith("/test"))
     {
@@ -886,15 +916,15 @@ void MainGUI::processInput (const QString& input)
 
         if (phraseFile->open(QFile::ReadOnly))
         {
-            QStringList lines = QString(phraseFile->readAll()).split("\n");
+            QStringList lines = QString(phraseFile->readAll()).split('\n');
 
             foreach(QString line, lines)
             {
-                if (gproxy->m_BNET->GetInGame() && !line.startsWith("#"))
+                if (gproxy->m_BNET->GetInGame() && !line.startsWith('#'))
                 {
-                    if (!line.startsWith("%"))
+                    if (!line.startsWith('%'))
                     {
-                        if (!line.startsWith("~"))
+                        if (!line.startsWith('~'))
                         {
                             gproxy->sendGamemessage(line);
                         }
@@ -908,7 +938,7 @@ void MainGUI::processInput (const QString& input)
                         gproxy->m_BNET->QueueChatCommand(line.mid(1));
                     }
                 }
-                else if (!line.startsWith("#"))
+                else if (!line.startsWith('#'))
                 {
                     gproxy->m_BNET->QueueChatCommand(line);
                 }
@@ -916,7 +946,7 @@ void MainGUI::processInput (const QString& input)
         }
         else
         {
-            CONSOLE_Print("[ERROR] File \"" + filePath + "\" does not exist!");
+            addMessage(ColoredMessage("[ERROR] File \"" + filePath + "\" does not exist!", ColoredMessage::ERROR));
             gproxy->SendLocalChat("File \"" + filePath + "\" does not exist!");
         }
     }
@@ -925,7 +955,7 @@ void MainGUI::processInput (const QString& input)
         if (command == "/statslast" || command == "/sl"
                 || command == "!statslast" || command == "!sl")
         {
-            gproxy->sendGamemessage("!stats " + gproxy->getLastLeaver()->getName());
+            gproxy->sendGamemessage("!stats " + gproxy->getLastLeaver()->getName().getMessage());
         }
         else if (command.startsWith("/allies "))
         {
@@ -945,182 +975,71 @@ void MainGUI::processInput (const QString& input)
 /**
  * Displays the message at the output area of GProxy.
  *
- * @param message The message to be displayed.
+ * @param coloredMessage The message to be displayed.
  * @param log If the message should be logged. Default: <code>true</code>.
+ * @param printTimestamp If the current time should be displayed before the message. Default: <code>true</code>.
+ * @param lineBreak If a line break should be appended to the message. Default: <code>true</code>.
  */
-void MainGUI::addMessage (QString message, bool log)
+void MainGUI::addMessage (const ColoredMessage& coloredMessage, bool log, bool printTimestamp, bool lineBreak)
 {
+    ColoredMessage cm = ColoredMessage(coloredMessage);
+
     if (log)
     {
-        LOG_Print(message);
+        LOG_Print(cm.getMessage(), printTimestamp, lineBreak);
     }
 
-    widget.outputTextArea->moveCursor(QTextCursor::End);
-
-    addColor(message);
-    QString dateTime = QLocale().toString(QDateTime::currentDateTime(), "[hh:mm:ss] ");
-    message.insert(10, dateTime);
-    if (!widget.outputTextArea->textCursor().atStart())
+    if (printTimestamp)
     {
-        message.insert(0, "\n");
+        QString dateTimeString = QLocale().toString(QDateTime::currentDateTime(), "[hh:mm:ss] ");
+        cm.setMessage(cm.getMessage().prepend(dateTimeString));
     }
 
-    // Print the message colored, if it contains a Warcraft like color code: "|cFF00FF00|r".
-    QRegExp colorCodeRegExp = QRegExp("\\|c([a-f]|[0-9]){8}");
-    colorCodeRegExp.setCaseSensitivity(Qt::CaseInsensitive);
-    int i = 0;
-    while (message.indexOf(colorCodeRegExp, i) != -1)
+    if (lineBreak)
     {
-        int colorStartIndex = message.indexOf(colorCodeRegExp, i);
-        widget.outputTextArea->insertPlainText(message.mid(i, colorStartIndex - i));
-        widget.outputTextArea->setTextColor(Util::toColor(message.mid(colorStartIndex, 10)));
-        i = colorStartIndex + 10;
-
-        if (message.indexOf("|r", i, Qt::CaseInsensitive) != -1)
-        {
-            int colorEndIndex = message.indexOf("|r", i, Qt::CaseInsensitive);
-            int nextColorStartIndex = message.indexOf(colorCodeRegExp, i);
-            if (nextColorStartIndex == -1 || nextColorStartIndex > colorEndIndex)
-            {
-                widget.outputTextArea->insertPlainText(message.mid(i, colorEndIndex - i));
-                widget.outputTextArea->setTextColor(this->getGproxy()->getConfig()->getColor("chat_foregroundcolor"));
-                i = colorEndIndex + 2;
-            }
-        }
+        cm.setMessage(cm.getMessage().append('\n'));
     }
 
-    widget.outputTextArea->insertPlainText(message.mid(i));
-    widget.outputTextArea->setTextColor(QColor(230, 230, 230));
+    widget.outputTextArea->appendColoredMessage(cm);
+    widget.inputTextArea->setFocus();
 }
 
 /**
- * Adds a color code to the message, depending on its message type.
- *
- * @param message The message to be modified.
- */
-void MainGUI::addColor (QString& message)
-{
-    // FIXME Performance enhancement:
-    // The config->getColor method has to loop
-    // through every config value to find the right one.
-    if (message.startsWith("[WHISPER]")
-            || message.startsWith("[QUEUED] /w ")
-            || message.startsWith("[WHISPER TO]"))
-    {
-        message.prepend(Util::toString(gproxy->getConfig()->getColor("whipser_foregroundcolor")));
-    }
-    else if (message.startsWith("[Phyton]")
-            || message.startsWith("[Pr0gm4n]")
-            || message.startsWith("[CONFIG]")
-            || message.startsWith("Bot ["))
-    {
-        message.prepend(Util::toString(gproxy->getConfig()->getColor("gameinfo_foregroundcolor")));
-    }
-    else if (message.startsWith("[Manufactoring]"))
-    {
-        message.prepend(Util::toString(gproxy->getConfig()->getColor("gameinfo_foregroundcolor")));
-    }
-    else if (message.startsWith("[LOCAL]"))
-    {
-        // removing "[LOCAL] "
-        message.remove(0, 8);
-
-        // special coloring only for the chiefs
-        if (message.startsWith("[baerli_graz]")
-                || message.startsWith("[klingone_graz]"))
-        {
-            message.insert(1, Util::toString(gproxy->getConfig()->getColor("error_foregroundcolor")));
-            message.insert(message.indexOf("]"), "|r");
-        }
-
-        message.prepend(Util::toString(gproxy->getConfig()->getColor("chat_foregroundcolor")));
-    }
-    else if (message.startsWith("[QUEUED]"))
-    {
-        // replacing "QUEUED" with the username
-        message = "[" + QString::fromStdString(gproxy->m_BNET->m_UserName) + "]"
-                + message.mid(8, message.size() - 8);
-
-        // special coloring only for the chiefs
-        if (message.startsWith("[baerli_graz]")
-                || message.startsWith("[klingone_graz]"))
-        {
-            message.insert(1, Util::toString(gproxy->getConfig()->getColor("whipser_foregroundcolor")));
-            message.insert(message.indexOf("]"), "|r");
-        }
-
-        message.prepend(Util::toString(gproxy->getConfig()->getColor("chat_foregroundcolor")));
-    }
-    else if (message.startsWith("[INFO]"))
-    {
-        message.remove(0, 7);
-        message.prepend(Util::toString(gproxy->getConfig()->getColor("info_foregroundcolor")));
-    }
-    else if (message.startsWith("[GPROXY]")
-            || message.startsWith("[UDPSOCKET]")
-            || message.startsWith("[TCPSOCKET]"))
-    {
-        message.prepend(Util::toString(gproxy->getConfig()->getColor("gproxy_foregroundcolor")));
-    }
-    else if (message.startsWith("[BNET]"))
-    {
-        message.prepend(Util::toString(gproxy->getConfig()->getColor("bnet_foregroundcolor")));
-    }
-    else if (message.startsWith("[EMOTE]"))
-    {
-        message.remove(0, 8);
-        message.prepend(Util::toString(gproxy->getConfig()->getColor("emote_foregroundcolor")));
-    }
-    else if (message.endsWith(" has joined the game.")
-            || message.endsWith(" has left the game."))
-    {
-        message.prepend(Util::toString(gproxy->getConfig()->getColor("gameinfo_foregroundcolor")));
-        // Set the color here again. Has to be done for players with colored names.
-        message.insert(message.indexOf(" has "), Util::toString(gproxy->getConfig()->getColor("gameinfo_foregroundcolor")));
-    }
-    else if (message.startsWith("[ERROR]")
-            || message.startsWith("[Manufactoring][ERROR]"))
-    {
-        message.prepend(Util::toString(gproxy->getConfig()->getColor("error_foregroundcolor")));
-    }
-    else if (message.startsWith("[WARNING]"))
-    {
-        message.prepend(Util::toString(gproxy->getConfig()->getColor("warning_foregroundcolor")));
-    }
-    else
-    {
-        message.prepend(Util::toString(gproxy->getConfig()->getColor("chat_foregroundcolor")));
-    }
-}
-
-/**
- * Adds color data and tooltip information to the QListWidgetItem.
+ * Adds color data to the QListWidgetItem.
  *
  * @param item QListWidgetItem*.
  */
 void MainGUI::addColor (QListWidgetItem *item)
 {
     QString username = item->data(ChannellistDelegate::USER).toString();
+    QColor color = gproxy->getConfig()->getUserColor(username);
+
+    item->setData(ChannellistDelegate::COLOR_USER, color);
+}
+
+/**
+ * Adds tooltip information to the QListWidgetItem.
+ *
+ * @param item QListWidgetItem*.
+ */
+void MainGUI::addTooltip(QListWidgetItem* item)
+{
+    QString username = item->data(ChannellistDelegate::USER).toString();
 
     if (username == "baerli_graz" || username == "klingone_graz")
     {
-        item->setData(ChannellistDelegate::COLOR_USER, QColor(255, 0, 0));
         item->setToolTip("Creator of GhostGraz");
-    }
-    else if (username.startsWith("GhostGraz"))
-    {
-        item->setData(ChannellistDelegate::COLOR_USER, QColor(255, 255, 0));
-        item->setToolTip("GhostGraz bot");
     }
     else if (username == "Phyton" || username == "Manufactoring")
     {
-
-        item->setData(ChannellistDelegate::COLOR_USER, QColor(0, 255, 0));
         item->setToolTip("Creator of GProxy GhostGraz");
+    }
+    else if (username.startsWith("GhostGraz"))
+    {
+        item->setToolTip("GhostGraz bot");
     }
     else if (isAdmin(username))
     {
-        item->setData(ChannellistDelegate::COLOR_USER, QColor(0, 255, 200));
         item->setToolTip("GhostGraz admin");
     }
 }
@@ -1166,6 +1085,7 @@ void MainGUI::addChannelUser (QString username, QString clanTag)
                 newItem->setData(ChannellistDelegate::USER, username);
                 newItem->setData(ChannellistDelegate::CLAN_TAG, clanTag);
                 addColor(newItem);
+                addTooltip(newItem);
                 delete widget.channelList->takeItem(i);
                 widget.channelList->addItem(newItem);
                 return;
@@ -1181,6 +1101,7 @@ void MainGUI::addChannelUser (QString username, QString clanTag)
         newItem->setData(ChannellistDelegate::CLAN_TAG, clanTag);
     }
     addColor(newItem);
+    addTooltip(newItem);
     widget.channelList->addItem(newItem);
 }
 
@@ -1331,7 +1252,8 @@ void MainGUI::setGameslots (QList<Slot*> slotList)
 
         if (slot->getPlayer())
         {
-            playerItem->setData(ChannellistDelegate::USER, slot->getPlayer()->getName());
+            playerItem->setData(ChannellistDelegate::USER, slot->getPlayer()->getName().getMessage());
+            playerItem->setData(ChannellistDelegate::COLOR_USER, slot->getPlayer()->getName().getColor());
         }
         else
         {
@@ -1370,7 +1292,7 @@ void MainGUI::startWarcraft ()
  */
 void MainGUI::showErrorMessage (QString errorMessage)
 {
-    addMessage("[ERROR] " + errorMessage);
+    addMessage(ColoredMessage("[ERROR] " + errorMessage, ColoredMessage::ERROR));
 
     QMessageBox msgBox;
     msgBox.setWindowIcon(QIcon(":/images/Error.png"));
@@ -1414,19 +1336,21 @@ void MainGUI::showConfigDialog (bool exitOnReject)
  *
  * @param playername The name of player.
  */
-void MainGUI::playerJoined (const QString& playername)
+void MainGUI::playerJoined (const ColoredMessage& playername)
 {
-    addMessage("[LOBBY] " + playername + " has joined the game.");
+    addMessage(ColoredMessage("[GAMEINFO] ", ColoredMessage::GAMEINFO), true, true, false);
+    addMessage(ColoredMessage(playername), true, false, false);
+    addMessage(ColoredMessage(" has joined the game.", ColoredMessage::GAMEINFO), true, false, true);
 
     // If the player has a colored name (hostbot), return.
-    if (playername.startsWith("|cff", Qt::CaseInsensitive))
+    if (playername.getColorType() == ColoredMessage::CUSTOM)
     {
         return;
     }
 
-    statspage->getPlayerInformation(playername);
+    statspage->getPlayerInformation(playername.getMessage());
 
-    if (gproxy->getUsername() != playername && isAdmin(playername))
+    if (gproxy->getUsername() != playername.getMessage() && isAdmin(playername.getMessage()))
     {
         QSound::play("sounds/vip_joins.wav");
     }
@@ -1435,7 +1359,7 @@ void MainGUI::playerJoined (const QString& playername)
         // If the player is a friend -> play sound.
         for (int i = 0; i < widget.friendList->count(); i++)
         {
-            if (widget.friendList->item(i)->text() == playername)
+            if (widget.friendList->item(i)->text() == playername.getMessage())
             {
                 QSound::play("sounds/vip_joins.wav");
                 break;
@@ -1604,13 +1528,13 @@ void MainGUI::statspageLoginFinished ()
 {
     if (statspage->isLoggedIn())
     {
-        CONSOLE_Print("[GPROXY] Statspage available.");
+        addMessage(ColoredMessage("[GPROXY] Statspage available.", ColoredMessage::GPROXY));
         initAdminlist();
     }
     else
     {
-        CONSOLE_Print("[ERROR] Statspage unavailable. "
-                "You might have entered wrong username or password.");
+        addMessage(ColoredMessage("[ERROR] Statspage unavailable. "
+                "You might have entered wrong username or password.", ColoredMessage::ERROR));
     }
 }
 
@@ -1631,17 +1555,21 @@ void MainGUI::receivedPlayerInformation (Player *player)
 
             if (players[i]->getGamesPlayed() == 0)
             {
-                addMessage("[WARNING] " + players[i]->getName()
-                        + " hasn't played any games on GhostGraz yet.");
-                gproxy->SendLocalChat("[WARNING] " + players[i]->getName()
+                addMessage(ColoredMessage("[WARNING] ", ColoredMessage::WARNING), true, true, false);
+                addMessage(players[i]->getName(), true, false, false);
+                addMessage(ColoredMessage(" hasn't played any games on GhostGraz yet.",
+                        ColoredMessage::WARNING), true, false, true);
+                gproxy->SendLocalChat("[WARNING] " + players[i]->getName().getMessage()
                         + " hasn't played any games with the bot yet.");
             }
             else if (players[i]->getStayPercent() < 80)
             {
-                addMessage("[WARNING] " + players[i]->getName()
-                        + " has a stay ratio below 80%. ("
-                        + QString::number(players[i]->getStayPercent(), 'f', 2) + "%)");
-                gproxy->SendLocalChat("WARNING: " + players[i]->getName()
+                addMessage(ColoredMessage("[WARNING] ", ColoredMessage::WARNING), true, true, false);
+                addMessage(players[i]->getName(), true, false, false);
+                addMessage(ColoredMessage(" has a stay ratio below 80%. ("
+                        + QString::number(players[i]->getStayPercent(), 'f', 2) + "%)",
+                        ColoredMessage::WARNING), true, false, true);
+                gproxy->SendLocalChat("WARNING: " + players[i]->getName().getMessage()
                         + " has a stay ratio below 80%. ("
                         + QString::number(players[i]->getStayPercent(), 'f', 2) + "%)");
             }
@@ -1659,9 +1587,20 @@ void MainGUI::receivedPlayerInformation (Player *player)
  *
  * @param admins The adminlist.
  */
-void MainGUI::onAdminlistReceived (QList<QString> admins)
+void MainGUI::onAdminlistReceived (QStringList admins)
 {
     this->admins = admins;
+    gproxy->getConfig()->setAdmins(admins);
+    for (int i = 0; i < widget.channelList->count(); ++i)
+    {
+        addColor(widget.channelList->item(i));
+        addTooltip(widget.channelList->item(i));
+    }
+    widget.channelList->repaint();
+    foreach(QString admin, admins)
+    {
+        addMessage(admin);
+    }
 }
 
 /**
@@ -1670,18 +1609,38 @@ void MainGUI::onAdminlistReceived (QList<QString> admins)
  * @param name Possible admin name.
  * @return True if the name is the name of an admin.
  */
-bool MainGUI::isAdmin (const QString &name)
+bool MainGUI::isAdmin (const QString& username)
 {
-    QString adminName = name.toLower();
-    foreach(QString admin, admins)
+    if (admins.contains(username, Qt::CaseInsensitive))
     {
-        if (admin == adminName)
-        {
-            return true;
-        }
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+/**
+ * Slot: Executed when the a usercolor has changed.
+ *
+ * @param colorDialog The color dialog for the user color.
+ */
+void MainGUI::userColorChanged(MColorDialog* colorDialog)
+{
+    // Example name is "ManufactoringColorDialog". Expected username is "Manufactoring".
+    // Removing "ColorDialog".
+    QString username = colorDialog->objectName().left(colorDialog->objectName().length() - 11);
+    QColor color = colorDialog->currentColor();
+    QListWidgetItem* item = (QListWidgetItem*) colorDialog->property("listItem").value<void*>();
+
+    if (!colorDialog->isVisible())
+    {
+        color = gproxy->getConfig()->getUserColor(username);
     }
 
-    return false;
+    item->setData(ChannellistDelegate::COLOR_USER, color);
+    widget.outputTextArea->repaint("usercolor", color, username);
 }
 
 CGProxy* MainGUI::getGproxy ()
@@ -1693,3 +1652,5 @@ Statspage* MainGUI::getStatspage ()
 {
     return statspage;
 }
+
+#define ERROR 0 /* Redefine ERROR macro */

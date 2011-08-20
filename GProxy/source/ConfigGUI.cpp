@@ -486,14 +486,14 @@ void ConfigGUI::onBackgroundcolorButtonClicked ()
     }
     else
     {
-        emit colorChanged("background", config->getColor("backgroundcolor"));
+        emit colorChanged("backgroundcolor", config->getColor("backgroundcolor"));
     }
     delete colorDialog;
 }
 
 void ConfigGUI::onBackgroundColorChanged(const QColor& color)
 {
-    emit colorChanged("background", color);
+    emit colorChanged("backgroundcolor", color);
 }
 
 void ConfigGUI::onOutputareaFontButtonClicked()
@@ -520,17 +520,18 @@ void ConfigGUI::onOutputareaFontChanged(const QFont& font)
     emit fontChanged("outputarea", font);
 }
 
-void ConfigGUI::onOutputareaForegroundcolorButtonClicked(MButton* button)
+void ConfigGUI::onForegroundcolorButtonClicked(MButton* button)
 {
     QString element = button->objectName();
-    // Example name is "outputareaChatColorButton". Expected element name is "chat".
-    // Removing "outputarea" and "ColorButton" and changing case to lower case.
-    element = element.mid(10, element.length() - 21).toLower();
+    // Example name is "generalChatColorButton". Expected element name is "chat".
+    // Removing "general" and "ColorButton" and changing case to lower case.
+    element = element.mid(7, element.length() - 18).toLower();
 
-    QColorDialog* colorDialog = new QColorDialog(config->getColor(element + "_foregroundcolor"), this);
+    MColorDialog* colorDialog = new MColorDialog(config->getColor(element + "_foregroundcolor"), this);
+    colorDialog->setObjectName(element + "ColorDialog");
 
-    connect(colorDialog, SIGNAL(currentColorChanged(const QColor&)),
-            this, SLOT(onForegroundColorChanged(const QColor&)), Qt::QueuedConnection);
+    connect(colorDialog, SIGNAL(currentColorChanged(MColorDialog*)),
+            this, SLOT(onForegroundColorChanged(MColorDialog*)), Qt::QueuedConnection);
 
     if (colorDialog->exec() == QDialog::Accepted)
     {
@@ -542,12 +543,15 @@ void ConfigGUI::onOutputareaForegroundcolorButtonClicked(MButton* button)
     }
     else
     {
-        emit colorChanged("foreground", config->getColor(element + "_foregroundcolor"));
+        emit colorChanged(element + "_foregroundcolor", config->getColor(element + "_foregroundcolor"));
     }
     delete colorDialog;
 }
 
-void ConfigGUI::onForegroundColorChanged(const QColor& color)
+void ConfigGUI::onForegroundColorChanged(MColorDialog* colorDialog)
 {
-    emit colorChanged("foreground", color);
+    // Example name is "chatColorDialog". Expected element name is "chat".
+    // Removing "ColorDialog".
+    QString element = colorDialog->objectName().left(colorDialog->objectName().length() - 11);
+    emit colorChanged(element + "_foregroundcolor", colorDialog->currentColor());
 }

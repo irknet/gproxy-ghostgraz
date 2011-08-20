@@ -1,8 +1,9 @@
+#include "Statspage.h"
+#include "color/ColoredMessage.h"
+
 #include <QList>
 #include <QUrl>
 #include <QStringList>
-
-#include "Statspage.h"
 
 Statspage::Statspage ()
 {
@@ -109,7 +110,7 @@ void Statspage::onPlayerReplyFinished (QNetworkReply *reply)
     int userIndex = url.indexOf("u=") + 2;
     int userEndIndex = url.indexOf("&", userIndex);
     QString playerName = url.mid(userIndex, userEndIndex - userIndex);
-    player->setName(playerName);
+    player->setName(ColoredMessage(playerName));
 
     QString content = QString(reply->readAll());
 
@@ -156,7 +157,7 @@ QString Statspage::getInfo (const QString &content, const QString &infoText)
 
 void Statspage::onAdminlistReplyFinished(QNetworkReply* reply)
 {
-    QList<QString> admins;
+    QStringList admins;
 
     QString content = QString(reply->readAll());
     QStringList lines = content.split("\n");

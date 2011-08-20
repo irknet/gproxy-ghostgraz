@@ -25,6 +25,7 @@
 #include "Config.h"
 #include "Player.h"
 #include "Slot.h"
+#include "color/ColoredMessage.h"
 
 #include <fstream>
 #include <iostream>
@@ -80,8 +81,8 @@ private:
 
 // output
 
-void LOG_Print( const QString& message );
-void CONSOLE_Print( QString message, bool log = true );
+void LOG_Print( const QString& message, bool printTimestamp = true, bool lineBreak = true );
+void CONSOLE_Print( const ColoredMessage& coloredMessage, bool log = true, bool printTimestamp = true, bool lineBreak = true);
 void CheckForGame( string gamename );//phy core
 string parrot();//phy parrot
 string IntToString(int i);
@@ -255,7 +256,7 @@ public:
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Signal emitting functions">
-    void addMessage(QString msg, bool log = true);
+    void addMessage(const ColoredMessage& coloredMessage, bool log = true, bool printTimestamp = true, bool lineBreak = true);
     void changeChannel(QString channel);
     void addChannelUser(QString username, QString clanTag);
     void removeChannelUser(QString username);
@@ -296,7 +297,7 @@ private:
 
 signals:
     void signal_startUpdateThread();
-    void signal_addMessage(QString, bool);
+    void signal_addMessage(ColoredMessage, bool, bool, bool);
     void signal_changeChannel(QString);
     void signal_addChannelUser(QString, QString);
     void signal_removeChannelUser(QString);
@@ -304,7 +305,7 @@ signals:
     void signal_addFriend(QString, bool, QString);
     void signal_setGameslots(QList<Slot*>);
     void signal_showErrorMessage(QString);
-    void signal_playerJoined(const QString&);
+    void signal_playerJoined(const ColoredMessage&);
     void signal_stopDownloadThread();
     void signal_showConfigDialog(bool);
     void signal_initConfigurations();

@@ -15,5 +15,6 @@
     <file>images/Remove.png</file>
     <file>images/Applications.png</file>
     <file>images/Refresh.png</file>
+    <file>images/Colors.png</file>
   </qresource>
 </RCC>

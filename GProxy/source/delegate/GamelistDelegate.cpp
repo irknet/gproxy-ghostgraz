@@ -4,9 +4,9 @@ void GamelistDelegate::paint (QPainter * painter,
         const QStyleOptionViewItem & option, const QModelIndex & index)
 const
 {
-    QString bot = "Botname: " + index.data(35).toString();
-    QString gamename = index.data(36).toString();
-    QString openSlots = "Open slots: " + index.data(37).toString();
+    QString bot = "Botname: " + index.data(GamelistDelegate::BOTNAME).toString();
+    QString gamename = index.data(GamelistDelegate::GAMENAME).toString();
+    QString openSlots = "Open slots: " + index.data(GamelistDelegate::OPEN_SLOTS).toString();
 
     int openSlotsCount = index.data(37).toString().mid(1).toInt();
     QBrush brush = getBrush(openSlotsCount);
@@ -20,17 +20,24 @@ const
     painter->save();
 
     painter->setPen(QColor(0, 0, 0));
-    QFont font = painter->font();
-    font.setBold(true);
-    painter->setFont(font);
 
     painter->fillRect(rect, brush);
     painter->drawLine(rect.left(), rect.bottom(), rect.right(), rect.bottom());
 
     painter->drawText(rect, Qt::AlignHCenter, gamename);
     rect.adjust(0, 15, 0, 0);
-    painter->drawText(rect, Qt::AlignLeft, openSlots);
-    painter->drawText(rect, Qt::AlignRight, bot);
+
+    if (rect.height() == 35)
+    {
+        painter->drawText(rect, Qt::AlignHCenter, openSlots);
+        rect.adjust(0, 15, 0, 0);
+        painter->drawText(rect, Qt::AlignHCenter, bot);
+    }
+    else
+    {
+        painter->drawText(rect, Qt::AlignLeft, openSlots);
+        painter->drawText(rect, Qt::AlignRight, bot);
+    }
 
     painter->restore();
 }
@@ -39,7 +46,17 @@ QSize GamelistDelegate::sizeHint (const QStyleOptionViewItem & option,
         const QModelIndex & index)
 const
 {
-    return QSize(200, 35);
+    QString bot = "Botname: " + index.data(GamelistDelegate::BOTNAME).toString();
+    QString openSlots = "Open slots: " + index.data(GamelistDelegate::OPEN_SLOTS).toString();
+
+    if (QFontMetrics(QFont("Segoe UI", 9, QFont::Bold)).boundingRect(openSlots + "  " + bot).width() > option.rect.width())
+    {
+        return QSize(200, 50);
+    }
+    else
+    {
+        return QSize(200, 34);
+    }
 }
 
 QBrush GamelistDelegate::getBrush (int openSlots) const

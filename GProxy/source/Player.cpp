@@ -8,7 +8,7 @@ Player::Player ()
     setGamesPlayed(1);
 }
 
-Player::Player (const QString& name)
+Player::Player (const ColoredMessage& name)
 {
     this->name = name;
 
@@ -170,12 +170,12 @@ void Player::setKills (const int& kills)
     this->kills = kills;
 }
 
-QString Player::getName () const
+ColoredMessage Player::getName () const
 {
     return name;
 }
 
-void Player::setName (const QString& name)
+void Player::setName (const ColoredMessage& name)
 {
     this->name = name;
 }

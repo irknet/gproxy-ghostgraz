@@ -8,12 +8,14 @@
 #include "statspage/Statspage.h"
 #include "Player.h"
 #include "Slot.h"
+#include "widget/MColorDialog.h"
 
 #include <QString>
 #include <QDialog>
 #include <QVector>
 #include <QMouseEvent>
 #include <QList>
+#include <QStringList>
 #include <QPalette>
 
 using namespace std;
@@ -29,12 +31,11 @@ public:
     void init();
     CGProxy* getGproxy();
     Statspage* getStatspage();
-
     bool isAdmin(const QString &name);
 
 public slots:
     void startUpdateThread();
-    void addMessage(QString message, bool log = true);
+    void addMessage(const ColoredMessage& coloredMessage, bool log = true, bool printTimestamp = true, bool lineBreak = true);
     void changeChannel(QString channel);
     void addChannelUser(QString username, QString clanTag);
     void removeChannelUser(QString username);
@@ -45,7 +46,7 @@ public slots:
     void setGameslots(QList<Slot*> slotList);
     void showErrorMessage(QString errorMessage);
     void showConfigDialog(bool exitOnReject = false);
-    void playerJoined(const QString &playerName);
+    void playerJoined(const ColoredMessage& playername);
     void initConfigurations();
     void applyConfig();
     void setColor(const QString& area, const QColor& color);
@@ -58,7 +59,7 @@ private:
     DownloadThread* downloadThread;
     GproxyUpdateThread* gproxyUpdateThread;
     Statspage* statspage;
-    QList<QString> admins;
+    QStringList admins;
 
     void initStatspage();
     void initLayout();
@@ -67,8 +68,8 @@ private:
 
     void resizeEvent(QResizeEvent* event);
     void processInput(const QString& input);
-    void addColor(QString &message);
     void addColor(QListWidgetItem* item);
+    void addTooltip(QListWidgetItem* item);
     void sortFriendList();
 
 private slots:
@@ -87,7 +88,8 @@ private slots:
     void onFriendlistItemClicked(QMouseEvent*);
     void statspageLoginFinished();
     void receivedPlayerInformation(Player*);
-    void onAdminlistReceived(QList<QString>);
+    void onAdminlistReceived(QStringList);
+    void userColorChanged(MColorDialog* colorDialog);
 };
 
 #endif	/* _MAINGUI_H */

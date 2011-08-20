@@ -16,7 +16,6 @@
 
 */
 
-#include "gproxy.h"
 #include "Util.h"
 
 #include <sys/stat.h>
@@ -460,7 +459,7 @@ QColor Util::toColor (const QString& colorString)
         green = colorString.mid(6, 2).toInt(ok, 16);
         blue = colorString.mid(8, 2).toInt(ok, 16);
 
-        return QColor(red, green, blue, alpha);
+        return QColor(red, green, blue, 255);
     }
     else
     {

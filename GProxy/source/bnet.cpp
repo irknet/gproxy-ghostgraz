@@ -35,6 +35,8 @@
 #include <QByteArray>
 #include <QSound>
 
+#undef ERROR /* Undefine ERROR macro. Needed for ColoredMessage::ERROR. */
+
 using namespace std;
 
 uint32_t lastgames = getElapsedSeconds() - 7;
@@ -54,7 +56,7 @@ CBNET::CBNET (CGProxy *nGProxy, MainGUI *p_mainGUI, string nServer, string nBNLS
 
 	if( nPasswordHashType == "pvpgn" && !nBNLSServer.empty( ) )
 	{
-		CONSOLE_Print( "[BNET] pvpgn connection found with a configured BNLS server, ignoring BNLS server" );
+		CONSOLE_Print(ColoredMessage("[BNET] pvpgn connection found with a configured BNLS server, ignoring BNLS server", ColoredMessage::BNET) );
 		nBNLSServer.clear( );
 		nBNLSPort = 0;
 		nBNLSWardenCookie = 0;
@@ -74,10 +76,10 @@ CBNET::CBNET (CGProxy *nGProxy, MainGUI *p_mainGUI, string nServer, string nBNLS
 	transform( m_CDKeyTFT.begin( ), m_CDKeyTFT.end( ), m_CDKeyTFT.begin( ), (int(*)(int))toupper );
 
 	if( m_CDKeyROC.size( ) != 26 )
-		CONSOLE_Print( "[BNET] warning - your ROC CD key is not 26 characters long and is probably invalid" );
+		CONSOLE_Print(ColoredMessage("[BNET] warning - your ROC CD key is not 26 characters long and is probably invalid", ColoredMessage::BNET) );
 
 	if( m_GProxy->m_TFT && m_CDKeyTFT.size( ) != 26 )
-		CONSOLE_Print( "[BNET] warning - your TFT CD key is not 26 characters long and is probably invalid" );
+		CONSOLE_Print(ColoredMessage("[BNET] warning - your TFT CD key is not 26 characters long and is probably invalid", ColoredMessage::BNET) );
 
 	m_CountryAbbrev = nCountryAbbrev;
 	m_Country = nCountry;
@@ -161,12 +163,12 @@ bool CBNET::Update (void *fd, void *send_fd)
     {
         // the socket has an error
 
-        CONSOLE_Print("[BNET] disconnected from battle.net due to socket error");
+        CONSOLE_Print(ColoredMessage("[BNET] disconnected from battle.net due to socket error", ColoredMessage::BNET));
 
         if (m_Socket->GetError() == ECONNRESET
                 && getElapsedSeconds() - m_LastConnectionAttemptTime <= 15)
         {
-            CONSOLE_Print("[BNET] warning - you are probably temporarily IP banned from battle.net");
+            CONSOLE_Print(ColoredMessage("[BNET] warning - you are probably temporarily IP banned from battle.net", ColoredMessage::BNET));
         }
         else
         {
@@ -174,7 +176,7 @@ bool CBNET::Update (void *fd, void *send_fd)
                 m_GProxy->SendLocalChat("Disconnected from battle.net.");
         }
 
-        CONSOLE_Print("[BNET] waiting 90 seconds to reconnect");
+        CONSOLE_Print(ColoredMessage("[BNET] waiting 90 seconds to reconnect", ColoredMessage::BNET));
         /* delete m_BNLSClient;
         m_BNLSClient = NULL; */
         m_BNCSUtil->Reset(m_UserName, m_UserPassword);
@@ -191,12 +193,12 @@ bool CBNET::Update (void *fd, void *send_fd)
     {
         // the socket was disconnected
 
-        CONSOLE_Print("[BNET] disconnected from battle.net");
+        CONSOLE_Print(ColoredMessage("[BNET] disconnected from battle.net", ColoredMessage::BNET));
 
         if (m_GProxy->m_LocalSocket)
             m_GProxy->SendLocalChat("Disconnected from battle.net.");
 
-        CONSOLE_Print("[BNET] waiting 90 seconds to reconnect");
+        CONSOLE_Print(ColoredMessage("[BNET] waiting 90 seconds to reconnect", ColoredMessage::BNET));
         m_BNCSUtil->Reset(m_UserName, m_UserPassword);
         m_Socket->Reset();
         m_LastDisconnectedTime = getElapsedSeconds();
@@ -228,7 +230,7 @@ bool CBNET::Update (void *fd, void *send_fd)
         if (!m_SearchGameName.empty()
                 && getElapsedSeconds() - m_SearchGameNameTime >= 120)
         {
-            CONSOLE_Print("[BNET] stopped searching for game \"" + QString::fromStdString(m_SearchGameName) + "\"");
+            CONSOLE_Print(ColoredMessage("[BNET] stopped searching for game \"" + QString::fromStdString(m_SearchGameName) + "\"", ColoredMessage::BNET));
             autosearch(true);
             m_SearchGameNameTime = getElapsedSeconds();
             m_SearchGameName.clear();
@@ -258,7 +260,7 @@ bool CBNET::Update (void *fd, void *send_fd)
                 && getElapsedMilliseconds() - m_LastOutPacketTicks >= WaitTicks)
         {
             if (m_OutPackets.size() > 7)
-                CONSOLE_Print("[BNET] packet queue warning - there are " + QString::fromStdString(Util::toString(m_OutPackets.size())) + " packets waiting to be sent");
+                CONSOLE_Print(ColoredMessage("[BNET] packet queue warning - there are " + QString::fromStdString(Util::toString(m_OutPackets.size())) + " packets waiting to be sent", ColoredMessage::BNET));
 
             m_Socket->PutBytes(m_OutPackets.front());
             m_LastOutPacketSize = ((BYTEARRAY) m_OutPackets.front()).size();
@@ -285,7 +287,7 @@ bool CBNET::Update (void *fd, void *send_fd)
         {
             // the connection attempt completed
 
-            CONSOLE_Print("[BNET] connected");
+            CONSOLE_Print(ColoredMessage("[BNET] connected", ColoredMessage::BNET));
             m_Socket->PutBytes(m_Protocol->SEND_PROTOCOL_INITIALIZE_SELECTOR());
             m_Socket->PutBytes(m_Protocol->SEND_SID_AUTH_INFO(m_War3Version, m_GProxy->m_TFT, m_CountryAbbrev, m_Country));
             m_Socket->DoSend((fd_set *) send_fd);
@@ -300,8 +302,8 @@ bool CBNET::Update (void *fd, void *send_fd)
         else if (getElapsedSeconds() - m_LastConnectionAttemptTime >= 15)
         {
             // the connection attempt timed out (15 seconds)
-            CONSOLE_Print("[BNET] connect timed out");
-            CONSOLE_Print("[BNET] waiting 90 seconds to reconnect");
+            CONSOLE_Print(ColoredMessage("[BNET] connect timed out", ColoredMessage::BNET));
+            CONSOLE_Print(ColoredMessage("[BNET] waiting 90 seconds to reconnect", ColoredMessage::BNET));
             m_Socket->Reset();
             m_LastDisconnectedTime = getElapsedSeconds();
             m_WaitingToConnect = true;
@@ -315,10 +317,7 @@ bool CBNET::Update (void *fd, void *send_fd)
         // attempt to connect to battle.net
         m_FirstConnect = false;
 
-//        OuputTextEvent *test = new OuputTextEvent("ASD");
-//        QApplication::postEvent(mainGUI, new OutputTextEvent(
-//                "[BNET] connecting to server [" + m_Server + "] on port 6112"));
-        CONSOLE_Print( "[BNET] connecting to server [" + QString::fromStdString(m_Server) + "] on port 6112" );
+        CONSOLE_Print(ColoredMessage("[BNET] connecting to server [" + QString::fromStdString(m_Server) + "] on port 6112", ColoredMessage::BNET));
 
         if (m_ServerIP.empty())
         {
@@ -327,13 +326,13 @@ bool CBNET::Update (void *fd, void *send_fd)
             if (!m_Socket->HasError())
             {
                 m_ServerIP = m_Socket->GetIPString();
-                CONSOLE_Print("[BNET] resolved and cached server IP address " + QString::fromStdString(m_ServerIP));
+                CONSOLE_Print(ColoredMessage("[BNET] resolved and cached server IP address " + QString::fromStdString(m_ServerIP), ColoredMessage::BNET));
             }
         }
         else
         {
             // use cached server IP address since resolving takes time and is blocking
-            CONSOLE_Print("[BNET] using cached server IP address " + QString::fromStdString(m_ServerIP));
+            CONSOLE_Print(ColoredMessage("[BNET] using cached server IP address " + QString::fromStdString(m_ServerIP), ColoredMessage::BNET));
             m_Socket->Connect("", m_ServerIP, 6112);
         }
 
@@ -373,14 +372,14 @@ void CBNET::ExtractPackets ()
             }
             else
             {
-                CONSOLE_Print("[BNET] error - received invalid packet from battle.net (bad length), disconnecting");
+                CONSOLE_Print(ColoredMessage("[BNET] error - received invalid packet from battle.net (bad length), disconnecting", ColoredMessage::BNET));
                 m_Socket->Disconnect();
                 return;
             }
         }
         else
         {
-            CONSOLE_Print("[BNET] error - received invalid packet from battle.net (bad header constant), disconnecting");
+            CONSOLE_Print(ColoredMessage("[BNET] error - received invalid packet from battle.net (bad header constant), disconnecting", ColoredMessage::BNET));
             m_Socket->Disconnect();
             return;
         }
@@ -492,7 +491,7 @@ void CBNET::ProcessPackets ()
                 case CBNETProtocol::SID_ENTERCHAT:
                     if (m_Protocol->RECEIVE_SID_ENTERCHAT(Packet->GetData()))
                     {
-                        CONSOLE_Print("[BNET] joining channel [" + joiningChannel + "]");
+                        CONSOLE_Print(ColoredMessage("[BNET] joining channel [" + joiningChannel + "]", ColoredMessage::BNET));
                         m_InChat = true;
                         m_InGame = false;
                         m_Socket->PutBytes(m_Protocol->SEND_SID_JOINCHANNEL(joiningChannel.toStdString()));
@@ -521,7 +520,7 @@ void CBNET::ProcessPackets ()
                         m_InGame = true;
                     }
                     else
-                        CONSOLE_Print("[BNET] startadvex3 failed");
+                        CONSOLE_Print(ColoredMessage("[BNET] startadvex3 failed", ColoredMessage::BNET));
 
                     break;
 
@@ -539,23 +538,23 @@ void CBNET::ProcessPackets ()
 
                             if (m_EXEVersion.size() == 4)
                             {
-                                CONSOLE_Print("[BNET] using custom exe version bnet_custom_exeversion = " + QString::number(m_EXEVersion[0]) + " " + QString::number(m_EXEVersion[1]) + " " + QString::number(m_EXEVersion[2]) + " " + QString::number(m_EXEVersion[3]));
+                                CONSOLE_Print(ColoredMessage("[BNET] using custom exe version bnet_custom_exeversion = " + QString::number(m_EXEVersion[0]) + " " + QString::number(m_EXEVersion[1]) + " " + QString::number(m_EXEVersion[2]) + " " + QString::number(m_EXEVersion[3]), ColoredMessage::BNET));
                                 m_BNCSUtil->SetEXEVersion(m_EXEVersion);
                             }
 
                             if (m_EXEVersionHash.size() == 4)
                             {
-                                CONSOLE_Print("[BNET] using custom exe version hash bnet_custom_exeversionhash = " + QString::number(m_EXEVersionHash[0]) + " " + QString::number(m_EXEVersionHash[1]) + " " + QString::number(m_EXEVersionHash[2]) + " " + QString::number(m_EXEVersionHash[3]));
+                                CONSOLE_Print(ColoredMessage("[BNET] using custom exe version hash bnet_custom_exeversionhash = " + QString::number(m_EXEVersionHash[0]) + " " + QString::number(m_EXEVersionHash[1]) + " " + QString::number(m_EXEVersionHash[2]) + " " + QString::number(m_EXEVersionHash[3]), ColoredMessage::BNET));
                                 m_BNCSUtil->SetEXEVersionHash(m_EXEVersionHash);
                             }
 
                             if (m_GProxy->m_TFT)
                             {
-                                CONSOLE_Print("[BNET] attempting to auth as Warcraft III: The Frozen Throne");
+                                CONSOLE_Print(ColoredMessage("[BNET] attempting to auth as Warcraft III: The Frozen Throne", ColoredMessage::BNET));
                             }
                             else
                             {
-                                CONSOLE_Print("[BNET] attempting to auth as Warcraft III: Reign of Chaos");
+                                CONSOLE_Print(ColoredMessage("[BNET] attempting to auth as Warcraft III: Reign of Chaos", ColoredMessage::BNET));
                             }
 
                             m_Socket->PutBytes(m_Protocol->SEND_SID_AUTH_CHECK(m_GProxy->m_TFT, m_Protocol->GetClientToken(), m_BNCSUtil->GetEXEVersion(), m_BNCSUtil->GetEXEVersionHash(), m_BNCSUtil->GetKeyInfoROC(), m_BNCSUtil->GetKeyInfoTFT(), m_BNCSUtil->GetEXEInfo(), "GProxy"));
@@ -577,7 +576,7 @@ void CBNET::ProcessPackets ()
                         }
                         else
                         {
-                            CONSOLE_Print("[BNET] logon failed - bncsutil key hash failed (check your Warcraft 3 path and cd keys), disconnecting");
+                            CONSOLE_Print(ColoredMessage("[BNET] logon failed - bncsutil key hash failed (check your Warcraft 3 path and cd keys), disconnecting", ColoredMessage::BNET));
                             m_Socket->Disconnect();
                             delete Packet;
                             return;
@@ -591,7 +590,7 @@ void CBNET::ProcessPackets ()
                     {
                         // cd keys accepted
 
-                        CONSOLE_Print("[BNET] cd keys accepted");
+                        CONSOLE_Print(ColoredMessage("[BNET] cd keys accepted", ColoredMessage::BNET));
                         m_BNCSUtil->HELP_SID_AUTH_ACCOUNTLOGON();
                         m_Socket->PutBytes(m_Protocol->SEND_SID_AUTH_ACCOUNTLOGON(m_BNCSUtil->GetClientKey(), m_UserName));
                     }
@@ -602,19 +601,19 @@ void CBNET::ProcessPackets ()
                         switch (Util::byteArrayToUInt32(m_Protocol->GetKeyState(), false))
                         {
                             case CBNETProtocol::KR_ROC_KEY_IN_USE:
-                                CONSOLE_Print("[BNET] logon failed - ROC CD key in use by user [" + QString::fromStdString(m_Protocol->GetKeyStateDescription()) + "], disconnecting");
+                                CONSOLE_Print(ColoredMessage("[BNET] logon failed - ROC CD key in use by user [" + QString::fromStdString(m_Protocol->GetKeyStateDescription()) + "], disconnecting", ColoredMessage::BNET));
                                 break;
                             case CBNETProtocol::KR_TFT_KEY_IN_USE:
-                                CONSOLE_Print("[BNET] logon failed - TFT CD key in use by user [" + QString::fromStdString(m_Protocol->GetKeyStateDescription()) + "], disconnecting");
+                                CONSOLE_Print(ColoredMessage("[BNET] logon failed - TFT CD key in use by user [" + QString::fromStdString(m_Protocol->GetKeyStateDescription()) + "], disconnecting", ColoredMessage::BNET));
                                 break;
                             case CBNETProtocol::KR_OLD_GAME_VERSION:
-                                CONSOLE_Print("[BNET] logon failed - game version is too old, disconnecting");
+                                CONSOLE_Print(ColoredMessage("[BNET] logon failed - game version is too old, disconnecting", ColoredMessage::BNET));
                                 break;
                             case CBNETProtocol::KR_INVALID_VERSION:
-                                CONSOLE_Print("[BNET] logon failed - game version is invalid, disconnecting");
+                                CONSOLE_Print(ColoredMessage("[BNET] logon failed - game version is invalid, disconnecting", ColoredMessage::BNET));
                                 break;
                             default:
-                                CONSOLE_Print("[BNET] logon failed - cd keys not accepted, disconnecting");
+                                CONSOLE_Print(ColoredMessage("[BNET] logon failed - cd keys not accepted, disconnecting", ColoredMessage::BNET));
                                 break;
                         }
 
@@ -628,13 +627,13 @@ void CBNET::ProcessPackets ()
                 case CBNETProtocol::SID_AUTH_ACCOUNTLOGON:
                     if (m_Protocol->RECEIVE_SID_AUTH_ACCOUNTLOGON(Packet->GetData()))
                     {
-                        CONSOLE_Print("[BNET] username [" + QString::fromStdString(m_UserName) + "] accepted");
+                        CONSOLE_Print(ColoredMessage("[BNET] username [" + QString::fromStdString(m_UserName) + "] accepted", ColoredMessage::BNET));
 
                         if (m_PasswordHashType == "pvpgn")
                         {
                             // pvpgn logon
 
-                            CONSOLE_Print("[BNET] using pvpgn logon type (for pvpgn servers only)");
+                            CONSOLE_Print(ColoredMessage("[BNET] using pvpgn logon type (for pvpgn servers only)", ColoredMessage::BNET));
                             m_BNCSUtil->HELP_PvPGNPasswordHash(m_UserPassword);
                             m_Socket->PutBytes(m_Protocol->SEND_SID_AUTH_ACCOUNTLOGONPROOF(m_BNCSUtil->GetPvPGNPasswordHash()));
                         }
@@ -642,14 +641,14 @@ void CBNET::ProcessPackets ()
                         {
                             // battle.net logon
 
-                            CONSOLE_Print("[BNET] using battle.net logon type (for official battle.net servers only)");
+                            CONSOLE_Print(ColoredMessage("[BNET] using battle.net logon type (for official battle.net servers only)", ColoredMessage::BNET));
                             m_BNCSUtil->HELP_SID_AUTH_ACCOUNTLOGONPROOF(m_Protocol->GetSalt(), m_Protocol->GetServerPublicKey());
                             m_Socket->PutBytes(m_Protocol->SEND_SID_AUTH_ACCOUNTLOGONPROOF(m_BNCSUtil->GetM1()));
                         }
                     }
                     else
                     {
-                        CONSOLE_Print("[BNET] logon failed - invalid username, disconnecting");
+                        CONSOLE_Print(ColoredMessage("[BNET] logon failed - invalid username, disconnecting", ColoredMessage::BNET));
                         m_Socket->Disconnect();
                         delete Packet;
                         return;
@@ -662,7 +661,7 @@ void CBNET::ProcessPackets ()
                     {
                         // logon successful
 
-                        CONSOLE_Print("[BNET] logon successful");
+                        CONSOLE_Print(ColoredMessage("[BNET] logon successful", ColoredMessage::BNET));
                         m_LoggedIn = true;
                         m_Socket->PutBytes(m_Protocol->SEND_SID_NETGAMEPORT(6112));
                         m_Socket->PutBytes(m_Protocol->SEND_SID_ENTERCHAT());
@@ -673,7 +672,7 @@ void CBNET::ProcessPackets ()
                     }
                     else
                     {
-                        CONSOLE_Print("[BNET] logon failed - invalid password, disconnecting");
+                        CONSOLE_Print(ColoredMessage("[BNET] logon failed - invalid password, disconnecting", ColoredMessage::BNET));
 
                         // try to figure out if the user might be using the wrong logon type since too many people are confused by this
 
@@ -682,11 +681,11 @@ void CBNET::ProcessPackets ()
 
                         if (m_PasswordHashType == "pvpgn" && (Server == "useast.battle.net" || Server == "uswest.battle.net" || Server == "asia.battle.net" || Server == "europe.battle.net"))
                         {
-                            CONSOLE_Print("[BNET] it looks like you're trying to connect to a battle.net server using a pvpgn logon type, check your config file's \"battle.net custom data\" section");
+                            CONSOLE_Print(ColoredMessage("[BNET] it looks like you're trying to connect to a battle.net server using a pvpgn logon type, check your config file's \"battle.net custom data\" section", ColoredMessage::BNET));
                         }
                         else if (m_PasswordHashType != "pvpgn" && (Server != "useast.battle.net" && Server != "uswest.battle.net" && Server != "asia.battle.net" && Server != "europe.battle.net"))
                         {
-                            CONSOLE_Print("[BNET] it looks like you're trying to connect to a pvpgn server using a battle.net logon type, check your config file's \"battle.net custom data\" section");
+                            CONSOLE_Print(ColoredMessage("[BNET] it looks like you're trying to connect to a pvpgn server using a battle.net logon type, check your config file's \"battle.net custom data\" section", ColoredMessage::BNET));
                         }
 
                         m_Socket->Disconnect();
@@ -702,29 +701,21 @@ void CBNET::ProcessPackets ()
                     /* if( m_BNLSClient )
                             m_BNLSClient->QueueWardenRaw( WardenData );
                     else */
-                    CONSOLE_Print("[BNET] warning - received warden packet but no BNLS server is available, you will be kicked from battle.net soon");
+                    CONSOLE_Print(ColoredMessage("[BNET] warning - received warden packet but no BNLS server is available, you will be kicked from battle.net soon", ColoredMessage::BNET));
 
                     break;
 
-                case CBNETProtocol::SID_FRIENDSLIST://manu
+                case CBNETProtocol::SID_FRIENDSLIST:
                     Friends = m_Protocol->RECEIVE_SID_FRIENDSLIST(Packet->GetData());
                     m_GProxy->friendUpdate(Friends);
                     break;
 
-                case CBNETProtocol::SID_FRIENDSUPDATE://manu
+                case CBNETProtocol::SID_FRIENDSUPDATE:
                     m_Socket->PutBytes(m_Protocol->SEND_SID_FRIENDSLIST());
                     break;
 
                 case CBNETProtocol::SID_CLANMEMBERLIST:
                     break;
-
-//                case CBNETProtocol::SID_MESSAGEBOX:
-//                    BYTEARRAY messagebox = m_Protocol->RECEIVE_SID_MESSAGEBOX(Packet->GetData());
-////                    uint32_t style = Util::ByteArrayToUInt32(messagebox, false);
-//                    QString text = Util::ExtractQString(messagebox, 4);
-//                    QString title = Util::ExtractQString(messagebox, 5 + text.length());
-//                    CONSOLE_Print("Messagebox: Title="+title+" Text="+text);
-//                    break;
             }
         }
 
@@ -800,7 +791,7 @@ void CBNET::ProcessChatEvent (CIncomingChatEvent * chatEvent)
     {
         m_ReplyTarget = User.toStdString();
 
-        CONSOLE_Print("[WHISPER] [" + User + "] " + Message);
+        CONSOLE_Print(ColoredMessage("[WHISPER] [" + User + "] " + Message, ColoredMessage::WHISPER));
 
         if (Message.mid(0, 30) == "Spoof check by replying to thi")
         {
@@ -829,13 +820,11 @@ void CBNET::ProcessChatEvent (CIncomingChatEvent * chatEvent)
         }
         if (((Message.mid(0, 22) != "Creating public game [") && (isover)))
         {
-            if (m_GProxy->getParrot() != "Ignore ignore")
+            if (m_GProxy->getParrot() != "Ignore ignore" || !Message.startsWith("[PARROT]"))
             {
-                CONSOLE_Print("[LOCAL] [" + User + "] " + Message);
-            }
-            else if (!Message.startsWith("[PARROT]"))
-            {
-                CONSOLE_Print("[LOCAL] [" + User + "] " + Message);
+                CONSOLE_Print(ColoredMessage("["), true, true, false);
+                CONSOLE_Print(ColoredMessage(User, ColoredMessage::USERCOLOR), true, false, false);
+                CONSOLE_Print(ColoredMessage("] " + Message), true, false, true);
             }
         }
 
@@ -876,26 +865,26 @@ void CBNET::ProcessChatEvent (CIncomingChatEvent * chatEvent)
     }
     else if (Event == CBNETProtocol::EID_BROADCAST)
     {
-        CONSOLE_Print("[BROADCAST] " + Message);
+        CONSOLE_Print(ColoredMessage("[BROADCAST] " + Message, ColoredMessage::DEFAULT));
     }
     else if (Event == CBNETProtocol::EID_CHANNEL)
     {
-        CONSOLE_Print("[BNET] joined channel [" + Message + "]");
+        CONSOLE_Print(ColoredMessage("[BNET] joined channel [" + Message + "]", ColoredMessage::BNET));
         m_Socket->PutBytes(m_Protocol->SEND_SID_FRIENDSLIST());
         currentChannel = Message;
         m_GProxy->changeChannel(currentChannel);
     }
     else if (Event == CBNETProtocol::EID_CHANNELFULL)
     {
-        CONSOLE_Print("[BNET] channel is full");
+        CONSOLE_Print(ColoredMessage("[BNET] channel is full", ColoredMessage::BNET));
     }
     else if (Event == CBNETProtocol::EID_CHANNELDOESNOTEXIST)
     {
-        CONSOLE_Print("[BNET] channel does not exist");
+        CONSOLE_Print(ColoredMessage("[BNET] channel does not exist", ColoredMessage::BNET));
     }
     else if (Event == CBNETProtocol::EID_CHANNELRESTRICTED)
     {
-        CONSOLE_Print("[BNET] channel restricted");
+        CONSOLE_Print(ColoredMessage("[BNET] channel restricted", ColoredMessage::BNET));
     }
     else if (Event == CBNETProtocol::EID_INFO)
     {
@@ -903,7 +892,7 @@ void CBNET::ProcessChatEvent (CIncomingChatEvent * chatEvent)
         {
             m_GProxy->SendLocalChat("[INFO] " + Message);
         }
-        CONSOLE_Print("[INFO] " + Message); //phy autosearch
+        CONSOLE_Print(ColoredMessage("[INFO] " + Message, ColoredMessage::INFO)); //phy autosearch
         int index = Message.indexOf(" ");
         if (Message.mid(index + 1, 48) == "is using Warcraft III The Frozen Throne in game ")
         {
@@ -912,11 +901,11 @@ void CBNET::ProcessChatEvent (CIncomingChatEvent * chatEvent)
     }
     else if (Event == CBNETProtocol::EID_ERROR)
     {
-        CONSOLE_Print("[ERROR] " + Message);
+        CONSOLE_Print(ColoredMessage("[ERROR] " + Message, ColoredMessage::ERROR));
     }
     else if (Event == CBNETProtocol::EID_EMOTE)
     {
-        CONSOLE_Print("[EMOTE] [" + User + "] " + Message);
+        CONSOLE_Print(ColoredMessage("[EMOTE] [" + User + "] " + Message, ColoredMessage::EMOTE));
     }
 }
 
@@ -955,19 +944,21 @@ void CBNET::QueueChatCommand (QString chatCommand, bool showMessage)
 
         if (m_OutPackets.size() > 10)
         {
-            CONSOLE_Print("[BNET] attempted to queue chat command ["
+            CONSOLE_Print(ColoredMessage("[BNET] attempted to queue chat command ["
                     + chatCommand + "] but there are too many ("
-                    + QString::number(m_OutPackets.size()) + ") packets queued, discarding");
+                    + QString::number(m_OutPackets.size()) + ") packets queued, discarding", ColoredMessage::BNET));
         }
         else
         {
             if (chatCommand.startsWith("/w ") && showMessage)
             {
-                CONSOLE_Print("[WHISPER TO] " + chatCommand.mid(3, chatCommand.length() - 3));
+                CONSOLE_Print(ColoredMessage("[WHISPER TO] " + chatCommand.mid(3, chatCommand.length() - 3), ColoredMessage::WHISPER));
             }
             else if(showMessage)
             {
-                CONSOLE_Print("[QUEUED] " + chatCommand);
+                CONSOLE_Print(ColoredMessage("["), true, true, false);
+                CONSOLE_Print(ColoredMessage(m_GProxy->getUsername(), ColoredMessage::USERCOLOR), true, false, false);
+                CONSOLE_Print(ColoredMessage("] " + chatCommand), true, false, true);
             }
 
             m_OutPackets.push(m_Protocol->SEND_SID_CHATCOMMAND(chatCommand));
@@ -1025,3 +1016,5 @@ void CBNET::SendPacket (BYTEARRAY Packet)
     if (m_LoggedIn)
         m_OutPackets.push(Packet);
 }
+
+#define ERROR 0 /* Redefine ERROR macro */

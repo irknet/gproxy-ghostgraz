@@ -800,7 +800,7 @@ It is also needed to start Warcraft 3 with GProxy.</string>
       <attribute name="title">
        <string>General</string>
       </attribute>
-      <widget class="QLabel" name="generalHeaderLabel">
+      <widget class="QLabel" name="generalBackgroundcolorHeaderLabel">
        <property name="geometry">
         <rect>
          <x>0</x>
@@ -824,7 +824,7 @@ It is also needed to start Warcraft 3 with GProxy.</string>
         </font>
        </property>
        <property name="text">
-        <string>General</string>
+        <string>Backgroundcolor</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -862,6 +862,342 @@ It is also needed to start Warcraft 3 with GProxy.</string>
        </property>
        <property name="text">
         <string>Change background color</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="generalErrorColorLabel">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>380</y>
+         <width>160</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>9</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Error color:</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="generalWarningColorLabel">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>350</y>
+         <width>160</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>9</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Warning color:</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="generalForegroundcolorHeaderLabel">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>90</y>
+         <width>450</width>
+         <height>40</height>
+        </rect>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <family>Calibri</family>
+         <pointsize>16</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Foregroundcolor</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="generalChatColorLabel">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>140</y>
+         <width>160</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>9</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Default color:</string>
+       </property>
+      </widget>
+      <widget class="MButton" name="generalErrorColorButton">
+       <property name="geometry">
+        <rect>
+         <x>180</x>
+         <y>380</y>
+         <width>240</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Change error color</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="generalEmoteColorLabel">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>320</y>
+         <width>160</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>9</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Emote color:</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="generalGameinfoColorLabel">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>200</y>
+         <width>160</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>9</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Gameinfo color:</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="generalGProxyColorLabel">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>230</y>
+         <width>160</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>9</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>GProxy color:</string>
+       </property>
+      </widget>
+      <widget class="MButton" name="generalWarningColorButton">
+       <property name="geometry">
+        <rect>
+         <x>180</x>
+         <y>350</y>
+         <width>240</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Change warning color</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="generalBnetColorLabel">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>260</y>
+         <width>160</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>9</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Bnet color:</string>
+       </property>
+      </widget>
+      <widget class="MButton" name="generalEmoteColorButton">
+       <property name="geometry">
+        <rect>
+         <x>180</x>
+         <y>320</y>
+         <width>240</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Change emote color</string>
+       </property>
+      </widget>
+      <widget class="MButton" name="generalInfoColorButton">
+       <property name="geometry">
+        <rect>
+         <x>180</x>
+         <y>290</y>
+         <width>240</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Change info color</string>
+       </property>
+      </widget>
+      <widget class="MButton" name="generalBnetColorButton">
+       <property name="geometry">
+        <rect>
+         <x>180</x>
+         <y>260</y>
+         <width>240</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Change bnet color</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="generalWhisperColorLabel">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>170</y>
+         <width>160</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>9</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Whisper color:</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="generalInfoColorLabel">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>290</y>
+         <width>160</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>9</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Info color:</string>
+       </property>
+      </widget>
+      <widget class="MButton" name="generalGProxyColorButton">
+       <property name="geometry">
+        <rect>
+         <x>180</x>
+         <y>230</y>
+         <width>240</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Change gproxy color</string>
+       </property>
+      </widget>
+      <widget class="MButton" name="generalGameinfoColorButton">
+       <property name="geometry">
+        <rect>
+         <x>180</x>
+         <y>200</y>
+         <width>240</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Change gameinfo color</string>
+       </property>
+      </widget>
+      <widget class="MButton" name="generalWhisperColorButton">
+       <property name="geometry">
+        <rect>
+         <x>180</x>
+         <y>170</y>
+         <width>240</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Change whisper color</string>
+       </property>
+      </widget>
+      <widget class="MButton" name="generalDefaultColorButton">
+       <property name="geometry">
+        <rect>
+         <x>180</x>
+         <y>140</y>
+         <width>240</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Change default color</string>
        </property>
       </widget>
      </widget>
@@ -934,362 +1270,9 @@ Here you can will see all chat messages and much more.</string>
         </rect>
        </property>
        <property name="text">
-        <string>Change foreground color</string>
+        <string>Change font</string>
        </property>
       </widget>
-      <widget class="QLabel" name="outputareaChatColorLabel">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>140</y>
-         <width>160</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <family>Arial</family>
-         <pointsize>9</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Chat color:</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="outputareaWhisperColorLabel">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>170</y>
-         <width>160</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <family>Arial</family>
-         <pointsize>9</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Whisper color:</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="outputareaGProxyColorLabel">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>230</y>
-         <width>160</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <family>Arial</family>
-         <pointsize>9</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>GProxy color:</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="outputareaEmoteColorLabel">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>320</y>
-         <width>160</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <family>Arial</family>
-         <pointsize>9</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Emote color:</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="outputareaWarningColorLabel">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>350</y>
-         <width>160</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <family>Arial</family>
-         <pointsize>9</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Warning color:</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="outputareaErrorColorLabel">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>380</y>
-         <width>160</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <family>Arial</family>
-         <pointsize>9</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Error color:</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="outputareaInfoColorLabel">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>290</y>
-         <width>160</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <family>Arial</family>
-         <pointsize>9</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Info color:</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="outputareaBnetColorLabel">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>260</y>
-         <width>160</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <family>Arial</family>
-         <pointsize>9</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Bnet color:</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="outputareaGameinfoColorLabel">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>200</y>
-         <width>160</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <family>Arial</family>
-         <pointsize>9</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Gameinfo color:</string>
-       </property>
-      </widget>
-      <widget class="MButton" name="outputareaChatColorButton">
-       <property name="geometry">
-        <rect>
-         <x>180</x>
-         <y>140</y>
-         <width>240</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Change chat color</string>
-       </property>
-      </widget>
-      <widget class="MButton" name="outputareaWhisperColorButton">
-       <property name="geometry">
-        <rect>
-         <x>180</x>
-         <y>170</y>
-         <width>240</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Change whisper color</string>
-       </property>
-      </widget>
-      <widget class="MButton" name="outputareaGameinfoColorButton">
-       <property name="geometry">
-        <rect>
-         <x>180</x>
-         <y>200</y>
-         <width>240</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Change gameinfo color</string>
-       </property>
-      </widget>
-      <widget class="MButton" name="outputareaGProxyColorButton">
-       <property name="geometry">
-        <rect>
-         <x>180</x>
-         <y>230</y>
-         <width>240</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Change gproxy color</string>
-       </property>
-      </widget>
-      <widget class="MButton" name="outputareaBnetColorButton">
-       <property name="geometry">
-        <rect>
-         <x>180</x>
-         <y>260</y>
-         <width>240</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Change bnet color</string>
-       </property>
-      </widget>
-      <widget class="MButton" name="outputareaInfoColorButton">
-       <property name="geometry">
-        <rect>
-         <x>180</x>
-         <y>290</y>
-         <width>240</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Change info color</string>
-       </property>
-      </widget>
-      <widget class="MButton" name="outputareaEmoteColorButton">
-       <property name="geometry">
-        <rect>
-         <x>180</x>
-         <y>320</y>
-         <width>240</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Change emote color</string>
-       </property>
-      </widget>
-      <widget class="MButton" name="outputareaWarningColorButton">
-       <property name="geometry">
-        <rect>
-         <x>180</x>
-         <y>350</y>
-         <width>240</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Change warning color</string>
-       </property>
-      </widget>
-      <widget class="MButton" name="outputareaErrorColorButton">
-       <property name="geometry">
-        <rect>
-         <x>180</x>
-         <y>380</y>
-         <width>240</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Change error color</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="outputareaForegroundcolorHeaderLabel">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>90</y>
-         <width>450</width>
-         <height>40</height>
-        </rect>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <family>Calibri</family>
-         <pointsize>14</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Foregroundcolor</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </widget>
-     <widget class="QWidget" name="appearanceInputareaTab">
-      <property name="whatsThis">
-       <string>The input area is the small textfield at the bottom.
-Here you can type chat messages and commands.</string>
-      </property>
-      <attribute name="title">
-       <string>Input area</string>
-      </attribute>
-     </widget>
-     <widget class="QWidget" name="appearanceGamelistTab">
-      <property name="whatsThis">
-       <string>The (GhostGraz) gamelist contains all games hosted by GhostGraz.</string>
-      </property>
-      <attribute name="title">
-       <string>Gamelist</string>
-      </attribute>
      </widget>
     </widget>
    </widget>
@@ -1771,74 +1754,10 @@ The log file is located in the folder where the .exe is and is named gproxy_log.
    </hints>
   </connection>
   <connection>
-   <sender>outputareaChatColorButton</sender>
+   <sender>generalBnetColorButton</sender>
    <signal>clicked(MButton*)</signal>
    <receiver>ConfigGUI</receiver>
-   <slot>onOutputareaForegroundcolorButtonClicked(MButton*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>303</x>
-     <y>233</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>224</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>outputareaWhisperColorButton</sender>
-   <signal>clicked(MButton*)</signal>
-   <receiver>ConfigGUI</receiver>
-   <slot>onOutputareaForegroundcolorButtonClicked(MButton*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>303</x>
-     <y>263</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>224</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>outputareaGameinfoColorButton</sender>
-   <signal>clicked(MButton*)</signal>
-   <receiver>ConfigGUI</receiver>
-   <slot>onOutputareaForegroundcolorButtonClicked(MButton*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>303</x>
-     <y>293</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>224</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>outputareaGProxyColorButton</sender>
-   <signal>clicked(MButton*)</signal>
-   <receiver>ConfigGUI</receiver>
-   <slot>onOutputareaForegroundcolorButtonClicked(MButton*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>303</x>
-     <y>323</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>224</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>outputareaBnetColorButton</sender>
-   <signal>clicked(MButton*)</signal>
-   <receiver>ConfigGUI</receiver>
-   <slot>onOutputareaForegroundcolorButtonClicked(MButton*)</slot>
+   <slot>onForegroundcolorButtonClicked(MButton*)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>303</x>
@@ -1851,14 +1770,14 @@ The log file is located in the folder where the .exe is and is named gproxy_log.
    </hints>
   </connection>
   <connection>
-   <sender>outputareaInfoColorButton</sender>
+   <sender>generalDefaultColorButton</sender>
    <signal>clicked(MButton*)</signal>
    <receiver>ConfigGUI</receiver>
-   <slot>onOutputareaForegroundcolorButtonClicked(MButton*)</slot>
+   <slot>onForegroundcolorButtonClicked(MButton*)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>303</x>
-     <y>383</y>
+     <y>233</y>
     </hint>
     <hint type="destinationlabel">
      <x>224</x>
@@ -1867,10 +1786,10 @@ The log file is located in the folder where the .exe is and is named gproxy_log.
    </hints>
   </connection>
   <connection>
-   <sender>outputareaEmoteColorButton</sender>
+   <sender>generalEmoteColorButton</sender>
    <signal>clicked(MButton*)</signal>
    <receiver>ConfigGUI</receiver>
-   <slot>onOutputareaForegroundcolorButtonClicked(MButton*)</slot>
+   <slot>onForegroundcolorButtonClicked(MButton*)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>303</x>
@@ -1883,10 +1802,74 @@ The log file is located in the folder where the .exe is and is named gproxy_log.
    </hints>
   </connection>
   <connection>
-   <sender>outputareaWarningColorButton</sender>
+   <sender>generalErrorColorButton</sender>
    <signal>clicked(MButton*)</signal>
    <receiver>ConfigGUI</receiver>
-   <slot>onOutputareaForegroundcolorButtonClicked(MButton*)</slot>
+   <slot>onForegroundcolorButtonClicked(MButton*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>303</x>
+     <y>473</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>224</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>generalGProxyColorButton</sender>
+   <signal>clicked(MButton*)</signal>
+   <receiver>ConfigGUI</receiver>
+   <slot>onForegroundcolorButtonClicked(MButton*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>303</x>
+     <y>323</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>224</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>generalGameinfoColorButton</sender>
+   <signal>clicked(MButton*)</signal>
+   <receiver>ConfigGUI</receiver>
+   <slot>onForegroundcolorButtonClicked(MButton*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>303</x>
+     <y>293</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>224</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>generalInfoColorButton</sender>
+   <signal>clicked(MButton*)</signal>
+   <receiver>ConfigGUI</receiver>
+   <slot>onForegroundcolorButtonClicked(MButton*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>303</x>
+     <y>383</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>224</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>generalWarningColorButton</sender>
+   <signal>clicked(MButton*)</signal>
+   <receiver>ConfigGUI</receiver>
+   <slot>onForegroundcolorButtonClicked(MButton*)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>303</x>
@@ -1899,14 +1882,14 @@ The log file is located in the folder where the .exe is and is named gproxy_log.
    </hints>
   </connection>
   <connection>
-   <sender>outputareaErrorColorButton</sender>
+   <sender>generalWhisperColorButton</sender>
    <signal>clicked(MButton*)</signal>
    <receiver>ConfigGUI</receiver>
-   <slot>onOutputareaForegroundcolorButtonClicked(MButton*)</slot>
+   <slot>onForegroundcolorButtonClicked(MButton*)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>303</x>
-     <y>473</y>
+     <y>263</y>
     </hint>
     <hint type="destinationlabel">
      <x>224</x>
@@ -1919,6 +1902,6 @@ The log file is located in the folder where the .exe is and is named gproxy_log.
   <slot>onWar3pathChangeRequest()</slot>
   <slot>onBackgroundcolorButtonClicked()</slot>
   <slot>onOutputareaFontButtonClicked()</slot>
-  <slot>onOutputareaForegroundcolorButtonClicked(MButton*)</slot>
+  <slot>onForegroundcolorButtonClicked(MButton*)</slot>
  </slots>
 </ui>

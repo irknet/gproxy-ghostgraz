@@ -68,7 +68,7 @@ BYTEARRAY CGameProtocol :: SEND_W3GS_CHAT_FROM_HOST( unsigned char fromPID, BYTE
 		AssignLength( packet );
 	}
 	else
-		CONSOLE_Print( "[GAMEPROTO] invalid parameters passed to SEND_W3GS_CHAT_FROM_HOST" );
+		CONSOLE_Print(ColoredMessage( "[GAMEPROTO] invalid parameters passed to SEND_W3GS_CHAT_FROM_HOST", ColoredMessage::ERROR) );
 
 	// DEBUG_Print( "SENT W3GS_CHAT_FROM_HOST" );
 	// DEBUG_Print( packet );
@@ -101,7 +101,7 @@ BYTEARRAY CGameProtocol :: SEND_W3GS_CHAT_TO_HOST( unsigned char fromPID, BYTEAR
 		AssignLength( packet );
 	}
 	else
-		CONSOLE_Print( "[GAMEPROTO] invalid parameters passed to SEND_W3GS_CHAT_TO_HOST" );
+		CONSOLE_Print(ColoredMessage( "[GAMEPROTO] invalid parameters passed to SEND_W3GS_CHAT_TO_HOST", ColoredMessage::ERROR) );
 
 	// DEBUG_Print( "SENT W3GS_CHAT_FROM_HOST" );
 	// DEBUG_Print( packet );
@@ -126,7 +126,7 @@ BYTEARRAY CGameProtocol :: SEND_W3GS_TEAMCHANGE( unsigned char fromPID, BYTEARRA
 		AssignLength( packet );
 	}
 	else
-		CONSOLE_Print( "[GAMEPROTO] invalid parameters passed to SEND_W3GS_TEAMCHANGE" );
+		CONSOLE_Print(ColoredMessage( "[GAMEPROTO] invalid parameters passed to SEND_W3GS_TEAMCHANGE", ColoredMessage::ERROR) );
 
 	// DEBUG_Print( "SENT W3GS_CHAT_FROM_HOST" );
 	// DEBUG_Print( packet );
@@ -212,7 +212,7 @@ BYTEARRAY CGameProtocol :: SEND_W3GS_GAMEINFO( bool TFT, unsigned char war3Versi
 		AssignLength( packet );
 	}
 	else
-		CONSOLE_Print( "[GAMEPROTO] invalid parameters passed to SEND_W3GS_GAMEINFO" );
+		CONSOLE_Print(ColoredMessage( "[GAMEPROTO] invalid parameters passed to SEND_W3GS_GAMEINFO", ColoredMessage::ERROR) );
 
 	// DEBUG_Print( "SENT W3GS_GAMEINFO" );
 	// DEBUG_Print( packet );
@@ -298,7 +298,7 @@ BYTEARRAY CGameProtocol :: SEND_W3GS_DECREATEGAME( uint32_t hostCounter )
 //    Util::appendByteArray( packet, internalPort, false );
 //    Util::appendByteArray( packet, internalIP, false );
 //    AssignLength( packet );
-//    CONSOLE_Print("SENDING REQJOIN");
+//    CONSOLE_Print(ColoredMessage("SENDING REQJOIN");
 //
 //    return packet;
 //}

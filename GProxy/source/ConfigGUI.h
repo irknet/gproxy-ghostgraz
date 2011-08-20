@@ -5,6 +5,7 @@
 #include "Config.h"
 #include "MainGUI.h"
 #include "widget/MButton.h"
+#include "widget/MColorDialog.h"
 
 #include <QLineEdit>
 #include <QComboBox>
@@ -49,8 +50,8 @@ private slots:
     void onBackgroundColorChanged(const QColor& color);
     void onOutputareaFontButtonClicked();
     void onOutputareaFontChanged(const QFont& font);
-    void onOutputareaForegroundcolorButtonClicked(MButton* button);
-    void onForegroundColorChanged(const QColor& color);
+    void onForegroundcolorButtonClicked(MButton* button);
+    void onForegroundColorChanged(MColorDialog* colorDialog);
 };
 
 #endif	/* _CONFIGGUI_H */

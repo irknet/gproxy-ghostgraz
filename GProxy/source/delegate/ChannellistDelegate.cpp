@@ -20,7 +20,7 @@ const
     QColor color = index.data(ChannellistDelegate::COLOR_USER).value<QColor>();
     if (!color.isValid())
     {
-        color = QColor(230, 230, 230);
+        color = mainGUI->getGproxy()->getConfig()->getDefaultColor();
     }
     painter->setPen(color);
 
@@ -88,7 +88,7 @@ const
 
             int colorID = index.data(ChannellistDelegate::SLOT_COLOR).toInt();
             QRect rFill(rect.x()+3, rect.y() + 3, 8, 8);
-            painter->fillRect(rFill, this->getBrush(colorID));
+            painter->fillRect(rFill, this->getSlotColor(colorID));
 
             rect.adjust(15, 0, 0, 0);
         }
@@ -107,7 +107,7 @@ const
     painter->restore();
 }
 
-QBrush ChannellistDelegate::getBrush (const int &colorID) const
+QBrush ChannellistDelegate::getSlotColor (const int& colorID) const
 {
     switch (colorID)
     {
@@ -161,7 +161,8 @@ QBrush ChannellistDelegate::getBrush (const int &colorID) const
         }
         default:
         {
-            return QBrush(QColor(230, 230, 230));
+            // Should never be possible!
+            return mainGUI->getGproxy()->getConfig()->getDefaultColor();
         }
     }
 }

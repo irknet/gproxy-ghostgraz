@@ -41,7 +41,7 @@ protected:
 private:
     MainGUI *mainGUI;
 
-    QBrush getBrush(const int &colorID) const;
+    QBrush getSlotColor(const int& colorID) const;
 };
 
 #endif	/* CHANNELLISTDELEGATE_H */

@@ -4,6 +4,7 @@
 #include <QStyledItemDelegate>
 #include <QPainter>
 #include <QColor>
+#include <QFontMetrics>
 
 class GamelistDelegate : public QStyledItemDelegate
 {

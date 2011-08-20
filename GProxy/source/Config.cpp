@@ -1,6 +1,10 @@
 #include "Config.h"
+#include "util.h"
+
 #include <QStringList>
 #include <QTextStream>
+#include <QMetaObject>
+#include <QMetaEnum>
 
 using namespace std;
 
@@ -80,7 +84,7 @@ void Config::addKeys ()
     keys.append("outputareaFont");
 
     keys.append("# Foregroundcolors");
-    keys.append("chat_foregroundcolor");
+    keys.append("default_foregroundcolor");
     keys.append("whisper_foregroundcolor");
     keys.append("gameinfo_foregroundcolor");
     keys.append("gproxy_foregroundcolor");
@@ -89,6 +93,9 @@ void Config::addKeys ()
     keys.append("emote_foregroundcolor");
     keys.append("error_foregroundcolor");
     keys.append("warning_foregroundcolor");
+
+    keys.append("# Customized user colors");
+    keys.append("usercolor");
 }
 
 void Config::addValues (QString content)
@@ -174,7 +181,7 @@ void Config::addDefaultValue (const QString &key)
     {
         values.append(QFont("Arial", 9, QFont::Normal).toString());
     }
-    else if(key == "chat_foregroundcolor")
+    else if(key == "default_foregroundcolor")
     {
         values.append("240,240,240");
     }
@@ -210,6 +217,13 @@ void Config::addDefaultValue (const QString &key)
     {
         values.append("255,69,0");
     }
+    else if(key == "usercolor")
+    {
+        values.append("baerli_graz{255,0,0};"
+                "klingone_graz{255,0,0};"
+                "Manufactoring{0,255,0};"
+                "Phyton{0,255,0}");
+    }
     else // Add an empty string (DO NOT DELETE THIS ELSE CLAUSE!)
     {
         values.append("");
@@ -240,6 +254,11 @@ QList<QString> Config::getKeys ()
 QList<QString> Config::getValues ()
 {
     return values;
+}
+
+void Config::setAdmins(const QStringList& admins)
+{
+    this->admins = admins;
 }
 
 QString Config::getString (const QString &key)
@@ -311,6 +330,17 @@ QColor Config::getColor (const QString &key)
     return QColor::Invalid;
 }
 
+QColor Config::getColor(const ColoredMessage::ColorType& colorType)
+{
+    QString colorTypeString = ColorUtil::toString(colorType);
+    return getColor(colorTypeString.toLower() + "_foregroundcolor");
+}
+
+QColor Config::getDefaultColor()
+{
+    return getColor(ColoredMessage::DEFAULT);
+}
+
 QFont Config::getFont (const QString &key)
 {
     for (int i = 0; i < keys.count(); i++)
@@ -325,6 +355,39 @@ QFont Config::getFont (const QString &key)
 
     return QFont();
 }
+
+QColor Config::getUserColor(const QString& username, const QColor& defaultColor)
+{
+    for (int i = 0; i < keys.count(); i++)
+    {
+        if (keys.at(i).toLower() == "usercolor")
+        {
+            QStringList userColors = values.at(i).split(';');
+            foreach (QString userColor, userColors)
+            {
+                QString name = userColor.left(userColor.indexOf('{'));
+                if (name.toLower() == username.toLower())
+                {
+                    QString color = userColor.mid(name.length() + 1, userColor.length() - name.length() - 2);
+                    QStringList rgbList = color.split(",");
+
+                    if (rgbList.count() != 3)
+                    {
+                        return QColor::Invalid;
+                    }
+
+                    return QColor(rgbList.at(0).toInt(), rgbList.at(1).toInt(), rgbList.at(2).toInt());
+                }
+            }
+
+            return getDefaultUserColor(username, defaultColor);
+        }
+    }
+
+    return QColor::Invalid;
+}
+
+
 
 bool Config::setString (const QString &key, const QString &value)
 {
@@ -412,6 +475,50 @@ bool Config::setFont (const QString &key, const QFont &font)
     return false;
 }
 
+bool Config::setUserColor(const QString& username, const QColor& usercolor)
+{
+    if(usercolor.isValid() == false)
+    {
+        return false;
+    }
+
+    QString newUserColor = username + '{'
+            + QString::number(usercolor.red()) + ','
+            + QString::number(usercolor.green()) + ','
+            + QString::number(usercolor.blue())
+            + '}';
+
+    for (int i = 0; i < keys.count(); i++)
+    {
+        if (keys.at(i).toLower() == "usercolor")
+        {
+            QStringList userColors = values.at(i).split(';');
+            bool userColorReplaced = false;
+            for (int j = 0; j < userColors.count(); ++j)
+            {
+                QString userColor = userColors.at(j);
+                QString name = userColor.left(userColor.indexOf('{'));
+                if (name.toLower() == username.toLower())
+                {
+                    userColors[j] = newUserColor;
+                    userColorReplaced = true;
+                    break;
+                }
+            }
+
+            if (!userColorReplaced)
+            {
+                userColors.append(newUserColor);
+            }
+
+            values[i] = userColors.join(";");
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void Config::commit ()
 {
     if (configFile->open(QFile::WriteOnly | QFile::Text))
@@ -434,5 +541,31 @@ void Config::commit ()
         configFile->close();
 
         emit configSaved();
+    }
+}
+
+QColor Config::getDefaultUserColor(const QString& username, const QColor& defaultColor)
+{
+    if (username.startsWith("GhostGraz"))
+    {
+        // Return bot color.
+        return QColor(255, 255, 0);
+    }
+    else if (admins.contains(username, Qt::CaseInsensitive))
+    {
+        // Return admin color.
+        return QColor(0, 255, 200);
+    }
+    else
+    {
+        // Return default color.
+        if (defaultColor.isValid())
+        {
+            return defaultColor;
+        }
+        else
+        {
+            return getDefaultColor();
+        }
     }
 }

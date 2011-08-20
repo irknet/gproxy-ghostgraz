@@ -26,6 +26,8 @@
 #include <windows.h>
 #include <winsock.h>
 
+#undef ERROR /* Undefine ERROR macro. Needed for ColoredMessage::ERROR. */
+
 CGProxy* gproxy;
 MainGUI* mainGUI;
 QElapsedTimer timer;
@@ -70,16 +72,28 @@ unsigned long getElapsedMilliseconds ()
  * Prints the logMessage to the gproxy log file, if logging is enabled.
  *
  * @param logMessage The log message.
+ * @param printTimestamp If the current time should be displayed before the message. Default: <code>true</code>.
+ * @param lineBreak If a line break should be appended to the message. Default: <code>true</code>.
  */
-void LOG_Print (const QString& logMessage)
+void LOG_Print (const QString& logMessage, bool printTimestamp, bool lineBreak)
 {
     // If logging is disabled the log file is closed.
     if (logFile->isOpen() && logFile->isWritable())
     {
         QTextStream log(logFile);
-        QString dateTime = QLocale().toString(QDateTime::currentDateTime(),
-                "[dddd dd-MM-yyyy hh:mm:ss] ");
-        log << dateTime << logMessage << "\n";
+        if (printTimestamp)
+        {
+            QString dateTime = QLocale().toString(QDateTime::currentDateTime(),
+                    "[dddd dd-MM-yyyy hh:mm:ss] ");
+            log << dateTime;
+        }
+
+        log << logMessage;
+
+        if (lineBreak)
+        {
+            log << "\n";
+        }
         log.flush();
     }
 }
@@ -89,7 +103,7 @@ void CheckForGame (string gamename)
     if (getautosearch())
     {
         gproxy->m_BNET->SetSearchGameName(gamename); //old one, but it works..
-        CONSOLE_Print("[Phyton] Searching for [" + QString::fromStdString(gamename) + "].", true);
+        CONSOLE_Print(ColoredMessage("[GPROXY] Searching for [" + QString::fromStdString(gamename) + "].", ColoredMessage::GPROXY), true);
         gproxy->autosearch = false;
     }
 }
@@ -97,12 +111,14 @@ void CheckForGame (string gamename)
 /**
  * Displays the message at the output area of GProxy.
  *
- * @param message The message to be displayed.
+ * @param coloredMessage The message to be displayed.
  * @param log If the message should be logged. Default: <code>true</code>.
+ * @param printTimestamp If the current time should be displayed before the message. Default: <code>true</code>.
+ * @param lineBreak If a line break should be appended to the message. Default: <code>true</code>.
  */
-void CONSOLE_Print (QString message, bool log)
+void CONSOLE_Print (const ColoredMessage& coloredMessage, bool log, bool printTimestamp, bool lineBreak)
 {
-    gproxy->addMessage(message, log);
+    gproxy->addMessage(coloredMessage, log, printTimestamp, lineBreak);
 }
 
 bool fcfgfilterfirst ()// Phyton filter
@@ -178,25 +194,25 @@ int main (int argc, char** argv)
 
     logFile = new QFile("gproxy_log.txt");
 
-    CONSOLE_Print("[GPROXY] starting up", false);
-    CONSOLE_Print("[GPROXY] Trying to loading configuration file", false);
-
     // Initialize config.
     Config* config = new Config("gproxy.cfg");
     gproxy->setConfig(config);
+
+    // Load config.
     int statusCode = config->loadConfig();
     bool connect = gproxy->checkStatus(statusCode);
 
+    // Init mainGUI.
+    mainGUI->init();
+
     QObject::connect(config, SIGNAL(configSaved()),
             gproxy, SLOT(applyConfig()), Qt::QueuedConnection);
-
-    mainGUI->init();
 
     gproxy->initConfigurations();
 
 #ifdef WIN32
     // Initialize winsock
-    CONSOLE_Print("[GPROXY] Starting winsock");
+    CONSOLE_Print(ColoredMessage("[GPROXY] Starting winsock", ColoredMessage::GPROXY));
     WSADATA wsadata;
 
     if (WSAStartup(MAKEWORD(2, 2), &wsadata) != 0)
@@ -206,7 +222,7 @@ int main (int argc, char** argv)
     }
 
     // Increase process priority
-    CONSOLE_Print("[GPROXY] setting process priority to \"above normal\"");
+    CONSOLE_Print(ColoredMessage("[GPROXY] setting process priority to \"above normal\"", ColoredMessage::GPROXY));
     SetPriorityClass(GetCurrentProcess(), ABOVE_NORMAL_PRIORITY_CLASS);
 #endif
 
@@ -288,12 +304,13 @@ CGProxy::~CGProxy ()
 void CGProxy::connectSignalsAndSlots()
 {
     qRegisterMetaType< QList<Slot*> >("QList<Slot*>");
+    qRegisterMetaType<ColoredMessage>("ColoredMessage");
 
     connect(this, SIGNAL(signal_startUpdateThread()),
             mainGUI, SLOT(startUpdateThread()), Qt::QueuedConnection);
 
-    connect(this, SIGNAL(signal_addMessage(QString, bool)),
-            mainGUI, SLOT(addMessage(QString, bool)), Qt::QueuedConnection);
+    connect(this, SIGNAL(signal_addMessage(ColoredMessage, bool, bool, bool)),
+            mainGUI, SLOT(addMessage(ColoredMessage, bool, bool, bool)), Qt::QueuedConnection);
 
     connect(this, SIGNAL(signal_changeChannel(QString)),
             mainGUI, SLOT(changeChannel(QString)), Qt::QueuedConnection);
@@ -316,8 +333,8 @@ void CGProxy::connectSignalsAndSlots()
     connect(this, SIGNAL(signal_showErrorMessage(QString)),
             mainGUI, SLOT(showErrorMessage(QString)), Qt::QueuedConnection);
 
-    connect(this, SIGNAL(signal_playerJoined(const QString &)),
-            mainGUI, SLOT(playerJoined(const QString &)), Qt::QueuedConnection);
+    connect(this, SIGNAL(signal_playerJoined(const ColoredMessage&)),
+            mainGUI, SLOT(playerJoined(const ColoredMessage&)), Qt::QueuedConnection);
 
     connect(this, SIGNAL(signal_showConfigDialog(bool)),
             mainGUI, SLOT(showConfigDialog(bool)), Qt::QueuedConnection);
@@ -397,7 +414,7 @@ void CGProxy::initVariables (string cpublic, string cfilter, bool temp_displayau
         emit signal_startUpdateThread();
     }
 
-    CONSOLE_Print("[GPROXY] Customized GProxy++ Version " + QString::fromStdString(m_Version));
+    CONSOLE_Print(ColoredMessage("[GPROXY] Customized GProxy++ Version " + QString::fromStdString(m_Version), ColoredMessage::GPROXY));
 }
 
 void CGProxy::initConfigurations()
@@ -412,11 +429,11 @@ void CGProxy::initConfigurations()
 void CGProxy::cleanup ()
 {
 #ifdef WIN32
-    CONSOLE_Print("[GPROXY] shutting down winsock");
+    CONSOLE_Print(ColoredMessage("[GPROXY] shutting down winsock", ColoredMessage::GPROXY));
     WSACleanup();
 #endif
 
-    CONSOLE_Print("[GPROXY] shutting down");
+    CONSOLE_Print(ColoredMessage("[GPROXY] shutting down", ColoredMessage::GPROXY));
 
     if (logFile->isOpen())
     {
@@ -464,37 +481,39 @@ void CGProxy::applyConfig ()
 
 void CGProxy::showWelcomeMessages()
 {
-    CONSOLE_Print("", false);
-    CONSOLE_Print("  Welcome to GProxy++.", false);
-    CONSOLE_Print("  Server: " + gproxy->getServer(), false);
-    CONSOLE_Print("  Username: " + gproxy->getUsername(), false);
-    CONSOLE_Print("  Channel: " + gproxy->getChannel(), false);
-    CONSOLE_Print("", false);
-    CONSOLE_Print("  Type /help at any time for help.", false);
-    CONSOLE_Print("", false);
-    CONSOLE_Print("Welcome to "
-            + Util::toString(config->getColor("gproxy_foregroundcolor"))
-            + "GProxy++|r. "
-            + "This mod is by "
-            + Util::toString(config->getColor("whisper_foregroundcolor"))
-            + "Phyton|r, "
-            + Util::toString(config->getColor("info_foregroundcolor"))
-            + "Pr0gm4n|r and "
-            + Util::toString(config->getColor("gameinfo_foregroundcolor"))
-            + "Manufactoring|r.", false);
+    CONSOLE_Print(ColoredMessage(""), false);
+    CONSOLE_Print(ColoredMessage("  Welcome to GProxy++."), false);
+    CONSOLE_Print(ColoredMessage("  Server: " + gproxy->getServer()), false);
+    CONSOLE_Print(ColoredMessage("  Username: " + gproxy->getUsername()), false);
+    CONSOLE_Print(ColoredMessage("  Channel: " + gproxy->getChannel()), false);
+    CONSOLE_Print(ColoredMessage(""), false);
+    CONSOLE_Print(ColoredMessage("  Type /help at any time for help."), false);
+    CONSOLE_Print(ColoredMessage(""), false);
+
+    CONSOLE_Print(ColoredMessage("Welcome to "), false, true, false);
+    CONSOLE_Print(ColoredMessage("GProxy++", ColoredMessage::GPROXY), false, false, false);
+    CONSOLE_Print(ColoredMessage(". This mod is by "), false, false, false);
+    CONSOLE_Print(ColoredMessage("Phyton", ColoredMessage::WHISPER), false, false, false);
+    CONSOLE_Print(ColoredMessage(", "), false, false, false);
+    CONSOLE_Print(ColoredMessage("Pr0gm4n", ColoredMessage::INFO), false, false, false);
+    CONSOLE_Print(ColoredMessage(" and "), false, false, false);
+    CONSOLE_Print(ColoredMessage("Manufactoring", ColoredMessage::GAMEINFO), false, false, false);
+    CONSOLE_Print(ColoredMessage("."), false, false, true);
 }
 
 /**
  * Emits the signal <code>signal_addMessage</code>.
  * Displays the message at the output area of GProxy.
  *
- * @param msg The message to be displayed.
+ * @param coloredMessage The message to be displayed.
  * @param log If the message should be logged. Default: <code>true</code>.
+ * @param printTimestamp If the current time should be displayed before the message. Default: <code>true</code>.
+ * @param lineBreak If a line break should be appended to the message. Default: <code>true</code>.
  * @see MainGUI#addMessage
  */
-void CGProxy::addMessage (QString msg, bool log)
+void CGProxy::addMessage (const ColoredMessage& coloredMessage, bool log, bool printTimestamp, bool lineBreak)
 {
-    emit signal_addMessage(msg, log);
+    emit signal_addMessage(coloredMessage, log, printTimestamp, lineBreak);
 }
 
 /**
@@ -695,7 +714,7 @@ bool CGProxy::Update (long usecBlock)
         }
         else
         {
-            CONSOLE_Print("[GPROXY] local player connected");
+            CONSOLE_Print(ColoredMessage("[GPROXY] local player connected", ColoredMessage::GPROXY));
             m_LocalSocket = NewSocket;
             m_LocalSocket->SetNoDelay(true);
             m_TotalPacketsReceivedFromLocal = 0;
@@ -732,7 +751,7 @@ bool CGProxy::Update (long usecBlock)
 
         if (m_LocalSocket->HasError() || !m_LocalSocket->GetConnected())
         {
-            CONSOLE_Print("[GPROXY] local player disconnected");
+            CONSOLE_Print(ColoredMessage("[GPROXY] local player disconnected", ColoredMessage::GPROXY));
 
             if (m_BNET->GetInGame())
                 m_BNET->QueueEnterChat();
@@ -781,7 +800,7 @@ bool CGProxy::Update (long usecBlock)
                     else
                     {
                         SendLocalChat("GProxy++ ran out of time to reconnect, Warcraft III will disconnect soon.");
-                        CONSOLE_Print("[GPROXY] ran out of time to reconnect");
+                        CONSOLE_Print(ColoredMessage("[GPROXY] ran out of time to reconnect", ColoredMessage::GPROXY));
                     }
 
                     m_LastActionTime = getElapsedSeconds();
@@ -789,7 +808,7 @@ bool CGProxy::Update (long usecBlock)
 
                 if (m_RemoteSocket->HasError())
                 {
-                    CONSOLE_Print("[GPROXY] disconnected from remote server due to socket error");
+                    CONSOLE_Print(ColoredMessage("[GPROXY] disconnected from remote server due to socket error", ColoredMessage::GPROXY));
 
                     if (m_GameIsReliable && m_ActionReceived && m_ReconnectPort > 0)
                     {
@@ -806,7 +825,7 @@ bool CGProxy::Update (long usecBlock)
                         }
 
                         SendLocalChat("GProxy++ is attempting to reconnect... (" + QString::number(TimeRemaining) + " seconds remain)");
-                        CONSOLE_Print("[GPROXY] attempting to reconnect");
+                        CONSOLE_Print(ColoredMessage("[GPROXY] attempting to reconnect", ColoredMessage::GPROXY));
                         m_RemoteSocket->Reset();
                         m_RemoteSocket->SetNoDelay(true);
                         m_RemoteSocket->Connect(string(), m_RemoteServerIP, m_ReconnectPort);
@@ -830,7 +849,7 @@ bool CGProxy::Update (long usecBlock)
 
                 if (!m_RemoteSocket->GetConnecting() && !m_RemoteSocket->GetConnected())
                 {
-                    CONSOLE_Print("[GPROXY] disconnected from remote server");
+                    CONSOLE_Print(ColoredMessage("[GPROXY] disconnected from remote server", ColoredMessage::GPROXY));
 
                     if (m_GameIsReliable && m_ActionReceived && m_ReconnectPort > 0)
                     {
@@ -847,7 +866,7 @@ bool CGProxy::Update (long usecBlock)
                         }
 
                         SendLocalChat("GProxy++ is attempting to reconnect... (" + QString::number(TimeRemaining) + " seconds remain)");
-                        CONSOLE_Print("[GPROXY] attempting to reconnect");
+                        CONSOLE_Print(ColoredMessage("[GPROXY] attempting to reconnect", ColoredMessage::GPROXY));
                         m_RemoteSocket->Reset();
                         m_RemoteSocket->SetNoDelay(true);
                         m_RemoteSocket->Connect(string(), m_RemoteServerIP, m_ReconnectPort);
@@ -874,7 +893,7 @@ bool CGProxy::Update (long usecBlock)
                     if (m_GameIsReliable && m_ActionReceived && m_ReconnectPort > 0
                             && getElapsedSeconds() - m_RemoteSocket->GetLastRecv() >= 20)
                     {
-                        CONSOLE_Print("[GPROXY] disconnected from remote server due to 20 second timeout");
+                        CONSOLE_Print(ColoredMessage("[GPROXY] disconnected from remote server due to 20 second timeout", ColoredMessage::GPROXY));
                         SendLocalChat("You have been timed out from the server.");
                         uint32_t TimeRemaining = (m_NumEmptyActions
                                 - m_NumEmptyActionsUsed + 1) * 60
@@ -888,7 +907,7 @@ bool CGProxy::Update (long usecBlock)
                         }
 
                         SendLocalChat("GProxy++ is attempting to reconnect... (" + QString::number(TimeRemaining) + " seconds remain)");
-                        CONSOLE_Print("[GPROXY] attempting to reconnect");
+                        CONSOLE_Print(ColoredMessage("[GPROXY] attempting to reconnect", ColoredMessage::GPROXY));
                         m_RemoteSocket->Reset();
                         m_RemoteSocket->SetNoDelay(true);
                         m_RemoteSocket->Connect(string(), m_RemoteServerIP, m_ReconnectPort);
@@ -926,7 +945,7 @@ bool CGProxy::Update (long usecBlock)
 
                             SendLocalChat("GProxy++ reconnected to the server!");
                             SendLocalChat("==================================================");
-                            CONSOLE_Print("[GPROXY] reconnected to remote server");
+                            CONSOLE_Print(ColoredMessage("[GPROXY] reconnected to remote server", ColoredMessage::GPROXY));
 
                             // note: even though we reset the socket when we were disconnected, we haven't been careful to ensure we never queued any data in the meantime
                             // therefore it's possible the socket could have data in the send buffer
@@ -944,13 +963,13 @@ bool CGProxy::Update (long usecBlock)
                             m_Synchronized = false;
                         }
                         else
-                            CONSOLE_Print("[GPROXY] connected to remote server");
+                            CONSOLE_Print(ColoredMessage("[GPROXY] connected to remote server", ColoredMessage::GPROXY));
                     }
                     else if (getElapsedSeconds() - m_LastConnectionAttemptTime >= 10)
                     {
                         // the connection attempt timed out (10 seconds)
 
-                        CONSOLE_Print("[GPROXY] connect to remote server timed out");
+                        CONSOLE_Print(ColoredMessage("[GPROXY] connect to remote server timed out", ColoredMessage::GPROXY));
 
                         if (m_GameIsReliable && m_ActionReceived && m_ReconnectPort > 0)
                         {
@@ -966,7 +985,7 @@ bool CGProxy::Update (long usecBlock)
                             }
 
                             SendLocalChat("GProxy++ is attempting to reconnect... (" + QString::number(TimeRemaining) + " seconds remain)");
-                            CONSOLE_Print("[GPROXY] attempting to reconnect");
+                            CONSOLE_Print(ColoredMessage("[GPROXY] attempting to reconnect", ColoredMessage::GPROXY));
                             m_RemoteSocket->Reset();
                             m_RemoteSocket->SetNoDelay(true);
                             m_RemoteSocket->Connect(string(), m_RemoteServerIP, m_ReconnectPort);
@@ -1140,22 +1159,22 @@ void CGProxy::ExtractLocalPackets ()
                                 {
                                     if (Flag == 16)
                                     {
-                                        CONSOLE_Print("[LOBBY][" + username + "] " + QString::fromStdString(MessageString));
+                                        CONSOLE_Print(ColoredMessage("[LOBBY][" + username + "] " + QString::fromStdString(MessageString)));
                                     }
                                     else // GameStarted
                                     {
                                         // ExtraFlags[0] stores the type of chat message as defined by Warcraft III.
                                         if (ExtraFlags[0] == 0) // 0 is an All message
                                         {
-                                            CONSOLE_Print("[ALL][" + username + "] " + QString::fromStdString(MessageString));
+                                            CONSOLE_Print(ColoredMessage("[ALL][" + username + "] " + QString::fromStdString(MessageString)));
                                         }
                                         else if (ExtraFlags[0] == 1) // 1 is an Allies message
                                         {
-                                            CONSOLE_Print("[ALLY][" + username + "] " + QString::fromStdString(MessageString));
+                                            CONSOLE_Print(ColoredMessage("[ALLY][" + username + "] " + QString::fromStdString(MessageString)));
                                         }
                                         else if (ExtraFlags[0] == 2) // 2 is an Observer/Referee message
                                         {
-                                            CONSOLE_Print("[OBSERVER][" + username + "] " + QString::fromStdString(MessageString));
+                                            CONSOLE_Print(ColoredMessage("[OBSERVER][" + username + "] " + QString::fromStdString(MessageString)));
                                         }
                                         else if (ExtraFlags[0] >= 3) // 3+ are private messages
                                         {
@@ -1163,7 +1182,7 @@ void CGProxy::ExtractLocalPackets ()
                                             // the extra flags' first byte contains 3 plus the recipient's colour to denote a private message.
                                             // Due to the fact that the Datapacket also contains the FromPID, we do not need to extract the color.
 
-                                            CONSOLE_Print("[PRIVATE][TO][" + username + "] " + QString::fromStdString(MessageString));
+                                            CONSOLE_Print(ColoredMessage("[PRIVATE][TO][" + username + "] " + QString::fromStdString(MessageString)));
                                         }
                                     }
                                 }
@@ -1188,14 +1207,14 @@ void CGProxy::ExtractLocalPackets ()
             }
             else
             {
-                CONSOLE_Print("[GPROXY] received invalid packet from local player (bad length)");
+                CONSOLE_Print(ColoredMessage("[GPROXY] received invalid packet from local player (bad length)", ColoredMessage::GPROXY));
                 m_Exiting = true;
                 return;
             }
         }
         else
         {
-            CONSOLE_Print("[GPROXY] received invalid packet from local player (bad header constant)");
+            CONSOLE_Print(ColoredMessage("[GPROXY] received invalid packet from local player (bad header constant)", ColoredMessage::GPROXY));
             m_Exiting = true;
             return;
         }
@@ -1272,7 +1291,7 @@ bool CGProxy::CheckForwarding (QString message)
             }
             else
             {
-                CONSOLE_Print("[ERROR] File \"" + QString::fromStdString(help) + "\" does not exist!");
+                CONSOLE_Print(ColoredMessage("[ERROR] File \"" + QString::fromStdString(help) + "\" does not exist!", ColoredMessage::ERROR));
                 SendLocalChat("File \"" + QString::fromStdString(help) + "\" does not exist!");
             }
         }
@@ -1409,7 +1428,7 @@ bool CGProxy::CheckForwarding (QString message)
         }
         else if (command == "/statslast" || command == "/sl")
         {
-            gproxy->sendGamemessage("!stats " + lastLeaver->getName());
+            gproxy->sendGamemessage("!stats " + lastLeaver->getName().getMessage());
         }
     }
     else if (command.length() >= 1 && command.startsWith("!"))
@@ -1442,7 +1461,7 @@ bool CGProxy::CheckForwarding (QString message)
         }
         else if (command == "!statslast" || command == "!sl")
         {
-            gproxy->sendGamemessage("!stats " + lastLeaver->getName());
+            gproxy->sendGamemessage("!stats " + lastLeaver->getName().getMessage());
         }
     }
 
@@ -1484,12 +1503,12 @@ void CGProxy::ProcessLocalPackets ()
                         {
                             if (((CIncomingGameHost*) (*i))->GetUniqueGameID() == EntryKey)
                             {
-                                CONSOLE_Print("[GPROXY] local player requested game name [" + QString::fromStdString(((CIncomingGameHost*) (*i))->GetGameName()) + "]");
+                                CONSOLE_Print(ColoredMessage("[GPROXY] local player requested game name [" + QString::fromStdString(((CIncomingGameHost*) (*i))->GetGameName()) + "]", ColoredMessage::GPROXY));
 
                                 if (NameString != username.toStdString())
-                                    CONSOLE_Print("[GPROXY] using battle.net name [" + username + "] instead of requested name [" + QString::fromStdString(NameString) + "]");
+                                    CONSOLE_Print(ColoredMessage("[GPROXY] using battle.net name [" + username + "] instead of requested name [" + QString::fromStdString(NameString) + "]", ColoredMessage::GPROXY));
 
-                                CONSOLE_Print("[GPROXY] connecting to remote server [" + QString::fromStdString(((CIncomingGameHost*) (*i))->GetIPString()) + "] on port " + QString::number(((CIncomingGameHost*) (*i))->GetPort()));
+                                CONSOLE_Print(ColoredMessage("[GPROXY] connecting to remote server [" + QString::fromStdString(((CIncomingGameHost*) (*i))->GetIPString()) + "] on port " + QString::number(((CIncomingGameHost*) (*i))->GetPort()), ColoredMessage::GPROXY));
                                 m_RemoteServerIP = ((CIncomingGameHost*) (*i))->GetIPString();
                                 m_RemoteServerPort = ((CIncomingGameHost*) (*i))->GetPort();
                                 m_RemoteSocket->Reset();
@@ -1537,15 +1556,15 @@ void CGProxy::ProcessLocalPackets ()
 
                         if (!GameFound)
                         {
-                            CONSOLE_Print("[GPROXY] local player requested unknown game (expired?)");
+                            CONSOLE_Print(ColoredMessage("[GPROXY] local player requested unknown game (expired?)", ColoredMessage::GPROXY));
                             m_LocalSocket->Disconnect();
                         }
                     }
                     else
-                        CONSOLE_Print("[GPROXY] received invalid join request from local player (invalid remainder)");
+                        CONSOLE_Print(ColoredMessage("[GPROXY] received invalid join request from local player (invalid remainder)", ColoredMessage::GPROXY));
                 }
                 else
-                    CONSOLE_Print("[GPROXY] received invalid join request from local player (too short)");
+                    CONSOLE_Print(ColoredMessage("[GPROXY] received invalid join request from local player (too short)", ColoredMessage::GPROXY));
             }
             else if (Packet->GetID() == CGameProtocol::W3GS_LEAVEGAME)
             {
@@ -1601,14 +1620,14 @@ void CGProxy::ExtractRemotePackets ()
             }
             else
             {
-                CONSOLE_Print("[GPROXY] received invalid packet from remote server (bad length)");
+                CONSOLE_Print(ColoredMessage("[GPROXY] received invalid packet from remote server (bad length)", ColoredMessage::GPROXY));
                 m_Exiting = true;
                 return;
             }
         }
         else
         {
-            CONSOLE_Print("[GPROXY] received invalid packet from remote server (bad header constant)");
+            CONSOLE_Print(ColoredMessage("[GPROXY] received invalid packet from remote server (bad header constant)", ColoredMessage::GPROXY));
             m_Exiting = true;
             return;
         }
@@ -1641,13 +1660,12 @@ void CGProxy::ProcessRemotePackets ()
                 unsigned char Flag = Data[i + 1];
                 i += 2;
                 BYTEARRAY ExtraFlags;
-                string MessageString;
+                QString message;
 
                 if (Flag == 16)
                 {
                     // Chat message
-                    BYTEARRAY Message = Util::extractCString(Data, i);
-                    MessageString = string(Message.begin(), Message.end());
+                    message = Util::extractQString(Data, i);
                 }
                 else if (Flag >= 17 && Flag <= 20)
                 {
@@ -1657,60 +1675,64 @@ void CGProxy::ProcessRemotePackets ()
                 {
                     // Extra flags
                     ExtraFlags = BYTEARRAY(Data.begin() + i, Data.begin() + i + 4);
-                    BYTEARRAY Message = Util::extractCString(Data, i + 4);
-                    MessageString = string(Message.begin(), Message.end());
+                    message = Util::extractQString(Data, i + 4);
                 }
 
                 if (Flag == 16 || Flag == 32) // Chat message
                 {
-                    string playerName;
-                    foreach(Player *player, players)
+                    ColoredMessage coloredPlayer;
+                    foreach(Player* player, players)
                     {
                         if(player->getPlayerId() == FromPID)
                         {
-                            playerName = player->getName().toStdString();
+                            coloredPlayer = player->getName();
                             break;
                         }
                     }
 
                     // If the message is a autogenerated ban message
-                    if (MessageString.find("Player [") != string::npos
-                            && MessageString.find("] was banned by player [") != string::npos
-                            && MessageString.find("] on server [") != string::npos)
+                    if (message.contains("Player [")
+                            && message.contains("] was banned by player [")
+                            && message.contains("] on server ["))
                     {
                         QSound::play("sounds/player_banned.wav");
 
                     }
 
                     // If the message is a autogenerated "same ip" message
-                    if ((MessageString.find("Player [") != string::npos
-                            && MessageString.find("] has the same IP address as: ") != string::npos)
-                            || MessageString.find("same IPs:") != string::npos)
+                    if ((message.contains("Player [")
+                            && message.contains("] has the same IP address as: "))
+                            || message.contains("same IPs:"))
                     {
                         QSound::play("sounds/same_ip.wav");
                     }
 
                     if (Flag == 16)
                     {
-                        CONSOLE_Print("[LOBBY][" + QString::fromStdString(playerName)
-                                + "] " + QString::fromStdString(MessageString), false);
-                        LOG_Print("[LOBBY][" + QString::fromStdString(playerName) + "] "
-                                + QString::fromStdString(MessageString));
+                        CONSOLE_Print(ColoredMessage("[LOBBY]["), true, true, false);
+                        CONSOLE_Print(coloredPlayer, true, false, false);
+                        CONSOLE_Print(ColoredMessage("] " + message), true, false, true);
                     }
                     else // GameStarted
                     {
                         // ExtraFlags[0] stores the type of chat message as defined by Warcraft III.
                         if (ExtraFlags[0] == 0) // 0 is an All message
                         {
-                            CONSOLE_Print("[ALL][" + QString::fromStdString(playerName) + "] " + QString::fromStdString(MessageString));
+                            CONSOLE_Print(ColoredMessage("[ALL]["), true, true, false);
+                            CONSOLE_Print(coloredPlayer, true, false, false);
+                            CONSOLE_Print(ColoredMessage("] " + message), true, false, true);
                         }
                         else if (ExtraFlags[0] == 1) // 1 is an Allies message
                         {
-                            CONSOLE_Print("[ALLY][" + QString::fromStdString(playerName) + "] " + QString::fromStdString(MessageString));
+                            CONSOLE_Print(ColoredMessage("[Ally]["), true, true, false);
+                            CONSOLE_Print(coloredPlayer, true, false, false);
+                            CONSOLE_Print(ColoredMessage("] " + message), true, false, true);
                         }
                         else if (ExtraFlags[0] == 2) // 2 is an Observer/Referee message
                         {
-                            CONSOLE_Print("[OBSERVER][" + QString::fromStdString(playerName) + "] " + QString::fromStdString(MessageString));
+                            CONSOLE_Print(ColoredMessage("[OBSERVER]["), true, true, false);
+                            CONSOLE_Print(coloredPlayer, true, false, false);
+                            CONSOLE_Print(ColoredMessage("] " + message), true, false, true);
                         }
                         else if (ExtraFlags[0] >= 3) // 3+ are private messages
                         {
@@ -1718,7 +1740,9 @@ void CGProxy::ProcessRemotePackets ()
                             // the extra flags' first byte contains 3 plus the recipient's colour to denote a private message.
                             // Due to the fact that the Datapacket also contains the FromPID, we do not need to extract the color.
 
-                            CONSOLE_Print("[PRIVATE][FROM][" + QString::fromStdString(playerName) + "] " + QString::fromStdString(MessageString));
+                            CONSOLE_Print(ColoredMessage("[PRIVATE][FROM]["), true, true, false);
+                            CONSOLE_Print(coloredPlayer, true, false, false);
+                            CONSOLE_Print(ColoredMessage("] " + message), true, false, true);
                         }
                     }
                 }
@@ -1728,13 +1752,13 @@ void CGProxy::ProcessRemotePackets ()
                 BYTEARRAY Data = Packet->GetData();
 
                 int playerId = ((int) Data[4]);
-                QString playerName;
+                ColoredMessage playername;
 
                 for (int i = 0; i < players.count(); i++)
                 {
                     if(players.at(i)->getPlayerId() == playerId)
                     {
-                        playerName = players.at(i)->getName();
+                        playername = players.at(i)->getName();
                         delete lastLeaver;
                         lastLeaver = players.at(i);
                         players.removeAt(i);
@@ -1748,13 +1772,11 @@ void CGProxy::ProcessRemotePackets ()
                     {
                         QSound::play("sounds/leaver_detected.wav");
                     }
+                }
 
-                    CONSOLE_Print("[ALL] " + playerName + " has left the game.");
-                }
-                else
-                {
-                    CONSOLE_Print("[LOBBY] " + playerName + " has left the game.");
-                }
+                CONSOLE_Print(ColoredMessage("[GAMEINFO] ", ColoredMessage::GAMEINFO), true, true, false);
+                CONSOLE_Print(ColoredMessage(playername), true, false, false);
+                CONSOLE_Print(ColoredMessage(" has left the game.", ColoredMessage::GAMEINFO), true, false, true);
             }
             if (Packet->GetID() == CGameProtocol::W3GS_SLOTINFOJOIN)
             {
@@ -1783,14 +1805,14 @@ void CGProxy::ProcessRemotePackets ()
 
                     // send a GPS_INIT packet
                     // if the server doesn't recognize it (e.g. it isn't GHost++) we should be kicked
-                    CONSOLE_Print("[GPROXY] join request accepted by remote server");
+                    CONSOLE_Print(ColoredMessage("[GPROXY] join request accepted by remote server", ColoredMessage::GPROXY));
                     if (m_GameIsReliable)
                     {
-                        CONSOLE_Print("[GPROXY] detected reliable game, starting GPS handshake");
+                        CONSOLE_Print(ColoredMessage("[GPROXY] detected reliable game, starting GPS handshake", ColoredMessage::GPROXY));
                         m_RemoteSocket->PutBytes(m_GPSProtocol->SEND_GPSC_INIT(1));
                     }
                     else
-                        CONSOLE_Print("[GPROXY] detected standard game, disconnect protection disabled");
+                        CONSOLE_Print(ColoredMessage("[GPROXY] detected standard game, disconnect protection disabled", ColoredMessage::GPROXY));
 
                     unsigned char numberOfSlots = Data[6];
 
@@ -1818,14 +1840,14 @@ void CGProxy::ProcessRemotePackets ()
 
                     Player* player = new Player();
                     player->setPlayerId(m_ChatPID);
-                    player->setName(username);
+                    player->setName(ColoredMessage(username));
                     players.append(player);
 
-                    emit signal_playerJoined(username);
+                    emit signal_playerJoined(ColoredMessage(username, ColoredMessage::USERCOLOR));
                 }
                 else
                 {
-                    CONSOLE_Print("[SLOTINFOJOIN] Small data recieved!");
+                    CONSOLE_Print(ColoredMessage("[SLOTINFOJOIN] Small data recieved!", ColoredMessage::ERROR));
                 }
             }
             else if (Packet->GetID() == CGameProtocol::W3GS_SLOTINFO)
@@ -1891,17 +1913,25 @@ void CGProxy::ProcessRemotePackets ()
 
                 int playerId = (int) data[8];
                 QString playername = Util::extractQString(data, 9);
+                ColoredMessage name(playername, ColoredMessage::USERCOLOR);
                 if(playername.startsWith("|c", Qt::CaseInsensitive))
                 {
-                    playername.append("|r");
+                    name.setMessage(name.getMessage().mid(10));
+                    if (playername.endsWith("|r", Qt::CaseInsensitive))
+                    {
+                        name.setMessage(name.getMessage().left(name.getMessage().length() - 2));
+                    }
+
+                    name.setColorType(ColoredMessage::CUSTOM);
+                    name.setColor(Util::toColor(playername.left(10)));
                 }
 
                 Player* player = new Player();
                 player->setPlayerId(playerId);
-                player->setName(playername);
+                player->setName(name);
                 players.append(player);
 
-                emit signal_playerJoined(playername);
+                emit signal_playerJoined(name);
             }
             else if (Packet->GetID() == CGameProtocol::W3GS_MAPCHECK)
             {
@@ -1925,24 +1955,26 @@ void CGProxy::ProcessRemotePackets ()
 
                 if (((int) Packet->GetData()[4]) == m_ChatPID)
                 {
-                    CONSOLE_Print("[Manufactoring] You have finished loading. "
-                            "Loading time: " + QString::number(sec) + "," + QString::number(dsec) + " seconds.");
+                    CONSOLE_Print(ColoredMessage("[GAMEINFO] You have finished loading. "
+                            "Loading time: " + QString::number(sec) + "," + QString::number(dsec) + " seconds.", ColoredMessage::GAMEINFO));
                 }
                 else
                 {
-                    QString playerName;
+                    ColoredMessage playername;
                     foreach(Player *player, players)
                     {
                         if(player->getPlayerId() == ((int) Packet->GetData()[4]))
                         {
-                            playerName = player->getName();
+                            playername = player->getName();
                             break;
                         }
                     }
 
-                    CONSOLE_Print("[Manufactoring] "
-                            + playerName + " has finished loading. Loading time: "
-                            + QString::number(sec) + "," + QString::number(dsec) + " seconds.");
+                    CONSOLE_Print(ColoredMessage("[GAMEINFO] ", ColoredMessage::GAMEINFO), true, true, false);
+                    CONSOLE_Print(playername, true, false, false);
+                    CONSOLE_Print(ColoredMessage(" has finished loading. Loading time: "
+                            + QString::number(sec) + "," + QString::number(dsec) + " seconds.",
+                            ColoredMessage::GAMEINFO), true, false, true);
                 }
 
                 playerLoadingComplete[ ((int) Packet->GetData()[4]) ] = true;
@@ -1976,13 +2008,13 @@ void CGProxy::ProcessRemotePackets ()
             else if (Packet->GetID() == CGameProtocol::W3GS_COUNTDOWN_END)
             {
                 if (m_GameIsReliable && m_ReconnectPort > 0)
-                    CONSOLE_Print("[GPROXY] game started, disconnect protection enabled");
+                    CONSOLE_Print(ColoredMessage("[GPROXY] game started, disconnect protection enabled", ColoredMessage::GPROXY));
                 else
                 {
                     if (m_GameIsReliable)
-                        CONSOLE_Print("[GPROXY] game started but GPS handshake not complete, disconnect protection disabled");
+                        CONSOLE_Print(ColoredMessage("[GPROXY] game started but GPS handshake not complete, disconnect protection disabled", ColoredMessage::GPROXY));
                     else
-                        CONSOLE_Print("[GPROXY] game started");
+                        CONSOLE_Print(ColoredMessage("[GPROXY] game started", ColoredMessage::GPROXY));
                 }
 
                 m_GameStarted = true;
@@ -2002,19 +2034,19 @@ void CGProxy::ProcessRemotePackets ()
                 switch (reason)
                 {
                     case 0x07:
-                        CONSOLE_Print("[ERROR] there was an error in the request");
+                        CONSOLE_Print(ColoredMessage("[ERROR] there was an error in the request", ColoredMessage::ERROR));
                         break;
                     case 0x09:
-                        CONSOLE_Print("[ERROR] gamelobby is full");
+                        CONSOLE_Print(ColoredMessage("[ERROR] gamelobby is full", ColoredMessage::ERROR));
                         break;
                     case 0x10:
-                        CONSOLE_Print("[ERROR] game has been started");
+                        CONSOLE_Print(ColoredMessage("[ERROR] game has been started", ColoredMessage::ERROR));
                         break;
                     case 0x27:
-                        CONSOLE_Print("[ERROR] wrong password");
+                        CONSOLE_Print(ColoredMessage("[ERROR] wrong password", ColoredMessage::ERROR));
                         break;
                     default:
-                        CONSOLE_Print("[ERROR] Join rejected with invalid error code: " + QString::number(reason));
+                        CONSOLE_Print(ColoredMessage("[ERROR] Join rejected with invalid error code: " + QString::number(reason), ColoredMessage::ERROR));
                 }
                 return;
             }
@@ -2066,16 +2098,16 @@ void CGProxy::ProcessRemotePackets ()
                                 }
 
                                 if (LaggerFound)
-                                    CONSOLE_Print("[GPROXY] warning - received start_lag on known lagger");
+                                    CONSOLE_Print(ColoredMessage("[WARNING] Received start_lag on known lagger", ColoredMessage::WARNING));
                                 else
                                     m_Laggers.push_back(Data[5 + i * 5]);
                             }
                         }
                         else
-                            CONSOLE_Print("[GPROXY] warning - unhandled start_lag (2)");
+                            CONSOLE_Print(ColoredMessage("[WARNING] Unhandled start_lag (2)", ColoredMessage::WARNING));
                     }
                     else
-                        CONSOLE_Print("[GPROXY] warning - unhandled start_lag (1)");
+                        CONSOLE_Print(ColoredMessage("[WARNING] Unhandled start_lag (1)", ColoredMessage::WARNING));
                 }
             }
             else if (Packet->GetID() == CGameProtocol::W3GS_STOP_LAG)
@@ -2100,10 +2132,10 @@ void CGProxy::ProcessRemotePackets ()
                         }
 
                         if (!LaggerFound)
-                            CONSOLE_Print("[GPROXY] warning - received stop_lag on unknown lagger");
+                            CONSOLE_Print(ColoredMessage("[WARNING] Received stop_lag on unknown lagger", ColoredMessage::WARNING));
                     }
                     else
-                        CONSOLE_Print("[GPROXY] warning - unhandled stop_lag");
+                        CONSOLE_Print(ColoredMessage("[GPROXY] Unhandled stop_lag", ColoredMessage::WARNING));
                 }
             }
             else if (Packet->GetID() == CGameProtocol::W3GS_INCOMING_ACTION2)
@@ -2162,7 +2194,7 @@ void CGProxy::ProcessRemotePackets ()
                     m_ReconnectKey = Util::byteArrayToUInt32(Data, false, 7);
                     m_NumEmptyActions = Data[11];
                     SendLocalChat("GProxy++ disconnect protection is ready (" + QString::number((m_NumEmptyActions + 1) * 60) + " second buffer).");
-                    CONSOLE_Print("[GPROXY] handshake complete, disconnect protection ready (" + QString::number((m_NumEmptyActions + 1) * 60) + " second buffer)");
+                    CONSOLE_Print(ColoredMessage("[GPROXY] handshake complete, disconnect protection ready (" + QString::number((m_NumEmptyActions + 1) * 60) + " second buffer)", ColoredMessage::GPROXY));
                 }
                 else if (Packet->GetID() == CGPSProtocol::GPS_RECONNECT && Data.size() == 8)
                 {
@@ -2175,7 +2207,7 @@ void CGProxy::ProcessRemotePackets ()
 
                         if (PacketsToUnqueue > m_PacketBuffer.size())
                         {
-                            CONSOLE_Print("[GPROXY] received GPS_RECONNECT with last packet > total packets sent");
+                            CONSOLE_Print(ColoredMessage("[GPROXY] received GPS_RECONNECT with last packet > total packets sent", ColoredMessage::GPROXY));
                             PacketsToUnqueue = m_PacketBuffer.size();
                         }
 
@@ -2220,7 +2252,7 @@ void CGProxy::ProcessRemotePackets ()
 
                         if (PacketsToUnqueue > m_PacketBuffer.size())
                         {
-                            CONSOLE_Print("[GPROXY] received GPS_ACK with last packet > total packets sent");
+                            CONSOLE_Print(ColoredMessage("[GPROXY] received GPS_ACK with last packet > total packets sent", ColoredMessage::GPROXY));
                             PacketsToUnqueue = m_PacketBuffer.size();
                         }
 
@@ -2237,9 +2269,9 @@ void CGProxy::ProcessRemotePackets ()
                     uint32_t Reason = Util::byteArrayToUInt32(Data, false, 4);
 
                     if (Reason == REJECTGPS_INVALID)
-                        CONSOLE_Print("[GPROXY] rejected by remote server: invalid data");
+                        CONSOLE_Print(ColoredMessage("[GPROXY] rejected by remote server: invalid data", ColoredMessage::GPROXY));
                     else if (Reason == REJECTGPS_NOTFOUND)
-                        CONSOLE_Print("[GPROXY] rejected by remote server: player not found in any running games");
+                        CONSOLE_Print(ColoredMessage("[GPROXY] rejected by remote server: player not found in any running games", ColoredMessage::GPROXY));
 
                     m_LocalSocket->Disconnect();
                 }
@@ -2480,7 +2512,7 @@ bool CGProxy::checkStatus (int statusCode)
     {
         case 0:
         {
-            CONSOLE_Print("[GPROXY] Configuration file successfully loaded");
+            CONSOLE_Print(ColoredMessage("[GPROXY] Configuration file successfully loaded", ColoredMessage::GPROXY));
             return true;
         }
         case 1:
@@ -2490,16 +2522,16 @@ bool CGProxy::checkStatus (int statusCode)
         }
         case 2:
         {
-            CONSOLE_Print("Could not access the configuration file.\n"
+            CONSOLE_Print(ColoredMessage("[ERROR] Could not access the configuration file.\n"
                     "Maybe you dont have permissions to write to that directory.\n"
                     "Try to move your folder outside \"C:\\Program Files\" or run as administrator."
-                    "\nShutting down GProxy.");
+                    "\nShutting down GProxy.", ColoredMessage::ERROR));
             return false;
         }
         default:
         {
-            CONSOLE_Print("Unknown error while loading configuration file.\n"
-                    "ErrorCode: " + QString::number(statusCode));
+            CONSOLE_Print(ColoredMessage("[ERROR] Unknown error while loading configuration file.\n"
+                    "ErrorCode: " + QString::number(statusCode), ColoredMessage::ERROR));
             return false;
         }
     }
@@ -2630,3 +2662,5 @@ QList<Slot*> CGProxy::getSlotList()
 {
     return this->slotList;
 }
+
+#define ERROR 0 /* Redefine ERROR macro */

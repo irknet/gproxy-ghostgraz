@@ -80,10 +80,10 @@ bool CBNCSUtilInterface :: HELP_SID_AUTH_CHECK( bool TFT, string war3Path, strin
 		else
 		{
 			if( m_KeyInfoROC.size( ) != 36 )
-				CONSOLE_Print( "[BNCSUI] unable to create ROC key info - invalid ROC key" );
+				CONSOLE_Print( ColoredMessage("[BNCSUI] unable to create ROC key info - invalid ROC key" , ColoredMessage::ERROR));
 
 			if( TFT && m_KeyInfoTFT.size( ) != 36 )
-				CONSOLE_Print( "[BNCSUI] unable to create TFT key info - invalid TFT key" );
+				CONSOLE_Print( ColoredMessage("[BNCSUI] unable to create TFT key info - invalid TFT key" , ColoredMessage::ERROR));
 		}
 	}
 	else

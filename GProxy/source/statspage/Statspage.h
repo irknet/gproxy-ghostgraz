@@ -3,6 +3,7 @@
 
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QStringList>
 
 #include "Player.h"
 
@@ -22,7 +23,7 @@ public:
 signals:
     void loginFinished();
     void playerInformationReplyFinished(Player *);
-    void adminlistReplyFinished(QList<QString>);
+    void adminlistReplyFinished(QStringList);
 
 private:
     QNetworkAccessManager *manager;

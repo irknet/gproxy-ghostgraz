@@ -4,6 +4,10 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
+      <logicalFolder name="f5" displayName="color" projectFiles="true">
+        <itemPath>source/color/ColorUtil.h</itemPath>
+        <itemPath>source/color/ColoredMessage.h</itemPath>
+      </logicalFolder>
       <logicalFolder name="f2" displayName="delegate" projectFiles="true">
         <itemPath>source/delegate/ChannellistDelegate.h</itemPath>
         <itemPath>source/delegate/GamelistDelegate.h</itemPath>
@@ -20,6 +24,8 @@
         <itemPath>source/widget/ClickableLineEdit.h</itemPath>
         <itemPath>source/widget/ClickableListWidget.h</itemPath>
         <itemPath>source/widget/MButton.h</itemPath>
+        <itemPath>source/widget/MColorDialog.h</itemPath>
+        <itemPath>source/widget/MTextEdit.h</itemPath>
       </logicalFolder>
       <itemPath>source/Config.h</itemPath>
       <itemPath>source/ConfigGUI.h</itemPath>
@@ -49,6 +55,10 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
+      <logicalFolder name="f5" displayName="color" projectFiles="true">
+        <itemPath>source/color/ColorUtil.cpp</itemPath>
+        <itemPath>source/color/ColoredMessage.cpp</itemPath>
+      </logicalFolder>
       <logicalFolder name="f1" displayName="delegate" projectFiles="true">
         <itemPath>source/delegate/ChannellistDelegate.cpp</itemPath>
         <itemPath>source/delegate/GamelistDelegate.cpp</itemPath>
@@ -65,6 +75,8 @@
         <itemPath>source/widget/ClickableLineEdit.cpp</itemPath>
         <itemPath>source/widget/ClickableListWidget.cpp</itemPath>
         <itemPath>source/widget/MButton.cpp</itemPath>
+        <itemPath>source/widget/MColorDialog.cpp</itemPath>
+        <itemPath>source/widget/MTextEdit.cpp</itemPath>
       </logicalFolder>
       <itemPath>source/Config.cpp</itemPath>
       <itemPath>source/ConfigGUI.cpp</itemPath>

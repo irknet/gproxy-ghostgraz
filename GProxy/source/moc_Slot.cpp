@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'Slot.h'
 **
-** Created: Sat 2. Jul 17:00:39 2011
+** Created: Fri 19. Aug 17:28:42 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!

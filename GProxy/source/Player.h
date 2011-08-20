@@ -1,6 +1,8 @@
 #ifndef PLAYER_H
 #define	PLAYER_H
 
+#include "color/ColoredMessage.h"
+
 #include <QObject>
 #include <QMetaType>
 #include <QString>
@@ -12,7 +14,7 @@ class Player : public QObject
 public:
     Player();
 
-    Player(const QString &name);
+    Player(const ColoredMessage& name);
     Player(const Player& orig);
     Player& operator= (const Player& orig);
     virtual ~Player();
@@ -38,8 +40,8 @@ public:
     void setKillDeathRatio(const double& killDeathRatio);
     int getKills() const;
     void setKills(const int& kills);
-    QString getName() const;
-    void setName(const QString& name);
+    ColoredMessage getName() const;
+    void setName(const ColoredMessage& name);
     int getRaxKills() const;
     void setRaxKills(const int& raxKills);
     double getScore() const;
@@ -56,7 +58,7 @@ public:
 
 private:
     unsigned char playerId;
-    QString name;
+    ColoredMessage name;
     int kills;
     int deaths;
     int assists;

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'ConfigGUI.h'
 **
-** Created: Sun 14. Aug 11:05:38 2011
+** Created: Fri 19. Aug 21:23:00 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -50,7 +50,7 @@ static const uint qt_meta_data_ConfigGUI[] = {
      375,   10,   10,   10, 0x08,
      412,  407,   10,   10, 0x08,
      450,  443,   10,   10, 0x08,
-     501,  336,   10,   10, 0x08,
+     503,  491,   10,   10, 0x08,
 
        0        // eod
 };
@@ -70,8 +70,8 @@ static const char qt_meta_stringdata_ConfigGUI[] = {
     "onBackgroundColorChanged(QColor)\0"
     "onOutputareaFontButtonClicked()\0font\0"
     "onOutputareaFontChanged(QFont)\0button\0"
-    "onOutputareaForegroundcolorButtonClicked(MButton*)\0"
-    "onForegroundColorChanged(QColor)\0"
+    "onForegroundcolorButtonClicked(MButton*)\0"
+    "colorDialog\0onForegroundColorChanged(MColorDialog*)\0"
 };
 
 const QMetaObject ConfigGUI::staticMetaObject = {
@@ -119,8 +119,8 @@ int ConfigGUI::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         case 13: onBackgroundColorChanged((*reinterpret_cast< const QColor(*)>(_a[1]))); break;
         case 14: onOutputareaFontButtonClicked(); break;
         case 15: onOutputareaFontChanged((*reinterpret_cast< const QFont(*)>(_a[1]))); break;
-        case 16: onOutputareaForegroundcolorButtonClicked((*reinterpret_cast< MButton*(*)>(_a[1]))); break;
-        case 17: onForegroundColorChanged((*reinterpret_cast< const QColor(*)>(_a[1]))); break;
+        case 16: onForegroundcolorButtonClicked((*reinterpret_cast< MButton*(*)>(_a[1]))); break;
+        case 17: onForegroundColorChanged((*reinterpret_cast< MColorDialog*(*)>(_a[1]))); break;
         default: ;
         }
         _id -= 18;

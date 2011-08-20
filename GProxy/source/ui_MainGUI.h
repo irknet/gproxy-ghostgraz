@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainGUI.ui'
 **
-** Created: Sat 13. Aug 09:42:51 2011
+** Created: Fri 19. Aug 17:27:36 2011
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -21,9 +21,9 @@
 #include <QtGui/QMenuBar>
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QPushButton>
-#include <QtGui/QTextEdit>
 #include <QtGui/QWidget>
 #include "widget/ClickableListWidget.h"
+#include "widget/MTextEdit.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -40,7 +40,7 @@ public:
     ClickableListWidget *gameList;
     QLineEdit *titleLabel;
     QPushButton *refreshButton;
-    QTextEdit *outputTextArea;
+    MTextEdit *outputTextArea;
     QMenuBar *menuBar;
     QMenu *fileMenu;
 
@@ -113,6 +113,10 @@ public:
         gameList = new ClickableListWidget(centralwidget);
         gameList->setObjectName(QString::fromUtf8("gameList"));
         gameList->setGeometry(QRect(665, 30, 231, 521));
+        QFont font2;
+        font2.setBold(true);
+        font2.setWeight(75);
+        gameList->setFont(font2);
         gameList->setContextMenuPolicy(Qt::NoContextMenu);
         gameList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         gameList->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -125,19 +129,19 @@ public:
         palette1.setBrush(QPalette::Inactive, QPalette::Base, brush1);
         palette1.setBrush(QPalette::Disabled, QPalette::Base, brush1);
         titleLabel->setPalette(palette1);
-        QFont font2;
-        font2.setFamily(QString::fromUtf8("Courier New"));
-        font2.setPointSize(12);
-        font2.setBold(true);
-        font2.setWeight(75);
-        titleLabel->setFont(font2);
+        QFont font3;
+        font3.setFamily(QString::fromUtf8("Courier New"));
+        font3.setPointSize(12);
+        font3.setBold(true);
+        font3.setWeight(75);
+        titleLabel->setFont(font3);
         titleLabel->setCursor(QCursor(Qt::BlankCursor));
         titleLabel->setAlignment(Qt::AlignCenter);
         titleLabel->setReadOnly(true);
         refreshButton = new QPushButton(centralwidget);
         refreshButton->setObjectName(QString::fromUtf8("refreshButton"));
         refreshButton->setGeometry(QRect(670, 0, 221, 31));
-        outputTextArea = new QTextEdit(centralwidget);
+        outputTextArea = new MTextEdit(centralwidget);
         outputTextArea->setObjectName(QString::fromUtf8("outputTextArea"));
         outputTextArea->setGeometry(QRect(0, 0, 661, 521));
         outputTextArea->setAutoFillBackground(true);
