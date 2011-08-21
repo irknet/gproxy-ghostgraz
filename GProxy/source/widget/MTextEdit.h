@@ -4,6 +4,7 @@
 #include "gproxy.h"
 
 #include <QTextEdit>
+#include <QScrollBar>
 #include <QList>
 
 class MTextEdit : public QTextEdit

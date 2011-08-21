@@ -17,7 +17,7 @@
  */
 
 #include "gproxy.h"
-#include "Util.h"
+#include "util/Util.h"
 #include "socket.h"
 #include "commandpacket.h"
 #include "bncsutilinterface.h"
@@ -25,11 +25,6 @@
 #include "bnet.h"
 #include "gameprotocol.h"
 
-#include <algorithm>
-#include <mmsystem.h>
-#include <cctype>
-#include <direct.h>
-#include <string>
 #include <QString>
 #include <QStringList>
 #include <QByteArray>
@@ -394,8 +389,6 @@ void CBNET::ProcessPackets ()
     uint32_t NewReliableGamesReceived = 0;
     CIncomingChatEvent *ChatEvent = NULL;
     BYTEARRAY WardenData;
-    vector<CIncomingFriendList *> Friends;
-    vector<CIncomingClanList *> Clans;
 
     // process all the received packets in the m_Packets queue
     // this normally means sending some kind of response
@@ -706,8 +699,7 @@ void CBNET::ProcessPackets ()
                     break;
 
                 case CBNETProtocol::SID_FRIENDSLIST:
-                    Friends = m_Protocol->RECEIVE_SID_FRIENDSLIST(Packet->GetData());
-                    m_GProxy->friendUpdate(Friends);
+                    m_GProxy->updateFriendlist(m_Protocol->RECEIVE_SID_FRIENDSLIST(Packet->GetData()));
                     break;
 
                 case CBNETProtocol::SID_FRIENDSUPDATE:

@@ -1,4 +1,4 @@
-#include "ColoredMessage.h"
+#include "data/ColoredMessage.h"
 
 ColoredMessage::ColoredMessage () { }
 

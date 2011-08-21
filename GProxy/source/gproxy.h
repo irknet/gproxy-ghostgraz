@@ -23,9 +23,10 @@
 #include <stdint.h>
 
 #include "Config.h"
-#include "Player.h"
-#include "Slot.h"
-#include "color/ColoredMessage.h"
+#include "data/Player.h"
+#include "data/Slot.h"
+#include "data/ColoredMessage.h"
+#include "data/Friend.h"
 
 #include <fstream>
 #include <iostream>
@@ -260,9 +261,7 @@ public:
     void changeChannel(QString channel);
     void addChannelUser(QString username, QString clanTag);
     void removeChannelUser(QString username);
-    void friendUpdate(vector<CIncomingFriendList*> friendList);
-    void clearFriendlist();
-    void addFriend(QString username, bool online, QString location);
+    void updateFriendlist(QList<Friend*> friends);
     void showErrorMessage(QString errorMessage);
     // </editor-fold>
 
@@ -301,8 +300,7 @@ signals:
     void signal_changeChannel(QString);
     void signal_addChannelUser(QString, QString);
     void signal_removeChannelUser(QString);
-    void signal_clearFriendlist();
-    void signal_addFriend(QString, bool, QString);
+    void signal_updateFriendlist(QList<Friend*>);
     void signal_setGameslots(QList<Slot*>);
     void signal_showErrorMessage(QString);
     void signal_playerJoined(const ColoredMessage&);

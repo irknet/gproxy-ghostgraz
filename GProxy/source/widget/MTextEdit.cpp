@@ -21,6 +21,13 @@ void MTextEdit::appendColoredMessage(const ColoredMessage& coloredMessage)
 {
     coloredMessages.append(coloredMessage);
 
+    bool scrollbarOnBottom = false;
+    int scrollbarPosition = verticalScrollBar()->value();
+    if (scrollbarPosition == verticalScrollBar()->maximum())
+    {
+        scrollbarOnBottom = true;
+    }
+
     moveCursor(QTextCursor::End);
     setTextColor(getColor(coloredMessage));
 
@@ -39,6 +46,15 @@ void MTextEdit::appendColoredMessage(const ColoredMessage& coloredMessage)
     {
         doLineBreak = false;
         insertPlainText(message);
+    }
+
+    if (scrollbarOnBottom)
+    {
+        verticalScrollBar()->setValue(verticalScrollBar()->maximum());
+    }
+    else
+    {
+        verticalScrollBar()->setValue(scrollbarPosition);
     }
 }
 

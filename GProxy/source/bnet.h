@@ -33,8 +33,6 @@ class CCommandPacket;
 class CBNCSUtilInterface;
 class CBNETProtocol;
 // class CBNLSClient;
-class CIncomingFriendList;
-class CIncomingClanList;
 class CIncomingChatEvent;
 
 class CBNET : public QObject
@@ -87,7 +85,6 @@ private:
     bool m_LoggedIn; // if we've logged into battle.net or not
     bool m_InChat; // if we've entered chat or not (but we're not necessarily in a chat channel yet)
     bool m_InGame;
-    string friends[30];
     QString joiningChannel;
     QString currentChannel;
 
@@ -195,11 +192,6 @@ public:
     {
         m_SearchGameName = nSearchGameName;
         m_SearchGameNameTime = getElapsedSeconds();
-    }
-
-    string GetFriend(int i)
-    {
-        return friends[i];
     }
 
     // processing functions

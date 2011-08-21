@@ -19,7 +19,7 @@
 */
 
 #include "gproxy.h"
-#include "Util.h"
+#include "util/Util.h"
 #include "bncsutilinterface.h"
 #include "bncsutil/bncsutil.h"
 

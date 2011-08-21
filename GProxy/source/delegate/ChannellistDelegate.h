@@ -7,7 +7,7 @@
 #include <QColor>
 
 #include "MainGUI.h"
-#include "Player.h"
+#include "data/Player.h"
 
 class ChannellistDelegate : public QStyledItemDelegate
 {

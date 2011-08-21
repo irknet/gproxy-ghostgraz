@@ -19,6 +19,8 @@
 #ifndef BNETPROTOCOL_H
 #define BNETPROTOCOL_H
 
+#include "data/Friend.h"
+
 #include <string>
 
 using namespace std;
@@ -31,8 +33,6 @@ using namespace std;
 
 class CIncomingGameHost;
 class CIncomingChatEvent;
-class CIncomingFriendList;
-class CIncomingClanList;
 
 class CBNETProtocol
 {
@@ -191,9 +191,7 @@ public:
     bool RECEIVE_SID_AUTH_ACCOUNTLOGON(BYTEARRAY data);
     bool RECEIVE_SID_AUTH_ACCOUNTLOGONPROOF(BYTEARRAY data);
     BYTEARRAY RECEIVE_SID_WARDEN(BYTEARRAY data);
-    vector<CIncomingFriendList *> RECEIVE_SID_FRIENDSLIST(BYTEARRAY data);
-    vector<CIncomingClanList *> RECEIVE_SID_CLANMEMBERLIST(BYTEARRAY data);
-    CIncomingClanList *RECEIVE_SID_CLANMEMBERSTATUSCHANGE(BYTEARRAY data);
+    QList<Friend*> RECEIVE_SID_FRIENDSLIST(BYTEARRAY data);
     BYTEARRAY RECEIVE_SID_MESSAGEBOX(BYTEARRAY data);
 
     // send functions

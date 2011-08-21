@@ -1,4 +1,4 @@
-#include "ColorUtil.h"
+#include "util/ColorUtil.h"
 
 #include <QMetaObject>
 #include <QMetaEnum>

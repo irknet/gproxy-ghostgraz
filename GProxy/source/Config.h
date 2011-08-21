@@ -1,7 +1,7 @@
 #ifndef CONFIG_H
 #define	CONFIG_H
 
-#include "color/ColorUtil.h"
+#include "util/ColorUtil.h"
 
 #include <QFile>
 #include <QString>

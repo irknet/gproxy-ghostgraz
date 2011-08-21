@@ -1,15 +1,15 @@
 /****************************************************************************
-** Meta object code from reading C++ file 'ChannellistDelegate.h'
+** Meta object code from reading C++ file 'Product.h'
 **
-** Created: Sun 21. Aug 10:52:06 2011
+** Created: Sun 21. Aug 16:10:28 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include "delegate/ChannellistDelegate.h"
+#include "data/Product.h"
 #if !defined(Q_MOC_OUTPUT_REVISION)
-#error "The header file 'ChannellistDelegate.h' doesn't include <QObject>."
+#error "The header file 'Product.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 62
 #error "This file was generated using the moc from 4.7.3. It"
 #error "cannot be used with the include files from this version of Qt."
@@ -17,7 +17,7 @@
 #endif
 
 QT_BEGIN_MOC_NAMESPACE
-static const uint qt_meta_data_ChannellistDelegate[] = {
+static const uint qt_meta_data_Product[] = {
 
  // content:
        5,       // revision
@@ -33,35 +33,35 @@ static const uint qt_meta_data_ChannellistDelegate[] = {
        0        // eod
 };
 
-static const char qt_meta_stringdata_ChannellistDelegate[] = {
-    "ChannellistDelegate\0"
+static const char qt_meta_stringdata_Product[] = {
+    "Product\0"
 };
 
-const QMetaObject ChannellistDelegate::staticMetaObject = {
-    { &QStyledItemDelegate::staticMetaObject, qt_meta_stringdata_ChannellistDelegate,
-      qt_meta_data_ChannellistDelegate, 0 }
+const QMetaObject Product::staticMetaObject = {
+    { &QObject::staticMetaObject, qt_meta_stringdata_Product,
+      qt_meta_data_Product, 0 }
 };
 
 #ifdef Q_NO_DATA_RELOCATION
-const QMetaObject &ChannellistDelegate::getStaticMetaObject() { return staticMetaObject; }
+const QMetaObject &Product::getStaticMetaObject() { return staticMetaObject; }
 #endif //Q_NO_DATA_RELOCATION
 
-const QMetaObject *ChannellistDelegate::metaObject() const
+const QMetaObject *Product::metaObject() const
 {
     return QObject::d_ptr->metaObject ? QObject::d_ptr->metaObject : &staticMetaObject;
 }
 
-void *ChannellistDelegate::qt_metacast(const char *_clname)
+void *Product::qt_metacast(const char *_clname)
 {
     if (!_clname) return 0;
-    if (!strcmp(_clname, qt_meta_stringdata_ChannellistDelegate))
-        return static_cast<void*>(const_cast< ChannellistDelegate*>(this));
-    return QStyledItemDelegate::qt_metacast(_clname);
+    if (!strcmp(_clname, qt_meta_stringdata_Product))
+        return static_cast<void*>(const_cast< Product*>(this));
+    return QObject::qt_metacast(_clname);
 }
 
-int ChannellistDelegate::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
+int Product::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 {
-    _id = QStyledItemDelegate::qt_metacall(_c, _id, _a);
+    _id = QObject::qt_metacall(_c, _id, _a);
     if (_id < 0)
         return _id;
     return _id;

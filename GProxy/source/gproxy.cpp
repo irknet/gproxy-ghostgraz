@@ -7,7 +7,7 @@
 #include <QMutableListIterator>
 
 #include "gproxy.h"
-#include "Util.h"
+#include "util/Util.h"
 #include "socket.h"
 #include "commandpacket.h"
 #include "bnetprotocol.h"
@@ -21,10 +21,11 @@
 
 #include <signal.h>
 #include <stdlib.h>
-#include <direct.h>
-#include <sstream>
-#include <windows.h>
-#include <winsock.h>
+
+#ifdef WIN32
+    #include <windows.h>
+    #include <winsock.h>
+#endif
 
 #undef ERROR /* Undefine ERROR macro. Needed for ColoredMessage::ERROR. */
 
@@ -304,6 +305,7 @@ CGProxy::~CGProxy ()
 void CGProxy::connectSignalsAndSlots()
 {
     qRegisterMetaType< QList<Slot*> >("QList<Slot*>");
+    qRegisterMetaType< QList<Friend*> >("QList<Friend*>");
     qRegisterMetaType<ColoredMessage>("ColoredMessage");
 
     connect(this, SIGNAL(signal_startUpdateThread()),
@@ -321,11 +323,8 @@ void CGProxy::connectSignalsAndSlots()
     connect(this, SIGNAL(signal_removeChannelUser(QString)),
             mainGUI, SLOT(removeChannelUser(QString)), Qt::QueuedConnection);
 
-    connect(this, SIGNAL(signal_clearFriendlist()),
-            mainGUI, SLOT(clearFriendlist()), Qt::QueuedConnection);
-
-    connect(this, SIGNAL(signal_addFriend(QString, bool, QString)),
-            mainGUI, SLOT(addFriend(QString, bool, QString)), Qt::QueuedConnection);
+    connect(this, SIGNAL(signal_updateFriendlist(QList<Friend*>)),
+            mainGUI, SLOT(updateFriendlist(QList<Friend*>)), Qt::QueuedConnection);
 
     connect(this, SIGNAL(signal_setGameslots(QList<Slot*>)),
             mainGUI, SLOT(setGameslots(QList<Slot*>)), Qt::QueuedConnection);
@@ -588,42 +587,9 @@ void CGProxy::removeChannelUser (QString username)
     emit signal_removeChannelUser(username);
 }
 
-/**
- * Calls clearFriendlist() and addFriend(QString username, bool online, QString location) for every friend.
- *
- * @param friendList vector<CIncomingFriendList*>
- */
-void CGProxy::friendUpdate (vector<CIncomingFriendList*> friendList)
+void CGProxy::updateFriendlist(QList<Friend*> friends)
 {
-    clearFriendlist();
-
-    for (vector<CIncomingFriendList*> ::iterator it = friendList.begin();
-            it != friendList.end(); it++)
-    {
-        addFriend(QString::fromStdString(((*it))->GetAccount()),
-                (((*it))->GetArea() != 0),
-                QString::fromStdString((*it)->GetLocation()));
-    }
-}
-
-/**
- * Emits the signal <code>signal_clearFriendlist</code>.
- *
- * @see MainGUI#clearFriendlist
- */
-void CGProxy::clearFriendlist ()
-{
-    emit signal_clearFriendlist();
-}
-
-/**
- * Emits the signal <code>signal_addFriend</code>.
- *
- * @see MainGUI#addFriend
- */
-void CGProxy::addFriend (QString username, bool online, QString location)
-{
-    emit signal_addFriend(username, online, location);
+    emit signal_updateFriendlist(friends);
 }
 
 /**
@@ -1144,14 +1110,14 @@ void CGProxy::ExtractLocalPackets ()
                                 if (Flag == 16)
                                 {
                                     // Chat message
-                                    BYTEARRAY Message = Util::extractCString(Data, i);
+                                    BYTEARRAY Message = Util::extractNTCString(Data, i);
                                     MessageString = string(Message.begin(), Message.end());
                                 }
                                 else if (Flag == 32)
                                 {
                                     // Extra flags
                                     ExtraFlags = BYTEARRAY(Data.begin() + i, Data.begin() + i + 4);
-                                    BYTEARRAY Message = Util::extractCString(Data, i + 4);
+                                    BYTEARRAY Message = Util::extractNTCString(Data, i + 4);
                                     MessageString = string(Message.begin(), Message.end());
                                 }
 
@@ -1489,7 +1455,7 @@ void CGProxy::ProcessLocalPackets ()
                     unsigned char Unknown = Data[12];
                     uint16_t ListenPort = Util::byteArrayToUInt16(Data, false, 13);
                     uint32_t PeerKey = Util::byteArrayToUInt32(Data, false, 15);
-                    BYTEARRAY Name = Util::extractCString(Data, 19);
+                    BYTEARRAY Name = Util::extractNTCString(Data, 19);
                     string NameString = string(Name.begin(), Name.end());
                     BYTEARRAY Remainder = BYTEARRAY(Data.begin() + Name.size() + 20, Data.end());
 
@@ -1665,7 +1631,7 @@ void CGProxy::ProcessRemotePackets ()
                 if (Flag == 16)
                 {
                     // Chat message
-                    message = Util::extractQString(Data, i);
+                    message = Util::extractNTString(Data, i);
                 }
                 else if (Flag >= 17 && Flag <= 20)
                 {
@@ -1675,7 +1641,7 @@ void CGProxy::ProcessRemotePackets ()
                 {
                     // Extra flags
                     ExtraFlags = BYTEARRAY(Data.begin() + i, Data.begin() + i + 4);
-                    message = Util::extractQString(Data, i + 4);
+                    message = Util::extractNTString(Data, i + 4);
                 }
 
                 if (Flag == 16 || Flag == 32) // Chat message
@@ -1912,7 +1878,7 @@ void CGProxy::ProcessRemotePackets ()
                 BYTEARRAY data = Packet->GetData();
 
                 int playerId = (int) data[8];
-                QString playername = Util::extractQString(data, 9);
+                QString playername = Util::extractNTString(data, 9);
                 ColoredMessage name(playername, ColoredMessage::USERCOLOR);
                 if(playername.startsWith("|c", Qt::CaseInsensitive))
                 {
@@ -1937,7 +1903,7 @@ void CGProxy::ProcessRemotePackets ()
             {
                 BYTEARRAY data = Packet->GetData();
 
-                BYTEARRAY path = Util::extractCString(data, 8);
+                BYTEARRAY path = Util::extractNTCString(data, 8);
                 string filePath = string(path.begin(), path.end());
 
                 transform(filePath.begin(), filePath.end(), filePath.begin(), (int(*)(int))tolower);

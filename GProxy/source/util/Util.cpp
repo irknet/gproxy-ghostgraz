@@ -16,7 +16,7 @@
 
 */
 
-#include "Util.h"
+#include "util/Util.h"
 
 #include <sys/stat.h>
 #include <QByteArray>
@@ -166,7 +166,7 @@ void Util::appendByteArray( BYTEARRAY &b, uint32_t i, bool reverse )
 	Util::appendByteArray( b, Util::createByteArray( i, reverse ) );
 }
 
-BYTEARRAY Util::extractCString( BYTEARRAY &b, unsigned int start )
+BYTEARRAY Util::extractNTCString( BYTEARRAY &b, unsigned int start )
 {
 	// start searching the byte array at position 'start' for the first null value
 	// if found, return the subarray from 'start' to the null value but not including the null value
@@ -187,7 +187,7 @@ BYTEARRAY Util::extractCString( BYTEARRAY &b, unsigned int start )
 	return BYTEARRAY( );
 }
 
-QString Util::extractQString(BYTEARRAY &b, unsigned int start)
+QString Util::extractNTString(BYTEARRAY &b, unsigned int start)
 {
     if (start < b.size())
     {
@@ -203,11 +203,50 @@ QString Util::extractQString(BYTEARRAY &b, unsigned int start)
         }
 
         // no null value found, return the rest of the byte array
+        return QTextCodec::codecForName("UTF-8")->toUnicode(encodedString);
+    }
+
+    return "";
+}
+
+QString Util::extractNTString(BYTEARRAY &b, unsigned int start, unsigned int& nextByte)
+{
+    if (start < b.size())
+    {
+        QByteArray encodedString;
+        for (unsigned int i = start; i < b.size(); ++i)
+        {
+            if (b[i] == 0)
+            {
+                nextByte = i + 1;
+                return QTextCodec::codecForName("UTF-8")->toUnicode(encodedString);
+            }
+
+            encodedString += b.at(i);
+        }
+
+        // no null value found, return the rest of the byte array
+        nextByte = b.size() + 1;
+        return QTextCodec::codecForName("UTF-8")->toUnicode(encodedString);
+    }
+
+    return "";
+}
+
+QString Util::extractString(BYTEARRAY &b, unsigned int start, unsigned int length)
+{
+    if (start + length < b.size())
+    {
+        QByteArray encodedString;
+        for (unsigned int i = start; i < start + length; ++i)
+        {
+            encodedString += b.at(i);
+        }
 
         return QTextCodec::codecForName("UTF-8")->toUnicode(encodedString);
     }
 
-    return QString();
+    return "";
 }
 
 unsigned char Util::extractHex( BYTEARRAY &b, unsigned int start, bool reverse )
@@ -634,4 +673,12 @@ BYTEARRAY Util::decodeStatString( BYTEARRAY &data )
 	}
 
 	return Result;
+}
+
+QString Util::revertString(const QString& s)
+{
+    QByteArray bytes = s.toAscii();
+    char* data = bytes.data();
+    std::reverse(data, data + s.length());
+    return QString(data);
 }

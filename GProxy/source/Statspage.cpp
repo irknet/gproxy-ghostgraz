@@ -1,5 +1,5 @@
 #include "Statspage.h"
-#include "color/ColoredMessage.h"
+#include "data/ColoredMessage.h"
 
 #include <QList>
 #include <QUrl>

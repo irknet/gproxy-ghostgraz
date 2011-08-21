@@ -1,13 +1,13 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'ColoredMessage.h'
 **
-** Created: Fri 19. Aug 17:28:50 2011
+** Created: Sun 21. Aug 10:52:01 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include "color/ColoredMessage.h"
+#include "data/ColoredMessage.h"
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'ColoredMessage.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 62

@@ -3,7 +3,7 @@
 
 #include "ui_GhostGrazLogininformationDialog.h"
 #include "Config.h"
-#include "statspage/Statspage.h"
+#include "Statspage.h"
 
 class GhostGrazLogininformationDialog : public QDialog
 {

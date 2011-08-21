@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'MainGUI.h'
 **
-** Created: Fri 19. Aug 17:28:41 2011
+** Created: Sun 21. Aug 20:04:56 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_MainGUI[] = {
        5,       // revision
        0,       // classname
        0,    0, // classinfo
-      38,   14, // methods
+      36,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -39,36 +39,34 @@ static const uint qt_meta_data_MainGUI[] = {
      287,  279,    8,    8, 0x0a,
      327,  310,    8,    8, 0x0a,
      368,  359,    8,    8, 0x0a,
-     395,    8,    8,    8, 0x0a,
-     438,  413,    8,    8, 0x0a,
-     470,    8,    8,    8, 0x0a,
-     513,  486,    8,    8, 0x0a,
-     555,  546,    8,    8, 0x0a,
-     595,  582,    8,    8, 0x0a,
-     634,  621,    8,    8, 0x0a,
-     657,    8,    8,    8, 0x2a,
-     687,  676,    8,    8, 0x0a,
-     716,    8,    8,    8, 0x0a,
-     737,    8,    8,    8, 0x0a,
-     762,  751,    8,    8, 0x0a,
-     797,  787,    8,    8, 0x0a,
-     820,    8,    8,    8, 0x08,
-     830,    8,    8,    8, 0x08,
-     842,    8,    8,    8, 0x08,
-     871,    8,    8,    8, 0x08,
-     897,    8,    8,    8, 0x08,
-     926,    8,    8,    8, 0x08,
-     955,    8,    8,    8, 0x08,
-     991,    8,    8,    8, 0x08,
-    1018,    8,    8,    8, 0x08,
-    1043,    8,    8,    8, 0x08,
-    1065,    8,    8,    8, 0x08,
-    1081,    8,    8,    8, 0x08,
-    1120,    8,    8,    8, 0x08,
-    1158,    8,    8,    8, 0x08,
-    1183,    8,    8,    8, 0x08,
-    1218,    8,    8,    8, 0x08,
-    1263, 1251,    8,    8, 0x08,
+     403,  395,    8,    8, 0x0a,
+     436,    8,    8,    8, 0x0a,
+     479,  452,    8,    8, 0x0a,
+     521,  512,    8,    8, 0x0a,
+     561,  548,    8,    8, 0x0a,
+     600,  587,    8,    8, 0x0a,
+     623,    8,    8,    8, 0x2a,
+     653,  642,    8,    8, 0x0a,
+     682,    8,    8,    8, 0x0a,
+     703,    8,    8,    8, 0x0a,
+     728,  717,    8,    8, 0x0a,
+     763,  753,    8,    8, 0x0a,
+     786,    8,    8,    8, 0x08,
+     796,    8,    8,    8, 0x08,
+     808,    8,    8,    8, 0x08,
+     837,    8,    8,    8, 0x08,
+     863,    8,    8,    8, 0x08,
+     892,    8,    8,    8, 0x08,
+     921,    8,    8,    8, 0x08,
+     957,    8,    8,    8, 0x08,
+     982,    8,    8,    8, 0x08,
+    1004,    8,    8,    8, 0x08,
+    1020,    8,    8,    8, 0x08,
+    1059,    8,    8,    8, 0x08,
+    1097,    8,    8,    8, 0x08,
+    1122,    8,    8,    8, 0x08,
+    1157,    8,    8,    8, 0x08,
+    1202, 1190,    8,    8, 0x08,
 
        0        // eod
 };
@@ -84,8 +82,7 @@ static const char qt_meta_stringdata_MainGUI[] = {
     "channel\0changeChannel(QString)\0"
     "username,clanTag\0addChannelUser(QString,QString)\0"
     "username\0removeChannelUser(QString)\0"
-    "clearFriendlist()\0username,online,location\0"
-    "addFriend(QString,bool,QString)\0"
+    "friends\0updateFriendlist(QList<Friend*>)\0"
     "clearGamelist()\0botname,gamename,openSlots\0"
     "addGame(QString,QString,QString)\0"
     "slotList\0setGameslots(QList<Slot*>)\0"
@@ -102,7 +99,6 @@ static const char qt_meta_stringdata_MainGUI[] = {
     "onChannelContextMenu(QPoint)\0"
     "onFriendsContextMenu(QPoint)\0"
     "onGameListItemClicked(QMouseEvent*)\0"
-    "onOutputFieldSliderMoved()\0"
     "onRefreshButtonClicked()\0updateRefreshButton()\0"
     "startWarcraft()\0onChannellistItemClicked(QMouseEvent*)\0"
     "onFriendlistItemClicked(QMouseEvent*)\0"
@@ -149,39 +145,37 @@ int MainGUI::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         case 5: changeChannel((*reinterpret_cast< QString(*)>(_a[1]))); break;
         case 6: addChannelUser((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2]))); break;
         case 7: removeChannelUser((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 8: clearFriendlist(); break;
-        case 9: addFriend((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2])),(*reinterpret_cast< QString(*)>(_a[3]))); break;
-        case 10: clearGamelist(); break;
-        case 11: addGame((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2])),(*reinterpret_cast< QString(*)>(_a[3]))); break;
-        case 12: setGameslots((*reinterpret_cast< QList<Slot*>(*)>(_a[1]))); break;
-        case 13: showErrorMessage((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 14: showConfigDialog((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 15: showConfigDialog(); break;
-        case 16: playerJoined((*reinterpret_cast< const ColoredMessage(*)>(_a[1]))); break;
-        case 17: initConfigurations(); break;
-        case 18: applyConfig(); break;
-        case 19: setColor((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QColor(*)>(_a[2]))); break;
-        case 20: setFont((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QFont(*)>(_a[2]))); break;
-        case 21: onClose(); break;
-        case 22: onRestart(); break;
-        case 23: onInputTextAreaTextChanged(); break;
-        case 24: onTitleLabelTextChanged(); break;
-        case 25: onChannelContextMenu((*reinterpret_cast< const QPoint(*)>(_a[1]))); break;
-        case 26: onFriendsContextMenu((*reinterpret_cast< const QPoint(*)>(_a[1]))); break;
-        case 27: onGameListItemClicked((*reinterpret_cast< QMouseEvent*(*)>(_a[1]))); break;
-        case 28: onOutputFieldSliderMoved(); break;
-        case 29: onRefreshButtonClicked(); break;
-        case 30: updateRefreshButton(); break;
-        case 31: startWarcraft(); break;
-        case 32: onChannellistItemClicked((*reinterpret_cast< QMouseEvent*(*)>(_a[1]))); break;
-        case 33: onFriendlistItemClicked((*reinterpret_cast< QMouseEvent*(*)>(_a[1]))); break;
-        case 34: statspageLoginFinished(); break;
-        case 35: receivedPlayerInformation((*reinterpret_cast< Player*(*)>(_a[1]))); break;
-        case 36: onAdminlistReceived((*reinterpret_cast< QStringList(*)>(_a[1]))); break;
-        case 37: userColorChanged((*reinterpret_cast< MColorDialog*(*)>(_a[1]))); break;
+        case 8: updateFriendlist((*reinterpret_cast< QList<Friend*>(*)>(_a[1]))); break;
+        case 9: clearGamelist(); break;
+        case 10: addGame((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2])),(*reinterpret_cast< QString(*)>(_a[3]))); break;
+        case 11: setGameslots((*reinterpret_cast< QList<Slot*>(*)>(_a[1]))); break;
+        case 12: showErrorMessage((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 13: showConfigDialog((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 14: showConfigDialog(); break;
+        case 15: playerJoined((*reinterpret_cast< const ColoredMessage(*)>(_a[1]))); break;
+        case 16: initConfigurations(); break;
+        case 17: applyConfig(); break;
+        case 18: setColor((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QColor(*)>(_a[2]))); break;
+        case 19: setFont((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QFont(*)>(_a[2]))); break;
+        case 20: onClose(); break;
+        case 21: onRestart(); break;
+        case 22: onInputTextAreaTextChanged(); break;
+        case 23: onTitleLabelTextChanged(); break;
+        case 24: onChannelContextMenu((*reinterpret_cast< const QPoint(*)>(_a[1]))); break;
+        case 25: onFriendsContextMenu((*reinterpret_cast< const QPoint(*)>(_a[1]))); break;
+        case 26: onGameListItemClicked((*reinterpret_cast< QMouseEvent*(*)>(_a[1]))); break;
+        case 27: onRefreshButtonClicked(); break;
+        case 28: updateRefreshButton(); break;
+        case 29: startWarcraft(); break;
+        case 30: onChannellistItemClicked((*reinterpret_cast< QMouseEvent*(*)>(_a[1]))); break;
+        case 31: onFriendlistItemClicked((*reinterpret_cast< QMouseEvent*(*)>(_a[1]))); break;
+        case 32: statspageLoginFinished(); break;
+        case 33: receivedPlayerInformation((*reinterpret_cast< Player*(*)>(_a[1]))); break;
+        case 34: onAdminlistReceived((*reinterpret_cast< QStringList(*)>(_a[1]))); break;
+        case 35: userColorChanged((*reinterpret_cast< MColorDialog*(*)>(_a[1]))); break;
         default: ;
         }
-        _id -= 38;
+        _id -= 36;
     }
     return _id;
 }

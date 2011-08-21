@@ -5,9 +5,9 @@
 #include "gproxy.h"
 #include "thread/DownloadThread.h"
 #include "thread/GproxyUpdateThread.h"
-#include "statspage/Statspage.h"
-#include "Player.h"
-#include "Slot.h"
+#include "Statspage.h"
+#include "data/Player.h"
+#include "data/Slot.h"
 #include "widget/MColorDialog.h"
 
 #include <QString>
@@ -39,8 +39,7 @@ public slots:
     void changeChannel(QString channel);
     void addChannelUser(QString username, QString clanTag);
     void removeChannelUser(QString username);
-    void clearFriendlist();
-    void addFriend(QString username, bool online, QString location);
+    void updateFriendlist(QList<Friend*> friends);
     void clearGamelist();
     void addGame(QString botname, QString gamename, QString openSlots);
     void setGameslots(QList<Slot*> slotList);
@@ -70,7 +69,6 @@ private:
     void processInput(const QString& input);
     void addColor(QListWidgetItem* item);
     void addTooltip(QListWidgetItem* item);
-    void sortFriendList();
 
 private slots:
     void onClose();
@@ -80,7 +78,6 @@ private slots:
     void onChannelContextMenu(const QPoint&);
     void onFriendsContextMenu(const QPoint&);
     void onGameListItemClicked(QMouseEvent*);
-    void onOutputFieldSliderMoved();
     void onRefreshButtonClicked();
     void updateRefreshButton();
     void startWarcraft();

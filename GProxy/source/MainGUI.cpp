@@ -6,7 +6,7 @@
 #include "socket.h"
 #include "ConfigGUI.h"
 #include "GhostGrazLogininformationDialog.h"
-#include "Util.h"
+#include "util/Util.h"
 
 #include <QDesktopWidget>
 #include <QScrollBar>
@@ -160,8 +160,6 @@ void MainGUI::initLayout ()
 void MainGUI::initSlots ()
 {
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(onClose()));
-    connect(widget.outputTextArea->verticalScrollBar(), SIGNAL(rangeChanged(int, int)),
-            this, SLOT(onOutputFieldSliderMoved()), Qt::QueuedConnection);
     connect(downloadThread, SIGNAL(signal_clearGamelist()),
             this, SLOT(clearGamelist()), Qt::QueuedConnection);
     connect(downloadThread, SIGNAL(signal_addGame(QString, QString, QString)),
@@ -545,18 +543,6 @@ void MainGUI::onGameListItemClicked (QMouseEvent *mouseEvent)
 }
 
 /**
- * Slot which is emitted when the slider of the outputTextArea scroll has moved.
- */
-void MainGUI::onOutputFieldSliderMoved ()
-{
-    QScrollBar* vsb = widget.outputTextArea->verticalScrollBar();
-    if (vsb->value() >= (vsb->maximum() - vsb->singleStep() * 2))
-    {
-        vsb->setValue(vsb->maximum());
-    }
-}
-
-/**
  * Slot which is emitted when the refresh button was clicked.
  */
 void MainGUI::onRefreshButtonClicked ()
@@ -893,6 +879,7 @@ void MainGUI::processInput (const QString& input)
     else if (command.startsWith("/test"))
     {
         // Isn't it obvious?
+        addMessage(ColoredMessage("TEST\nTest\ntest"));
     }
     else if (command.startsWith("/p ") || command.startsWith("/phrase "))
     {
@@ -1045,23 +1032,6 @@ void MainGUI::addTooltip(QListWidgetItem* item)
 }
 
 /**
- * Sorts the friendlist to display online users on top.
- */
-void MainGUI::sortFriendList ()
-{
-    for (int currentRow = widget.friendList->count() - 1; currentRow > 0; --currentRow)
-    {
-        QListWidgetItem* currentItem = widget.friendList->item(currentRow);
-        if (currentItem->foreground() == Qt::green)
-        {
-            widget.friendList->takeItem(currentRow);
-            widget.friendList->insertItem(currentRow - 1, currentItem);
-            widget.friendList->setCurrentRow(currentRow - 1);
-        }
-    }
-}
-
-/**
  * Adds a user to the channellist.
  *
  * @param username The name of the user.
@@ -1137,38 +1107,49 @@ void MainGUI::changeChannel (QString channel)
 }
 
 /**
- * Removes and deletes every item from the friendlist.
+ * Slot which is emiited when the friendlist gets updated.
+ *
+ * @param friends The list of friends.
  */
-void MainGUI::clearFriendlist ()
+void MainGUI::updateFriendlist(QList<Friend*> friends)
 {
     widget.friendList->clear();
-}
 
-/**
- * Adds a friend to the friendlist.
- *
- * @param username The name of the friend.
- * @param online The online status.
- * @param location The current location of this friend.
- */
-void MainGUI::addFriend (QString username, bool online, QString location)
-{
-    QListWidgetItem *newItem = new QListWidgetItem();
-    newItem->setText(username);
-    newItem->setToolTip(location);
-
-    if (online)
+    foreach(Friend* f, friends)
     {
-        newItem->setForeground(Qt::green);
-    }
-    else
-    {
+        QListWidgetItem* item = new QListWidgetItem();
+        item->setText(f->getName());
 
-        newItem->setForeground(Qt::red);
-    }
+        switch (f->getLocation())
+        {
+            case Friend::IN_CHANNEL:
+                item->setToolTip("In channel: " + f->getLocationName());
+                break;
+            case Friend::IN_PUBLIC_GAME:
+                item->setToolTip("In public game: " + f->getLocationName());
+                break;
+            case Friend::IN_UNKNOWN_PRIVATE_GAME:
+                item->setToolTip("In private game.");
+                break;
+            case Friend::IN_PRIVATE_GAME:
+                item->setToolTip("In private game: " + f->getLocationName());
+                break;
+            default:
+                // Do nothing.
+                break;
+        }
 
-    widget.friendList->addItem(newItem);
-    sortFriendList();
+        if (f->getStatus() != Friend::OFFLINE)
+        {
+            item->setForeground(Qt::green);
+            widget.friendList->insertItem(0, item);
+        }
+        else
+        {
+            item->setForeground(Qt::red);
+            widget.friendList->addItem(item);
+        }
+    }
 }
 
 /**

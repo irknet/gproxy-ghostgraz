@@ -5,7 +5,7 @@
 #include <QMetaType>
 #include <QString>
 
-#include "Player.h"
+#include "data/Player.h"
 
 class Slot : public QObject
 {

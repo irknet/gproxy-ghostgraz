@@ -17,7 +17,7 @@
 */
 
 #include "gproxy.h"
-#include "Util.h"
+#include "util/Util.h"
 #include "bnetprotocol.h"
 
 #include <QTextCodec>
@@ -113,13 +113,13 @@ vector<CIncomingGameHost *> CBNETProtocol :: RECEIVE_SID_GETADVLISTEX( BYTEARRAY
 			i += 4;
 			uint32_t ElapsedTime = Util::byteArrayToUInt32( data, false, i );
 			i += 4;
-			BYTEARRAY GameName = Util::extractCString( data, i );
+			BYTEARRAY GameName = Util::extractNTCString( data, i );
 			i += GameName.size( ) + 1;
 
 			if( data.size( ) < i + 1 )
 				break;
 
-			BYTEARRAY GamePassword = Util::extractCString( data, i );
+			BYTEARRAY GamePassword = Util::extractNTCString( data, i );
 			i += GamePassword.size( ) + 1;
 
 			if( data.size( ) < i + 10 )
@@ -154,7 +154,7 @@ vector<CIncomingGameHost *> CBNETProtocol :: RECEIVE_SID_GETADVLISTEX( BYTEARRAY
 			}
 
 			i += 8;
-			BYTEARRAY StatString = Util::extractCString( data, i );
+			BYTEARRAY StatString = Util::extractNTCString( data, i );
 			i += StatString.size( ) + 1;
 
 			Games.push_back( new CIncomingGameHost( GameType, Parameter, LanguageID, Port, IP, Status, ElapsedTime, string( GameName.begin( ), GameName.end( ) ), SlotsTotal, HostCounter, StatString ) );
@@ -175,7 +175,7 @@ bool CBNETProtocol :: RECEIVE_SID_ENTERCHAT( BYTEARRAY data )
 
 	if( ValidateLength( data ) && data.size( ) >= 5 )
 	{
-		m_UniqueName = Util::extractCString( data, 4 );
+		m_UniqueName = Util::extractNTCString( data, 4 );
 		return true;
 	}
 
@@ -200,8 +200,8 @@ CIncomingChatEvent *CBNETProtocol :: RECEIVE_SID_CHATEVENT( BYTEARRAY data )
 	{
 		BYTEARRAY EventID = BYTEARRAY( data.begin( ) + 4, data.begin( ) + 8 );
 		BYTEARRAY Ping = BYTEARRAY( data.begin( ) + 12, data.begin( ) + 16 );
-		BYTEARRAY User = Util::extractCString( data, 28 );
-                QString message = Util::extractQString( data, User.size( ) + 29 );
+		BYTEARRAY User = Util::extractNTCString( data, 28 );
+                QString message = Util::extractNTString( data, User.size( ) + 29 );
 
 		switch( Util::byteArrayToUInt32( EventID, false ) )
 		{
@@ -316,8 +316,8 @@ bool CBNETProtocol :: RECEIVE_SID_AUTH_INFO( BYTEARRAY data )
 		m_LogonType = BYTEARRAY( data.begin( ) + 4, data.begin( ) + 8 );
 		m_ServerToken = BYTEARRAY( data.begin( ) + 8, data.begin( ) + 12 );
 		m_MPQFileTime = BYTEARRAY( data.begin( ) + 16, data.begin( ) + 24 );
-		m_IX86VerFileName = Util::extractCString( data, 24 );
-		m_ValueStringFormula = Util::extractCString( data, m_IX86VerFileName.size( ) + 25 );
+		m_IX86VerFileName = Util::extractNTCString( data, 24 );
+		m_ValueStringFormula = Util::extractNTCString( data, m_IX86VerFileName.size( ) + 25 );
 		return true;
 	}
 
@@ -337,7 +337,7 @@ bool CBNETProtocol :: RECEIVE_SID_AUTH_CHECK( BYTEARRAY data )
 	if( ValidateLength( data ) && data.size( ) >= 9 )
 	{
 		m_KeyState = BYTEARRAY( data.begin( ) + 4, data.begin( ) + 8 );
-		m_KeyStateDescription = Util::extractCString( data, 8 );
+		m_KeyStateDescription = Util::extractNTCString( data, 8 );
 
 		if( Util::byteArrayToUInt32( m_KeyState, false ) == KR_GOOD )
 			return true;
@@ -408,138 +408,40 @@ BYTEARRAY CBNETProtocol :: RECEIVE_SID_WARDEN( BYTEARRAY data )
 	return BYTEARRAY( );
 }
 
-vector<CIncomingFriendList *> CBNETProtocol :: RECEIVE_SID_FRIENDSLIST( BYTEARRAY data )
+QList<Friend*> CBNETProtocol :: RECEIVE_SID_FRIENDSLIST( BYTEARRAY data )
 {
-	// DEBUG_Print( "RECEIVED SID_FRIENDSLIST" );
-	// DEBUG_Print( data );
+    // DEBUG_Print( "RECEIVED SID_FRIENDSLIST" );
+    // DEBUG_Print( data );
 
-	// 2 bytes					-> Header
-	// 2 bytes					-> Length
-	// 1 byte					-> Total
-	// for( 1 .. Total )
-	//		null term string	-> Account
-	//		1 byte				-> Status
-	//		1 byte				-> Area
-	//		4 bytes				-> ???
-	//		null term string	-> Location
+    QList<Friend*> friends;
 
-	vector<CIncomingFriendList *> Friends;
+    if(ValidateLength(data) && data.size() >= 5)
+    {
+        unsigned char numberOfEntries = data[4];
+        unsigned int i = 5;
 
-	if( ValidateLength( data ) && data.size( ) >= 5 )
-	{
-		unsigned int i = 5;
-		unsigned char Total = data[4];
+        while(numberOfEntries > 0)
+        {
+            QString name = Util::extractNTString(data, i, i);
+            unsigned char location = data[i++];
+            unsigned char status = data[i++];
+            QString productCode = Util::revertString(Util::extractString(data, i, 4));
+            i += 4;
+            QString locationName = Util::extractNTString(data, i, i);
 
-		while( Total > 0 )
-		{
-			Total--;
+            Friend* f = new Friend();
+            f->setName(name);
+            f->setLocation(location);
+            f->setStatus(status);
+            f->setProduct(Product(productCode));
+            f->setLocationName(locationName);
+            friends.append(f);
 
-			if( data.size( ) < i + 1 )
-				break;
+            numberOfEntries--;
+        }
+    }
 
-			BYTEARRAY Account = Util::extractCString( data, i );
-			i += Account.size( ) + 1;
-
-			if( data.size( ) < i + 7 )
-				break;
-
-			unsigned char Status = data[i];
-			unsigned char Area = data[i + 1];
-			i += 6;
-			BYTEARRAY Location = Util::extractCString( data, i );
-			i += Location.size( ) + 1;
-			Friends.push_back( new CIncomingFriendList(	string( Account.begin( ), Account.end( ) ),
-														Status,
-														Area,
-														string( Location.begin( ), Location.end( ) ) ) );
-		}
-	}
-	return Friends;
-}
-
-vector<CIncomingClanList *> CBNETProtocol :: RECEIVE_SID_CLANMEMBERLIST( BYTEARRAY data )
-{
-	// DEBUG_Print( "RECEIVED SID_CLANMEMBERLIST" );
-	// DEBUG_Print( data );
-
-	// 2 bytes					-> Header
-	// 2 bytes					-> Length
-	// 4 bytes					-> ???
-	// 1 byte					-> Total
-	// for( 1 .. Total )
-	//		null term string	-> Name
-	//		1 byte				-> Rank
-	//		1 byte				-> Status
-	//		null term string	-> Location
-
-	vector<CIncomingClanList *> ClanList;
-
-	if( ValidateLength( data ) && data.size( ) >= 9 )
-	{
-		unsigned int i = 9;
-		unsigned char Total = data[8];
-
-		while( Total > 0 )
-		{
-			Total--;
-
-			if( data.size( ) < i + 1 )
-				break;
-
-			BYTEARRAY Name = Util::extractCString( data, i );
-			i += Name.size( ) + 1;
-
-			if( data.size( ) < i + 3 )
-				break;
-
-			unsigned char Rank = data[i];
-			unsigned char Status = data[i + 1];
-			i += 2;
-
-			// in the original VB source the location string is read but discarded, so that's what I do here
-
-			BYTEARRAY Location = Util::extractCString( data, i );
-			i += Location.size( ) + 1;
-			ClanList.push_back( new CIncomingClanList(	string( Name.begin( ), Name.end( ) ),
-														Rank,
-														Status ) );
-		}
-	}
-
-	return ClanList;
-}
-
-CIncomingClanList *CBNETProtocol :: RECEIVE_SID_CLANMEMBERSTATUSCHANGE( BYTEARRAY data )
-{
-	// DEBUG_Print( "RECEIVED SID_CLANMEMBERSTATUSCHANGE" );
-	// DEBUG_Print( data );
-
-	// 2 bytes					-> Header
-	// 2 bytes					-> Length
-	// null terminated string	-> Name
-	// 1 byte					-> Rank
-	// 1 byte					-> Status
-	// null terminated string	-> Location
-
-	if( ValidateLength( data ) && data.size( ) >= 5 )
-	{
-		BYTEARRAY Name = Util::extractCString( data, 4 );
-
-		if( data.size( ) >= Name.size( ) + 7 )
-		{
-			unsigned char Rank = data[Name.size( ) + 5];
-			unsigned char Status = data[Name.size( ) + 6];
-
-			// in the original VB source the location string is read but discarded, so that's what I do here
-
-			BYTEARRAY Location = Util::extractCString( data, Name.size( ) + 7 );
-			return new CIncomingClanList(	string( Name.begin( ), Name.end( ) ),
-											Rank,
-											Status );
-		}
-	}
-
-	return NULL;
+    return friends;
 }
 
 BYTEARRAY CBNETProtocol::RECEIVE_SID_MESSAGEBOX (BYTEARRAY data)
@@ -1113,7 +1015,7 @@ CIncomingGameHost :: CIncomingGameHost( uint16_t nGameType, uint16_t nParameter,
 		MapWidth = BYTEARRAY( StatString.begin( ) + 5, StatString.begin( ) + 7 );
 		MapHeight = BYTEARRAY( StatString.begin( ) + 7, StatString.begin( ) + 9 );
 		MapCRC = BYTEARRAY( StatString.begin( ) + 9, StatString.begin( ) + 13 );
-		MapPath = Util::extractCString( StatString, 13 );
+		MapPath = Util::extractNTCString( StatString, 13 );
 		i += MapPath.size( ) + 1;
 
 		m_MapFlags = Util::byteArrayToUInt32( MapFlags, false );
@@ -1125,7 +1027,7 @@ CIncomingGameHost :: CIncomingGameHost( uint16_t nGameType, uint16_t nParameter,
 
 		if( StatString.size( ) >= i + 1 )
 		{
-			HostName = Util::extractCString( StatString, i );
+			HostName = Util::extractNTCString( StatString, i );
 			m_HostName = string( HostName.begin( ), HostName.end( ) );
 		}
 	}
@@ -1169,125 +1071,4 @@ CIncomingChatEvent :: CIncomingChatEvent( CBNETProtocol :: IncomingChatEvent nCh
 CIncomingChatEvent :: ~CIncomingChatEvent( )
 {
 
-}
-
-//
-// CIncomingFriendList
-//
-
-CIncomingFriendList :: CIncomingFriendList( string nAccount, unsigned char nStatus, unsigned char nArea, string nLocation )
-{
-	m_Account = nAccount;
-	m_Status = nStatus;
-	m_Area = nArea;
-	m_Location = nLocation;
-}
-
-CIncomingFriendList :: ~CIncomingFriendList( )
-{
-
-}
-
-string CIncomingFriendList :: GetDescription( )
-{
-	string Description;
-	Description += GetAccount( ) + "\n";
-	Description += ExtractStatus( GetStatus( ) ) + "\n";
-	Description += ExtractArea( GetArea( ) ) + "\n";
-	Description += ExtractLocation( GetLocation( ) ) + "\n\n";
-	return Description;
-}
-
-string CIncomingFriendList :: ExtractStatus( unsigned char status )
-{
-	string Result;
-
-	if( status & 1 )
-		Result += "<Mutual>";
-
-	if( status & 2 )
-		Result += "<DND>";
-
-	if( status & 4 )
-		Result += "<Away>";
-
-	if( Result.empty( ) )
-		Result = "<None>";
-
-	return Result;
-}
-
-string CIncomingFriendList :: ExtractArea( unsigned char area )
-{
-	switch( area )
-	{
-	case 0: return "<Offline>";
-	case 1: return "<No Channel>";
-	case 2: return "<In Channel>";
-	case 3: return "<Public Game>";
-	case 4: return "<Private Game>";
-	case 5: return "<Private Game>";
-	}
-
-	return "<Unknown>";
-}
-
-string CIncomingFriendList :: ExtractLocation( string location )
-{
-	string Result;
-
-	if( location.substr( 0, 4 ) == "PX3W" )
-		Result = location.substr( 4 );
-
-	if( Result.empty( ) )
-		Result = ".";
-
-	return Result;
-}
-
-//
-// CIncomingClanList
-//
-
-CIncomingClanList :: CIncomingClanList( string nName, unsigned char nRank, unsigned char nStatus )
-{
-	m_Name = nName;
-	m_Rank = nRank;
-	m_Status = nStatus;
-}
-
-CIncomingClanList :: ~CIncomingClanList( )
-{
-
-}
-
-string CIncomingClanList :: GetRank( )
-{
-	switch( m_Rank )
-	{
-	case 0: return "Recruit";
-	case 1: return "Peon";
-	case 2: return "Grunt";
-	case 3: return "Shaman";
-	case 4: return "Chieftain";
-	}
-
-	return "Rank Unknown";
-}
-
-string CIncomingClanList :: GetStatus( )
-{
-	if( m_Status == 0 )
-		return "Offline";
-	else
-		return "Online";
-}
-
-string CIncomingClanList :: GetDescription( )
-{
-	string Description;
-	Description += GetName( ) + "\n";
-	Description += GetStatus( ) + "\n";
-	Description += GetRank( ) + "\n\n";
-	return Description;
 }

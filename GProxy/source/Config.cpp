@@ -1,5 +1,5 @@
 #include "Config.h"
-#include "Util.h"
+#include "util/Util.h"
 
 #include <QStringList>
 #include <QTextStream>

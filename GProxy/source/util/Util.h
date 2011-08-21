@@ -47,11 +47,14 @@ public:
     static void appendByteArrayFast( BYTEARRAY &b, string &append, bool terminator = true );
     static void appendByteArray( BYTEARRAY &b, uint16_t i, bool reverse );
     static void appendByteArray( BYTEARRAY &b, uint32_t i, bool reverse );
-    static BYTEARRAY extractCString( BYTEARRAY &b, unsigned int start );
-    static QString extractQString ( BYTEARRAY &b, unsigned int start );
+    static BYTEARRAY extractNTCString( BYTEARRAY &b, unsigned int start );
+    static QString extractNTString ( BYTEARRAY &b, unsigned int start );
+    static QString extractNTString ( BYTEARRAY &b, unsigned int start, unsigned int& nextByte );
+    static QString extractString ( BYTEARRAY &b, unsigned int start, unsigned int length );
     static unsigned char extractHex( BYTEARRAY &b, unsigned int start, bool reverse );
     static BYTEARRAY extractNumbers( string s, unsigned int count );
     static BYTEARRAY extractHexNumbers( string s );
+    static QString revertString(const QString& s);
 
     // conversions
 

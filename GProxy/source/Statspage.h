@@ -5,7 +5,7 @@
 #include <QNetworkReply>
 #include <QStringList>
 
-#include "Player.h"
+#include "data/Player.h"
 
 class Statspage : public QObject
 {

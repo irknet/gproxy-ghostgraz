@@ -17,7 +17,7 @@
 */
 
 #include "gproxy.h"
-#include "Util.h"
+#include "util/Util.h"
 #include "socket.h"
 
 #include <QString>

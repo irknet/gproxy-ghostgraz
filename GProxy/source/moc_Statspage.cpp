@@ -1,13 +1,13 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'Statspage.h'
 **
-** Created: Fri 19. Aug 17:28:39 2011
+** Created: Sun 21. Aug 10:51:49 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include "statspage/Statspage.h"
+#include "Statspage.h"
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'Statspage.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 62

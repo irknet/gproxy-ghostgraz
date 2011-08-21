@@ -1,7 +1,7 @@
 #ifndef PLAYER_H
 #define	PLAYER_H
 
-#include "color/ColoredMessage.h"
+#include "data/ColoredMessage.h"
 
 #include <QObject>
 #include <QMetaType>
