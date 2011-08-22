@@ -262,6 +262,9 @@ public:
     void addChannelUser(QString username, QString clanTag);
     void removeChannelUser(QString username);
     void updateFriendlist(QList<Friend*> friends);
+    void updateFriend(Friend* f);
+    void addFriend(Friend* f);
+    void removeFriend(unsigned char entryNumber);
     void showErrorMessage(QString errorMessage);
     // </editor-fold>
 
@@ -301,6 +304,9 @@ signals:
     void signal_addChannelUser(QString, QString);
     void signal_removeChannelUser(QString);
     void signal_updateFriendlist(QList<Friend*>);
+    void signal_updateFriend(Friend*);
+    void signal_addFriend(Friend*);
+    void signal_removeFriend(unsigned char);
     void signal_setGameslots(QList<Slot*>);
     void signal_showErrorMessage(QString);
     void signal_playerJoined(const ColoredMessage&);

@@ -18,8 +18,6 @@
 #include <QStringList>
 #include <QPalette>
 
-using namespace std;
-
 class MainGUI : public QMainWindow
 {
     Q_OBJECT
@@ -40,6 +38,9 @@ public slots:
     void addChannelUser(QString username, QString clanTag);
     void removeChannelUser(QString username);
     void updateFriendlist(QList<Friend*> friends);
+    void updateFriend(Friend* f);
+    void addFriend(Friend* f);
+    void removeFriend(unsigned char entryNumber);
     void clearGamelist();
     void addGame(QString botname, QString gamename, QString openSlots);
     void setGameslots(QList<Slot*> slotList);
@@ -59,6 +60,7 @@ private:
     GproxyUpdateThread* gproxyUpdateThread;
     Statspage* statspage;
     QStringList admins;
+    static const int ROLE_FRIEND = 35;
 
     void initStatspage();
     void initLayout();
@@ -69,6 +71,7 @@ private:
     void processInput(const QString& input);
     void addColor(QListWidgetItem* item);
     void addTooltip(QListWidgetItem* item);
+    void addFriendInformation(Friend* f, QListWidgetItem* item);
 
 private slots:
     void onClose();

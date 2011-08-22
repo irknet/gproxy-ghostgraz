@@ -19,6 +19,7 @@
 #include "gproxy.h"
 #include "util/Util.h"
 #include "bnetprotocol.h"
+#include "bnet.h"
 
 #include <QTextCodec>
 
@@ -420,7 +421,7 @@ QList<Friend*> CBNETProtocol :: RECEIVE_SID_FRIENDSLIST( BYTEARRAY data )
         unsigned char numberOfEntries = data[4];
         unsigned int i = 5;
 
-        while(numberOfEntries > 0)
+        for (unsigned char entryNumber = 0; entryNumber != numberOfEntries; ++entryNumber)
         {
             QString name = Util::extractNTString(data, i, i);
             unsigned char location = data[i++];
@@ -430,18 +431,88 @@ QList<Friend*> CBNETProtocol :: RECEIVE_SID_FRIENDSLIST( BYTEARRAY data )
             QString locationName = Util::extractNTString(data, i, i);
 
             Friend* f = new Friend();
+            f->setEntryNumber(entryNumber);
             f->setName(name);
             f->setLocation(location);
             f->setStatus(status);
             f->setProduct(Product(productCode));
             f->setLocationName(locationName);
             friends.append(f);
-
-            numberOfEntries--;
         }
     }
 
     return friends;
+}
+
+Friend* CBNETProtocol::RECEIVE_SID_FRIENDSUPDATE(BYTEARRAY data)
+{
+    if(ValidateLength(data) && data.size() >= 4)
+    {
+        unsigned char entryNumber = data[4];
+        unsigned char location = data[5];
+        unsigned char status = data[6];
+        QString productCode = Util::revertString(Util::extractString(data, 7, 4));
+        QString locationName = Util::extractNTString(data, 11);
+
+        Friend* f = new Friend();
+        f->setEntryNumber(entryNumber);
+        f->setLocation(location);
+        f->setStatus(status);
+
+        /*
+         * COPY FROM BNET DOCS:
+         * http://www.bnetdocs.org/?op=packet&pid=384
+         *
+         * Note that there is a Battle.net server bug in which
+         * when you are automatically sent this packet,
+         * the Product ID is your own Product ID instead of your friend's.
+         * So if you were to be using WAR3, for example, and a friend signs on using SEXP,
+         * the Product ID in this packet will be WAR3.
+         *
+         * To receive the *correct* Product ID for the user, you may request another update
+         * for this user (by sending 0x66 back to the server with the same Entry Number),
+         * or request the full list again.
+         */
+        f->setProduct(Product(productCode));
+        f->setLocationName(locationName);
+        return f;
+    }
+
+    return NULL;
+}
+
+Friend* CBNETProtocol::RECEIVE_SID_FRIENDSADD(BYTEARRAY data)
+{
+    if(ValidateLength(data) && data.size() >= 4)
+    {
+        unsigned int i = 4;
+        QString name = Util::extractNTString(data, i, i);
+        unsigned char status = data[i++];
+        unsigned char location = data[i++];
+        QString productCode = Util::revertString(Util::extractString(data, i, 4));
+        i += 4;
+        QString locationName = Util::extractNTString(data, i);
+
+        Friend* f = new Friend();
+        f->setName(name);
+        f->setStatus(status);
+        f->setLocation(location);
+        f->setProduct(Product(productCode));
+        f->setLocationName(locationName);
+        return f;
+    }
+
+    return NULL;
+}
+
+unsigned char CBNETProtocol::RECEIVE_SID_FRIENDSREMOVE(BYTEARRAY data)
+{
+    if(ValidateLength(data) && data.size() == 5)
+    {
+        return data[4];
+    }
+
+    return -1;
 }
 
 BYTEARRAY CBNETProtocol::RECEIVE_SID_MESSAGEBOX (BYTEARRAY data)
@@ -547,27 +618,38 @@ BYTEARRAY CBNETProtocol :: SEND_SID_ENTERCHAT( )
 	return packet;
 }
 
-BYTEARRAY CBNETProtocol :: SEND_SID_JOINCHANNEL( string channel )
+BYTEARRAY CBNETProtocol :: SEND_SID_JOINCHANNEL(CBNETProtocol::JoinChannelFlags flag, string channel)
 {
-	unsigned char NoCreateJoin[]	= { 2, 0, 0, 0 };
-	unsigned char FirstJoin[]		= { 1, 0, 0, 0 };
+    BYTEARRAY packet;
+    packet.push_back( BNET_HEADER_CONSTANT );       // BNET header constant
+    packet.push_back( SID_JOINCHANNEL );            // SID_JOINCHANNEL
+    packet.push_back( 0 );                          // packet length will be assigned later
+    packet.push_back( 0 );                          // packet length will be assigned later
 
-	BYTEARRAY packet;
-	packet.push_back( BNET_HEADER_CONSTANT );				// BNET header constant
-	packet.push_back( SID_JOINCHANNEL );					// SID_JOINCHANNEL
-	packet.push_back( 0 );									// packet length will be assigned later
-	packet.push_back( 0 );									// packet length will be assigned later
+    unsigned char flags[4];
+    flags[1] = 0;
+    flags[2] = 0;
+    flags[3] = 0;
+    switch (flag)
+    {
+        case CBNETProtocol::JCF_FIRST_JOIN:
+            flags[0] = 1;
+            break;
+        case CBNETProtocol::JCF_FORCED_JOIN:
+            flags[0] = 2;
+            break;
+        case CBNETProtocol::JCF_NOCREATE_JOIN:
+            // Do the default action.
+        default:
+            flags[0] = 0;
+    }
+    Util::appendByteArray( packet, flags, 4 );
 
-	if( channel.size( ) > 0 )
-		Util::appendByteArray( packet, NoCreateJoin, 4 );	// flags for no create join
-	else
-		Util::appendByteArray( packet, FirstJoin, 4 );		// flags for first join
-
-	Util::appendByteArrayFast( packet, channel );
-	AssignLength( packet );
-	// DEBUG_Print( "SENT SID_JOINCHANNEL" );
-	// DEBUG_Print( packet );
-	return packet;
+    Util::appendByteArrayFast( packet, channel );
+    AssignLength( packet );
+    // DEBUG_Print( "SENT SID_JOINCHANNEL" );
+    // DEBUG_Print( packet );
+    return packet;
 }
 
 BYTEARRAY CBNETProtocol::SEND_SID_CHATCOMMAND (QString command)
@@ -908,15 +990,29 @@ BYTEARRAY CBNETProtocol :: SEND_SID_WARDEN( BYTEARRAY wardenResponse )
 
 BYTEARRAY CBNETProtocol :: SEND_SID_FRIENDSLIST( )
 {
-	BYTEARRAY packet;
-	packet.push_back( BNET_HEADER_CONSTANT );	// BNET header constant
-	packet.push_back( SID_FRIENDSLIST );		// SID_FRIENDSLIST
-	packet.push_back( 0 );						// packet length will be assigned later
-	packet.push_back( 0 );						// packet length will be assigned later
-	AssignLength( packet );
-	// DEBUG_Print( "SENT SID_FRIENDSLIST" );
-	// DEBUG_Print( packet );
-	return packet;
+    BYTEARRAY packet;
+    packet.push_back( BNET_HEADER_CONSTANT );	// BNET header constant
+    packet.push_back( SID_FRIENDSLIST );	// SID_FRIENDSLIST
+    packet.push_back( 0 );			// packet length will be assigned later
+    packet.push_back( 0 );			// packet length will be assigned later
+    AssignLength( packet );
+    // DEBUG_Print( "SENT SID_FRIENDSLIST" );
+    // DEBUG_Print( packet );
+    return packet;
+}
+
+BYTEARRAY CBNETProtocol::SEND_SID_FRIENDSUPDATE(unsigned char entryNumber)
+{
+    BYTEARRAY packet;
+    packet.push_back( BNET_HEADER_CONSTANT );	// BNET header constant
+    packet.push_back( SID_FRIENDSUPDATE );	// SID_FRIENDSUPDATE
+    packet.push_back( 0 );			// packet length will be assigned later
+    packet.push_back( 0 );			// packet length will be assigned later
+    packet.push_back( entryNumber );
+    AssignLength( packet );
+    // DEBUG_Print( "SENT SID_FRIENDSUPDATE" );
+    // DEBUG_Print( packet );
+    return packet;
 }
 
 BYTEARRAY CBNETProtocol :: SEND_SID_CLANMEMBERLIST( )

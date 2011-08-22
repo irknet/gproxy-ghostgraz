@@ -304,7 +304,9 @@ CGProxy::~CGProxy ()
  */
 void CGProxy::connectSignalsAndSlots()
 {
+    qRegisterMetaType<Slot*>("Slot*");
     qRegisterMetaType< QList<Slot*> >("QList<Slot*>");
+    qRegisterMetaType<Friend*>("Friend*");
     qRegisterMetaType< QList<Friend*> >("QList<Friend*>");
     qRegisterMetaType<ColoredMessage>("ColoredMessage");
 
@@ -325,6 +327,15 @@ void CGProxy::connectSignalsAndSlots()
 
     connect(this, SIGNAL(signal_updateFriendlist(QList<Friend*>)),
             mainGUI, SLOT(updateFriendlist(QList<Friend*>)), Qt::QueuedConnection);
+
+    connect(this, SIGNAL(signal_updateFriend(Friend*)),
+            mainGUI, SLOT(updateFriend(Friend*)), Qt::QueuedConnection);
+
+    connect(this, SIGNAL(signal_addFriend(Friend*)),
+            mainGUI, SLOT(addFriend(Friend*)), Qt::QueuedConnection);
+
+    connect(this, SIGNAL(signal_removeFriend(unsigned char)),
+            mainGUI, SLOT(removeFriend(unsigned char)), Qt::QueuedConnection);
 
     connect(this, SIGNAL(signal_setGameslots(QList<Slot*>)),
             mainGUI, SLOT(setGameslots(QList<Slot*>)), Qt::QueuedConnection);
@@ -587,9 +598,29 @@ void CGProxy::removeChannelUser (QString username)
     emit signal_removeChannelUser(username);
 }
 
+/**
+ * Emits the signal <code>updateFriendlist</code>.
+ *
+ * @param friends List of friends.
+ */
 void CGProxy::updateFriendlist(QList<Friend*> friends)
 {
     emit signal_updateFriendlist(friends);
+}
+
+void CGProxy::updateFriend(Friend* f)
+{
+    emit signal_updateFriend(f);
+}
+
+void CGProxy::addFriend(Friend* f)
+{
+    emit signal_addFriend(f);
+}
+
+void CGProxy::removeFriend(unsigned char entryNumber)
+{
+    emit signal_removeFriend(entryNumber);
 }
 
 /**

@@ -7,6 +7,8 @@
 #include "ConfigGUI.h"
 #include "GhostGrazLogininformationDialog.h"
 #include "util/Util.h"
+#include "util/VariantUtil.h"
+#include "bnetprotocol.h"
 
 #include <QDesktopWidget>
 #include <QScrollBar>
@@ -22,7 +24,6 @@
 #include <QFileInfo>
 #include <QRegExp>
 #include <QTextFrame>
-#include <QVariant>
 
 #undef ERROR /* Undefine ERROR macro. Needed for ColoredMessage::ERROR. */
 
@@ -411,14 +412,12 @@ void MainGUI::onChannelContextMenu (const QPoint& pos)
         else if (action->text() == "Add as friend")
         {
             gproxy->m_BNET->QueueChatCommand("/friends add " + user, false);
-            gproxy->m_BNET->UpdateFriendList();
         }
         else if (action->text() == "Change color")
         {
             MColorDialog* colorDialog = new MColorDialog(gproxy->getConfig()->getUserColor(user), this);
             colorDialog->setObjectName(user + "ColorDialog");
-            QVariant itemVariant = qVariantFromValue((void *) item);
-            colorDialog->setProperty("listItem", itemVariant);
+            colorDialog->setProperty("listItem", VariantUtil<QListWidgetItem>::toQVariant(item));
 
             connect(colorDialog, SIGNAL(currentColorChanged(MColorDialog*)),
                     this, SLOT(userColorChanged(MColorDialog*)), Qt::QueuedConnection);
@@ -502,7 +501,6 @@ void MainGUI::onFriendsContextMenu (const QPoint& pos)
         {
             gproxy->m_BNET->QueueChatCommand("/friends remove "
                     + item->text(), false);
-            gproxy->m_BNET->UpdateFriendList();
         }
         else
         {
@@ -631,11 +629,6 @@ void MainGUI::processInput (const QString& input)
     {
         close();
         return;
-    }
-    else if (command.startsWith("/friends ") || command.startsWith("/f "))
-    {
-        gproxy->m_BNET->QueueChatCommand(input);
-        gproxy->m_BNET->UpdateFriendList();
     }
     else if (command == "/filteroff" || command == "/filter off")
     {
@@ -955,7 +948,14 @@ void MainGUI::processInput (const QString& input)
     }
     else
     {
-        gproxy->m_BNET->QueueChatCommand(input);
+        if (command.startsWith('/'))
+        {
+            gproxy->m_BNET->QueueChatCommand(input, false);
+        }
+        else
+        {
+            gproxy->m_BNET->QueueChatCommand(input);
+        }
     }
 }
 
@@ -1113,43 +1113,118 @@ void MainGUI::changeChannel (QString channel)
  */
 void MainGUI::updateFriendlist(QList<Friend*> friends)
 {
+    for (int i = 0; i < widget.friendList->count(); ++i)
+    {
+        delete VariantUtil<Friend>::toPointer(widget.friendList->item(i)->data(ROLE_FRIEND));
+    }
     widget.friendList->clear();
 
     foreach(Friend* f, friends)
     {
-        QListWidgetItem* item = new QListWidgetItem();
-        item->setText(f->getName());
+        addFriend(f);
+    }
+}
 
-        switch (f->getLocation())
+/**
+ * Slot which is emiited when a new friend information was received.
+ *
+ * @param f The friend.
+ */
+void MainGUI::updateFriend(Friend* f)
+{
+    for (int i = 0; i < widget.friendList->count(); ++i)
+    {
+        Friend* storedFriend = VariantUtil<Friend>::toPointer(widget.friendList->item(i)->data(ROLE_FRIEND));
+        if (storedFriend->getEntryNumber() == f->getEntryNumber())
         {
-            case Friend::IN_CHANNEL:
-                item->setToolTip("In channel: " + f->getLocationName());
-                break;
-            case Friend::IN_PUBLIC_GAME:
-                item->setToolTip("In public game: " + f->getLocationName());
-                break;
-            case Friend::IN_UNKNOWN_PRIVATE_GAME:
-                item->setToolTip("In private game.");
-                break;
-            case Friend::IN_PRIVATE_GAME:
-                item->setToolTip("In private game: " + f->getLocationName());
-                break;
-            default:
-                // Do nothing.
-                break;
-        }
+            storedFriend->setLocation(f->getLocation());
+            storedFriend->setStatus(f->getStatus());
+            storedFriend->setProduct(f->getProduct());
+            storedFriend->setLocationName(f->getLocationName());
 
-        if (f->getStatus() != Friend::OFFLINE)
-        {
-            item->setForeground(Qt::green);
-            widget.friendList->insertItem(0, item);
-        }
-        else
-        {
-            item->setForeground(Qt::red);
-            widget.friendList->addItem(item);
+            // Readd the friend to display the updates.
+            delete widget.friendList->takeItem(i);
+            addFriend(storedFriend);
+            break;
         }
     }
+
+    delete f;
+}
+
+void MainGUI::addFriend(Friend* f)
+{
+    if (f->getEntryNumber() == 255)
+    {
+        // A new friend was added to the list.
+        f->setEntryNumber(widget.friendList->count());
+        gproxy->m_BNET->updateFriend(f->getEntryNumber());
+    }
+
+    QListWidgetItem* item = new QListWidgetItem();
+    item->setData(ROLE_FRIEND, VariantUtil<Friend>::toQVariant(f));
+    item->setText(f->getName());
+
+    switch (f->getLocation())
+    {
+        case Friend::IN_CHANNEL:
+            if (f->getLocationName().isNull() || f->getLocationName().isEmpty())
+            {
+                item->setToolTip("In channel.");
+            }
+            else
+            {
+                item->setToolTip("In channel: " + f->getLocationName());
+            }
+            break;
+        case Friend::IN_PUBLIC_GAME:
+            item->setToolTip("In public game: " + f->getLocationName());
+            break;
+        case Friend::IN_UNKNOWN_PRIVATE_GAME:
+            item->setToolTip("In private game.");
+            break;
+        case Friend::IN_PRIVATE_GAME:
+            item->setToolTip("In private game: " + f->getLocationName());
+            break;
+        default:
+            // No location details available. Do nothing.
+            break;
+    }
+
+    if (f->getStatus() != Friend::OFFLINE)
+    {
+        item->setForeground(Qt::green);
+        widget.friendList->insertItem(0, item);
+    }
+    else
+    {
+        item->setForeground(Qt::red);
+        widget.friendList->addItem(item);
+    }
+}
+
+void MainGUI::removeFriend(unsigned char entryNumber)
+{
+    for (int i = 0; i < widget.friendList->count(); ++i)
+    {
+        Friend* storedFriend = VariantUtil<Friend>::toPointer(widget.friendList->item(i)->data(ROLE_FRIEND));
+        if (storedFriend->getEntryNumber() == entryNumber)
+        {
+            delete storedFriend;
+            delete widget.friendList->takeItem(i);
+            // Do not break this loop!
+        }
+        else if (storedFriend->getEntryNumber() > entryNumber)
+        {
+            // Move friends with a higher entry number up. (Decrease their entry numbers)
+            storedFriend->setEntryNumber(storedFriend->getEntryNumber() - 1);
+        }
+    }
+}
+
+void MainGUI::addFriendInformation(Friend* f, QListWidgetItem* item)
+{
+
 }
 
 /**
@@ -1161,7 +1236,6 @@ void MainGUI::updateFriendlist(QList<Friend*> friends)
  */
 void MainGUI::addGame (QString botname, QString gamename, QString openSlots)
 {
-
     QListWidgetItem* newItem = new QListWidgetItem();
     newItem->setData(GamelistDelegate::BOTNAME, botname);
     newItem->setData(GamelistDelegate::GAMENAME, gamename);
@@ -1613,7 +1687,7 @@ void MainGUI::userColorChanged(MColorDialog* colorDialog)
     // Removing "ColorDialog".
     QString username = colorDialog->objectName().left(colorDialog->objectName().length() - 11);
     QColor color = colorDialog->currentColor();
-    QListWidgetItem* item = (QListWidgetItem*) colorDialog->property("listItem").value<void*>();
+    QListWidgetItem* item = VariantUtil<QListWidgetItem>::toPointer(colorDialog->property("listItem"));
 
     if (!colorDialog->isVisible())
     {

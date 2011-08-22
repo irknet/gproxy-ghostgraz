@@ -89,6 +89,9 @@ public:
 
     static BYTEARRAY encodeStatString( BYTEARRAY &data );
     static BYTEARRAY decodeStatString( BYTEARRAY &data );
+
+private:
+    Util();
 };
 
 #endif

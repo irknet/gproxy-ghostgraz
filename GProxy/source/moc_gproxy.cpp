@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'gproxy.h'
 **
-** Created: Sun 21. Aug 18:59:06 2011
+** Created: Mon 22. Aug 16:52:52 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,12 +23,12 @@ static const uint qt_meta_data_CGProxy[] = {
        5,       // revision
        0,       // classname
        0,    0, // classinfo
-      14,   14, // methods
+      17,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-      13,       // signalCount
+      16,       // signalCount
 
  // signals: signature, parameters, type, tag, flags
        9,    8,    8,    8, 0x05,
@@ -38,15 +38,18 @@ static const uint qt_meta_data_CGProxy[] = {
      160,    8,    8,    8, 0x05,
      194,    8,    8,    8, 0x05,
      234,    8,    8,    8, 0x05,
-     268,    8,    8,    8, 0x05,
-     301,    8,    8,    8, 0x05,
-     337,    8,    8,    8, 0x05,
-     365,    8,    8,    8, 0x05,
-     395,    8,    8,    8, 0x05,
-     423,    8,    8,    8, 0x05,
+     263,    8,    8,    8, 0x05,
+     289,    8,    8,    8, 0x05,
+     324,    8,    8,    8, 0x05,
+     358,    8,    8,    8, 0x05,
+     391,    8,    8,    8, 0x05,
+     427,    8,    8,    8, 0x05,
+     455,    8,    8,    8, 0x05,
+     485,    8,    8,    8, 0x05,
+     513,    8,    8,    8, 0x05,
 
  // slots: signature, parameters, type, tag, flags
-     444,    8,    8,    8, 0x0a,
+     534,    8,    8,    8, 0x0a,
 
        0        // eod
 };
@@ -58,6 +61,9 @@ static const char qt_meta_stringdata_CGProxy[] = {
     "signal_addChannelUser(QString,QString)\0"
     "signal_removeChannelUser(QString)\0"
     "signal_updateFriendlist(QList<Friend*>)\0"
+    "signal_updateFriend(Friend*)\0"
+    "signal_addFriend(Friend*)\0"
+    "signal_removeFriend(unsigned char)\0"
     "signal_setGameslots(QList<Slot*>)\0"
     "signal_showErrorMessage(QString)\0"
     "signal_playerJoined(ColoredMessage)\0"
@@ -102,17 +108,20 @@ int CGProxy::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         case 3: signal_addChannelUser((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2]))); break;
         case 4: signal_removeChannelUser((*reinterpret_cast< QString(*)>(_a[1]))); break;
         case 5: signal_updateFriendlist((*reinterpret_cast< QList<Friend*>(*)>(_a[1]))); break;
-        case 6: signal_setGameslots((*reinterpret_cast< QList<Slot*>(*)>(_a[1]))); break;
-        case 7: signal_showErrorMessage((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 8: signal_playerJoined((*reinterpret_cast< const ColoredMessage(*)>(_a[1]))); break;
-        case 9: signal_stopDownloadThread(); break;
-        case 10: signal_showConfigDialog((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 11: signal_initConfigurations(); break;
-        case 12: signal_applyConfig(); break;
-        case 13: applyConfig(); break;
+        case 6: signal_updateFriend((*reinterpret_cast< Friend*(*)>(_a[1]))); break;
+        case 7: signal_addFriend((*reinterpret_cast< Friend*(*)>(_a[1]))); break;
+        case 8: signal_removeFriend((*reinterpret_cast< unsigned char(*)>(_a[1]))); break;
+        case 9: signal_setGameslots((*reinterpret_cast< QList<Slot*>(*)>(_a[1]))); break;
+        case 10: signal_showErrorMessage((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 11: signal_playerJoined((*reinterpret_cast< const ColoredMessage(*)>(_a[1]))); break;
+        case 12: signal_stopDownloadThread(); break;
+        case 13: signal_showConfigDialog((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 14: signal_initConfigurations(); break;
+        case 15: signal_applyConfig(); break;
+        case 16: applyConfig(); break;
         default: ;
         }
-        _id -= 14;
+        _id -= 17;
     }
     return _id;
 }
@@ -159,48 +168,69 @@ void CGProxy::signal_updateFriendlist(QList<Friend*> _t1)
 }
 
 // SIGNAL 6
-void CGProxy::signal_setGameslots(QList<Slot*> _t1)
+void CGProxy::signal_updateFriend(Friend * _t1)
 {
     void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
     QMetaObject::activate(this, &staticMetaObject, 6, _a);
 }
 
 // SIGNAL 7
-void CGProxy::signal_showErrorMessage(QString _t1)
+void CGProxy::signal_addFriend(Friend * _t1)
 {
     void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
     QMetaObject::activate(this, &staticMetaObject, 7, _a);
 }
 
 // SIGNAL 8
-void CGProxy::signal_playerJoined(const ColoredMessage & _t1)
+void CGProxy::signal_removeFriend(unsigned char _t1)
 {
     void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
     QMetaObject::activate(this, &staticMetaObject, 8, _a);
 }
 
 // SIGNAL 9
-void CGProxy::signal_stopDownloadThread()
+void CGProxy::signal_setGameslots(QList<Slot*> _t1)
 {
-    QMetaObject::activate(this, &staticMetaObject, 9, 0);
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
+    QMetaObject::activate(this, &staticMetaObject, 9, _a);
 }
 
 // SIGNAL 10
-void CGProxy::signal_showConfigDialog(bool _t1)
+void CGProxy::signal_showErrorMessage(QString _t1)
 {
     void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
     QMetaObject::activate(this, &staticMetaObject, 10, _a);
 }
 
 // SIGNAL 11
-void CGProxy::signal_initConfigurations()
+void CGProxy::signal_playerJoined(const ColoredMessage & _t1)
 {
-    QMetaObject::activate(this, &staticMetaObject, 11, 0);
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
+    QMetaObject::activate(this, &staticMetaObject, 11, _a);
 }
 
 // SIGNAL 12
-void CGProxy::signal_applyConfig()
+void CGProxy::signal_stopDownloadThread()
 {
     QMetaObject::activate(this, &staticMetaObject, 12, 0);
+}
+
+// SIGNAL 13
+void CGProxy::signal_showConfigDialog(bool _t1)
+{
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
+    QMetaObject::activate(this, &staticMetaObject, 13, _a);
+}
+
+// SIGNAL 14
+void CGProxy::signal_initConfigurations()
+{
+    QMetaObject::activate(this, &staticMetaObject, 14, 0);
+}
+
+// SIGNAL 15
+void CGProxy::signal_applyConfig()
+{
+    QMetaObject::activate(this, &staticMetaObject, 15, 0);
 }
 QT_END_MOC_NAMESPACE

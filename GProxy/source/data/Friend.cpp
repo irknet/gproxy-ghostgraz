@@ -1,9 +1,13 @@
 #include "data/Friend.h"
 
-Friend::Friend () { }
+Friend::Friend ()
+{
+    entryNumber = 255;
+}
 
 Friend::Friend (const Friend& orig)
 {
+    this->setEntryNumber(orig.getEntryNumber());
     this->setName(orig.getName());
     this->setLocation(orig.getLocation());
     this->setStatus(orig.getStatus());
@@ -18,6 +22,7 @@ Friend& Friend::operator= (const Friend& orig)
         return *this;
     }
 
+    this->setEntryNumber(orig.getEntryNumber());
     this->setName(orig.getName());
     this->setLocation(orig.getLocation());
     this->setStatus(orig.getStatus());
@@ -30,6 +35,16 @@ Friend& Friend::operator= (const Friend& orig)
 Friend::~Friend () { }
 
 // <editor-fold defaultstate="collapsed" desc="Getters and setters">
+unsigned char Friend::getEntryNumber() const
+{
+    return entryNumber;
+}
+
+void Friend::setEntryNumber(const unsigned char& entryNumber)
+{
+    this->entryNumber = entryNumber;
+}
+
 Friend::Location Friend::getLocation() const
 {
     return location;
@@ -48,10 +63,10 @@ void Friend::setLocation(const unsigned char& location)
             this->location = Friend::NOT_AVAILABLE;
             break;
         case 0x01:
-            this->location = Friend::NOT_IN_CHAT;
+            this->location = Friend::NOT_IN_CHANNEL;
             break;
         case 0x02:
-            this->location = Friend::IN_CHAT;
+            this->location = Friend::IN_CHANNEL;
             break;
         case 0x03:
             this->location = Friend::IN_PUBLIC_GAME;

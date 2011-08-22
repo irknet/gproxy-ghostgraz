@@ -23,6 +23,12 @@
 #include <QTextCodec>
 #include <QRegExp>
 
+/**
+ * Hidden constructor.
+ * Utility pattern.
+ */
+Util::Util () { }
+
 BYTEARRAY Util::createByteArray( unsigned char *a, int size )
 {
 	if( size < 1 )

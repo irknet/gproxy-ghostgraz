@@ -204,14 +204,13 @@ public:
 
     // functions to send packets to battle.net
 
-    void SendJoinChannel(string channel);
+    void updateFriend(const unsigned char& entryNumber);
     void QueueEnterChat();
     void QueueChatCommand(QString chatCommand, bool showMessage = true);
     void QueueChatCommand(QString chatCommand, string user, bool whisper);
     void QueueGetGameList(uint32_t numGames);
     void QueueGetGameList(string gameName);
     void QueueJoinGame(string gameName);
-    void UpdateFriendList();
     void SendPacket(BYTEARRAY Packet);
 };
 

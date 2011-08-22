@@ -42,6 +42,8 @@ public:
     virtual ~Friend();
 
     // <editor-fold defaultstate="collapsed" desc="Getters and setters">
+    unsigned char getEntryNumber() const;
+    void setEntryNumber(const unsigned char& entryNumber);
     Location getLocation() const;
     void setLocation(const Location& location);
     void setLocation(const unsigned char& location);
@@ -57,10 +59,35 @@ public:
     // </editor-fold>
 
 private:
+    /**
+     * The internal identifier of the friend holding the display position.
+     * Note that GProxy will sort online users on top, so this position most likely isn't the same.
+     */
+    unsigned char entryNumber;
+
+    /**
+     * The friends username.
+     */
     QString name;
+
+    /**
+     * The current location of the friend.
+     */
     Location location;
+
+    /**
+     * Friends status.
+     */
     Status status;
+
+    /**
+     * The friends product when he logged on.
+     */
     Product product;
+
+    /**
+     * Detailed location description. May be null/empty.
+     */
     QString locationName;
 };
 

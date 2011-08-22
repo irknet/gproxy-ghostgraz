@@ -487,7 +487,8 @@ void CBNET::ProcessPackets ()
                         CONSOLE_Print(ColoredMessage("[BNET] joining channel [" + joiningChannel + "]", ColoredMessage::BNET));
                         m_InChat = true;
                         m_InGame = false;
-                        m_Socket->PutBytes(m_Protocol->SEND_SID_JOINCHANNEL(joiningChannel.toStdString()));
+                        m_Socket->PutBytes(m_Protocol->SEND_SID_JOINCHANNEL(CBNETProtocol::JCF_FORCED_JOIN, joiningChannel.toStdString()));
+                        m_Socket->PutBytes(m_Protocol->SEND_SID_FRIENDSLIST());
                     }
 
                     break;
@@ -658,6 +659,7 @@ void CBNET::ProcessPackets ()
                         m_LoggedIn = true;
                         m_Socket->PutBytes(m_Protocol->SEND_SID_NETGAMEPORT(6112));
                         m_Socket->PutBytes(m_Protocol->SEND_SID_ENTERCHAT());
+                        m_Socket->PutBytes(m_Protocol->SEND_SID_JOINCHANNEL(CBNETProtocol::JCF_FIRST_JOIN, joiningChannel.toStdString()));
 
                         if (m_GProxy->m_LocalSocket)
                             m_GProxy->SendLocalChat("Connected to battle.net.");
@@ -703,7 +705,15 @@ void CBNET::ProcessPackets ()
                     break;
 
                 case CBNETProtocol::SID_FRIENDSUPDATE:
-                    m_Socket->PutBytes(m_Protocol->SEND_SID_FRIENDSLIST());
+                    m_GProxy->updateFriend(m_Protocol->RECEIVE_SID_FRIENDSUPDATE(Packet->GetData()));
+                    break;
+
+                case CBNETProtocol::SID_FRIENDSADD:
+                    m_GProxy->addFriend(m_Protocol->RECEIVE_SID_FRIENDSADD(Packet->GetData()));
+                    break;
+
+                case CBNETProtocol::SID_FRIENDSREMOVE:
+                    m_GProxy->removeFriend(m_Protocol->RECEIVE_SID_FRIENDSREMOVE(Packet->GetData()));
                     break;
 
                 case CBNETProtocol::SID_CLANMEMBERLIST:
@@ -862,7 +872,6 @@ void CBNET::ProcessChatEvent (CIncomingChatEvent * chatEvent)
     else if (Event == CBNETProtocol::EID_CHANNEL)
     {
         CONSOLE_Print(ColoredMessage("[BNET] joined channel [" + Message + "]", ColoredMessage::BNET));
-        m_Socket->PutBytes(m_Protocol->SEND_SID_FRIENDSLIST());
         currentChannel = Message;
         m_GProxy->changeChannel(currentChannel);
     }
@@ -901,12 +910,9 @@ void CBNET::ProcessChatEvent (CIncomingChatEvent * chatEvent)
     }
 }
 
-void CBNET::SendJoinChannel (string channel)
+void CBNET::updateFriend(const unsigned char& entryNumber)
 {
-    if (m_LoggedIn && m_InChat)
-    {
-        m_Socket->PutBytes(m_Protocol->SEND_SID_JOINCHANNEL(channel));
-    }
+    SendPacket(m_Protocol->SEND_SID_FRIENDSUPDATE(entryNumber));
 }
 
 void CBNET::QueueEnterChat ()
@@ -995,12 +1001,6 @@ void CBNET::QueueJoinGame (string gameName)
         m_InChat = false;
         m_InGame = true;
     }
-}
-
-void CBNET::UpdateFriendList ()
-{
-    if (m_LoggedIn)
-        m_OutPackets.push(m_Protocol->SEND_SID_FRIENDSLIST());
 }
 
 void CBNET::SendPacket (BYTEARRAY Packet)
