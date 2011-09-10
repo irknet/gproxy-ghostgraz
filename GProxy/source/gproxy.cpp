@@ -1721,7 +1721,7 @@ void CGProxy::ProcessRemotePackets ()
                         }
                         else if (ExtraFlags[0] == 1) // 1 is an Allies message
                         {
-                            CONSOLE_Print(ColoredMessage("[Ally]["), true, true, false);
+                            CONSOLE_Print(ColoredMessage("[ALLY]["), true, true, false);
                             CONSOLE_Print(coloredPlayer, true, false, false);
                             CONSOLE_Print(ColoredMessage("] " + message), true, false, true);
                         }

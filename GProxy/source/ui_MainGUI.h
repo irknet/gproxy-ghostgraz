@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainGUI.ui'
 **
-** Created: Sun 21. Aug 20:04:27 2011
+** Created: Fri 26. Aug 13:20:49 2011
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -144,6 +144,12 @@ public:
         outputTextArea = new MTextEdit(centralwidget);
         outputTextArea->setObjectName(QString::fromUtf8("outputTextArea"));
         outputTextArea->setGeometry(QRect(0, 0, 661, 521));
+        QFont font4;
+        font4.setFamily(QString::fromUtf8("Arial"));
+        font4.setPointSize(9);
+        font4.setBold(false);
+        font4.setWeight(50);
+        outputTextArea->setFont(font4);
         outputTextArea->setAutoFillBackground(true);
         outputTextArea->setUndoRedoEnabled(true);
         outputTextArea->setReadOnly(true);
@@ -180,13 +186,18 @@ public:
 
     void retranslateUi(QMainWindow *MainGUI)
     {
-        MainGUI->setWindowTitle(QApplication::translate("MainGUI", "GProxy GhostGraz v2.3", 0, QApplication::UnicodeUTF8));
+        MainGUI->setWindowTitle(QApplication::translate("MainGUI", "GProxy GhostGraz v2.3.1", 0, QApplication::UnicodeUTF8));
         optionsAction->setText(QApplication::translate("MainGUI", "Options", 0, QApplication::UnicodeUTF8));
         exitAction->setText(QApplication::translate("MainGUI", "Exit", 0, QApplication::UnicodeUTF8));
         restartAction->setText(QApplication::translate("MainGUI", "Restart", 0, QApplication::UnicodeUTF8));
         inputTextArea->setPlainText(QString());
         titleLabel->setText(QApplication::translate("MainGUI", "Channel", 0, QApplication::UnicodeUTF8));
         refreshButton->setText(QApplication::translate("MainGUI", "Refresh", 0, QApplication::UnicodeUTF8));
+        outputTextArea->setHtml(QApplication::translate("MainGUI", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Arial'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></p></body></html>", 0, QApplication::UnicodeUTF8));
         fileMenu->setTitle(QApplication::translate("MainGUI", "File", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 

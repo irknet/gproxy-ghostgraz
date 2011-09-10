@@ -50,23 +50,23 @@ int Config::loadConfig ()
 void Config::addKeys ()
 {
     // BEWARE: Everything that ends with "_foregroundcolor" is considered to be a foregroundcolor.
-    keys.append("# Required config values");
+    keys.append("# Connection");
     keys.append("war3path");
     keys.append("cdkeyroc");
     keys.append("cdkeytft");
-    keys.append("war3version");
     keys.append("server");
     keys.append("username");
     keys.append("password");
     keys.append("channel");
+    keys.append("war3version");
     keys.append("port");
 
-    keys.append("# PvPGN config values");
+    keys.append("# Player versus Player Gaming Network");
     keys.append("exeversion");
     keys.append("exeversionhash");
     keys.append("passwordhashtype");
 
-    keys.append("# Optional config values");
+    keys.append("# Miscellaneous");
     keys.append("ghostgrazUsername");
     keys.append("ghostgrazPassword");
     keys.append("sound");
@@ -96,6 +96,8 @@ void Config::addKeys ()
 
     keys.append("# Customized user colors");
     keys.append("usercolor");
+
+    keys.append();
 }
 
 void Config::addValues (QString content)
@@ -135,6 +137,11 @@ void Config::addValues (QString content)
     }
 }
 
+/**
+ * Adds default config values if the key is not present at startup.
+ *
+ * @param key - The non existing key.
+ */
 void Config::addDefaultValue (const QString &key)
 {
     if (key == "war3version")
@@ -230,6 +237,11 @@ void Config::addDefaultValue (const QString &key)
     }
 }
 
+/**
+ * Checks if the GProxy configuration file has values to connect to battle.net.
+ *
+ * @return <code>true</code> if the required values are configurated, <code>false</code> otherwise.
+ */
 bool Config::hasRequiredValues ()
 {
     if (getString("war3path").isEmpty() || getString("cdkeyroc").isEmpty()

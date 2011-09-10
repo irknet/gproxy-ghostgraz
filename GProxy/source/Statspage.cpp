@@ -110,7 +110,7 @@ void Statspage::onPlayerReplyFinished (QNetworkReply *reply)
     int userIndex = url.indexOf("u=") + 2;
     int userEndIndex = url.indexOf("&", userIndex);
     QString playerName = url.mid(userIndex, userEndIndex - userIndex);
-    player->setName(ColoredMessage(playerName));
+    player->setName(ColoredMessage(playerName, ColoredMessage::USERCOLOR));
 
     QString content = QString(reply->readAll());
 

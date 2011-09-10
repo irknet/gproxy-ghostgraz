@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'bnet.h'
 **
-** Created: Mon 22. Aug 17:38:01 2011
+** Created: Fri 26. Aug 13:21:19 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!

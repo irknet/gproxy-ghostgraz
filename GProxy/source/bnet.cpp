@@ -793,7 +793,7 @@ void CBNET::ProcessChatEvent (CIncomingChatEvent * chatEvent)
     {
         m_ReplyTarget = User.toStdString();
 
-        CONSOLE_Print(ColoredMessage("[WHISPER] [" + User + "] " + Message, ColoredMessage::WHISPER));
+        CONSOLE_Print(ColoredMessage("[WHISPER FROM] [" + User + "] " + Message, ColoredMessage::WHISPER));
 
         if (Message.mid(0, 30) == "Spoof check by replying to thi")
         {
@@ -948,18 +948,43 @@ void CBNET::QueueChatCommand (QString chatCommand, bool showMessage)
         }
         else
         {
-            if (chatCommand.startsWith("/w ") && showMessage)
+            m_OutPackets.push(m_Protocol->SEND_SID_CHATCOMMAND(chatCommand));
+
+            if (!showMessage)
+            {
+                return;
+            }
+
+            if (chatCommand.startsWith("/w ", Qt::CaseInsensitive))
             {
                 CONSOLE_Print(ColoredMessage("[WHISPER TO] " + chatCommand.mid(3, chatCommand.length() - 3), ColoredMessage::WHISPER));
             }
-            else if(showMessage)
+            else if (chatCommand.startsWith("/whisper ", Qt::CaseInsensitive))
+            {
+                CONSOLE_Print(ColoredMessage("[WHISPER TO] " + chatCommand.mid(9, chatCommand.length() - 9), ColoredMessage::WHISPER));
+            }
+            else if (chatCommand.startsWith("/f m ", Qt::CaseInsensitive))
+            {
+                CONSOLE_Print(ColoredMessage("[WHISPER TO ALL FRIENDS] " + chatCommand.mid(5, chatCommand.length() - 5), ColoredMessage::WHISPER));
+            }
+            else if (chatCommand.startsWith("/f msg ", Qt::CaseInsensitive))
+            {
+                CONSOLE_Print(ColoredMessage("[WHISPER TO ALL FRIENDS] " + chatCommand.mid(7, chatCommand.length() - 7), ColoredMessage::WHISPER));
+            }
+            else if (chatCommand.startsWith("/friends m ", Qt::CaseInsensitive))
+            {
+                CONSOLE_Print(ColoredMessage("[WHISPER TO ALL FRIENDS] " + chatCommand.mid(11, chatCommand.length() - 11), ColoredMessage::WHISPER));
+            }
+            else if (chatCommand.startsWith("/friends msg ", Qt::CaseInsensitive))
+            {
+                CONSOLE_Print(ColoredMessage("[WHISPER TO ALL FRIENDS] " + chatCommand.mid(13, chatCommand.length() - 13), ColoredMessage::WHISPER));
+            }
+            else
             {
                 CONSOLE_Print(ColoredMessage("["), true, true, false);
                 CONSOLE_Print(ColoredMessage(m_GProxy->getUsername(), ColoredMessage::USERCOLOR), true, false, false);
                 CONSOLE_Print(ColoredMessage("] " + chatCommand), true, false, true);
             }
-
-            m_OutPackets.push(m_Protocol->SEND_SID_CHATCOMMAND(chatCommand));
         }
     }
 }

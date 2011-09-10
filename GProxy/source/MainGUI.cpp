@@ -872,7 +872,6 @@ void MainGUI::processInput (const QString& input)
     else if (command.startsWith("/test"))
     {
         // Isn't it obvious?
-        addMessage(ColoredMessage("TEST\nTest\ntest"));
     }
     else if (command.startsWith("/p ") || command.startsWith("/phrase "))
     {
@@ -948,14 +947,7 @@ void MainGUI::processInput (const QString& input)
     }
     else
     {
-        if (command.startsWith('/'))
-        {
-            gproxy->m_BNET->QueueChatCommand(input, false);
-        }
-        else
-        {
-            gproxy->m_BNET->QueueChatCommand(input);
-        }
+        gproxy->m_BNET->QueueChatCommand(input);
     }
 }
 
@@ -1652,10 +1644,6 @@ void MainGUI::onAdminlistReceived (QStringList admins)
         addTooltip(widget.channelList->item(i));
     }
     widget.channelList->repaint();
-    foreach(QString admin, admins)
-    {
-        addMessage(admin);
-    }
 }
 
 /**
