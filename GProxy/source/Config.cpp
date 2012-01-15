@@ -96,8 +96,6 @@ void Config::addKeys ()
 
     keys.append("# Customized user colors");
     keys.append("usercolor");
-
-    keys.append();
 }
 
 void Config::addValues (QString content)
