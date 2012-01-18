@@ -472,7 +472,8 @@ void CGProxy::applyConfig ()
     gproxy->setCDKeyROC(config->getString("cdkeyroc"));
     gproxy->setCDKeyTFT(config->getString("cdkeytft"));
     gproxy->setServer(config->getString("server"));
-
+    gproxy->setCdKeyOwner(config->getString("cdkeysowner"));
+    
     gproxy->setPrivategamename(config->getString("privategamename"));
     gproxy->setBotprefix(config->getString("botprefix"));
     cautosearch = config->getBoolean("autosearch");
@@ -506,6 +507,8 @@ void CGProxy::showWelcomeMessages()
     CONSOLE_Print(ColoredMessage("Phyton", ColoredMessage::WHISPER), false, false, false);
     CONSOLE_Print(ColoredMessage(", "), false, false, false);
     CONSOLE_Print(ColoredMessage("Pr0gm4n", ColoredMessage::INFO), false, false, false);
+    CONSOLE_Print(ColoredMessage(", "), false, false, false);
+    CONSOLE_Print(ColoredMessage("Noman(1)", ColoredMessage::ERROR), false, false, false);
     CONSOLE_Print(ColoredMessage(" and "), false, false, false);
     CONSOLE_Print(ColoredMessage("Manufactoring", ColoredMessage::GAMEINFO), false, false, false);
     CONSOLE_Print(ColoredMessage("."), false, false, true);
@@ -2541,7 +2544,7 @@ void CGProxy::spoofcheck ()
 {
     if (gproxy->m_BNET->GetLoggedIn())
     {
-        gproxy->m_BNET->QueueChatCommand("spoofcheck", gproxy->m_HostName, false);
+        gproxy->m_BNET->QueueChatCommand("spoofcheck", gproxy->m_HostName, true);
     }
 }
 
@@ -2629,11 +2632,11 @@ QString CGProxy::getPasswordhashtype ()
 {
     return this->passwordhashtype;
 }
-
 QString CGProxy::getChannel ()
 {
     return this->channel;
 }
+
 
 QList<Player*> CGProxy::getPlayers()
 {

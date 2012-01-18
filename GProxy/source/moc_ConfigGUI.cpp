@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'ConfigGUI.h'
 **
-** Created: Fri 26. Aug 13:21:17 2011
+** Created: Wed 18. Jan 01:48:02 2012
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!

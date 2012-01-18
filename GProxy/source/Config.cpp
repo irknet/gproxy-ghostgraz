@@ -60,6 +60,7 @@ void Config::addKeys ()
     keys.append("channel");
     keys.append("war3version");
     keys.append("port");
+    keys.append("cdkeysowner");
 
     keys.append("# Player versus Player Gaming Network");
     keys.append("exeversion");
@@ -158,6 +159,10 @@ void Config::addDefaultValue (const QString &key)
     {
         values.append("6125");
     }
+    else if (key == "cdkeysowner")
+    {
+        values.append("GProxy");
+    }
     else if (key == "sound")
     {
         values.append("Enabled");
@@ -226,6 +231,7 @@ void Config::addDefaultValue (const QString &key)
     {
         values.append("baerli_graz{255,0,0};"
                 "klingone_graz{255,0,0};"
+                "Noman(1){0,0,255};"
                 "Manufactoring{0,255,0};"
                 "Phyton{0,255,0}");
     }

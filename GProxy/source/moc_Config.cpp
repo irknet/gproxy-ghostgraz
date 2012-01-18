@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'Config.h'
 **
-** Created: Sun 21. Aug 10:52:02 2011
+** Created: Mon 16. Jan 00:15:41 2012
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!

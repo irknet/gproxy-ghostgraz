@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'GamelistDelegate.h'
 **
-** Created: Sun 21. Aug 10:52:09 2011
+** Created: Mon 16. Jan 00:15:48 2012
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!

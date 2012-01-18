@@ -865,6 +865,8 @@ void MainGUI::processInput (const QString& input)
         addMessage(ColoredMessage("Phyton", ColoredMessage::WHISPER), false, false, false);
         addMessage(ColoredMessage(", "), false, false, false);
         addMessage(ColoredMessage("Pr0gm4n", ColoredMessage::INFO), false, false, false);
+        addMessage(ColoredMessage(", "), false, false, false);
+        addMessage(ColoredMessage("Pr0gm4n", ColoredMessage::ERROR), false, false, false);
         addMessage(ColoredMessage(" and "), false, false, false);
         addMessage(ColoredMessage("Manufactoring", ColoredMessage::GAMEINFO), false, false, false);
         addMessage(ColoredMessage("."), false, false, true);
@@ -1012,6 +1014,10 @@ void MainGUI::addTooltip(QListWidgetItem* item)
     else if (username == "Phyton" || username == "Manufactoring")
     {
         item->setToolTip("Creator of GProxy GhostGraz");
+    }
+    else if (username == "Noman(1)")
+    {
+        item->setToolTip("Little hepler of Gproxy GhostGraz");
     }
     else if (username.startsWith("GhostGraz"))
     {

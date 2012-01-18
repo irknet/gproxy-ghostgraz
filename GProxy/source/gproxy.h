@@ -241,6 +241,7 @@ public:
     void setWar3Path(QString war3Path) { this->war3Path = war3Path; }
     void setCDKeyTFT(QString cdKeyTFT) { this->cdKeyTFT = cdKeyTFT; }
     void setCDKeyROC(QString cdKeyROC) { this->cdKeyROC = cdKeyROC; }
+    void setCdKeyOwner(QString owner) { this->cdKeyOwner = owner; }
     void setDotaMap(bool dotaMap) { this->dotaMap = dotaMap; }
     void setConfig(Config *config) { this->config = config; }
 
@@ -252,6 +253,8 @@ public:
     QString getWar3Path() { return war3Path; }
     QString getCDKeyTFT() { return cdKeyTFT; }
     QString getCDKeyROC() { return cdKeyROC; }
+    QString getCdKeyOwner() { return cdKeyOwner; }
+    
     bool isDotaMap() { return dotaMap; }
     Config *getConfig() { return config; }
     // </editor-fold>
@@ -291,6 +294,7 @@ private:
     QString war3Path;
     QString cdKeyROC;
     QString cdKeyTFT;
+    QString cdKeyOwner;
     bool dotaMap;
     QList<Slot*> slotList;
     QList<Player*> players;

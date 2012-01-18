@@ -551,7 +551,7 @@ void CBNET::ProcessPackets ()
                                 CONSOLE_Print(ColoredMessage("[BNET] attempting to auth as Warcraft III: Reign of Chaos", ColoredMessage::BNET));
                             }
 
-                            m_Socket->PutBytes(m_Protocol->SEND_SID_AUTH_CHECK(m_GProxy->m_TFT, m_Protocol->GetClientToken(), m_BNCSUtil->GetEXEVersion(), m_BNCSUtil->GetEXEVersionHash(), m_BNCSUtil->GetKeyInfoROC(), m_BNCSUtil->GetKeyInfoTFT(), m_BNCSUtil->GetEXEInfo(), "GProxy"));
+                            m_Socket->PutBytes(m_Protocol->SEND_SID_AUTH_CHECK(m_GProxy->m_TFT, m_Protocol->GetClientToken(), m_BNCSUtil->GetEXEVersion(), m_BNCSUtil->GetEXEVersionHash(), m_BNCSUtil->GetKeyInfoROC(), m_BNCSUtil->GetKeyInfoTFT(), m_BNCSUtil->GetEXEInfo(), m_GProxy->getCdKeyOwner().toStdString()));
 
                             // the Warden seed is the first 4 bytes of the ROC key hash
                             // initialize the Warden handler
