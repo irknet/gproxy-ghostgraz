@@ -866,7 +866,7 @@ void MainGUI::processInput (const QString& input)
         addMessage(ColoredMessage(", "), false, false, false);
         addMessage(ColoredMessage("Pr0gm4n", ColoredMessage::INFO), false, false, false);
         addMessage(ColoredMessage(", "), false, false, false);
-        addMessage(ColoredMessage("Pr0gm4n", ColoredMessage::ERROR), false, false, false);
+        addMessage(ColoredMessage("Noman(1)", ColoredMessage::ERROR), false, false, false);
         addMessage(ColoredMessage(" and "), false, false, false);
         addMessage(ColoredMessage("Manufactoring", ColoredMessage::GAMEINFO), false, false, false);
         addMessage(ColoredMessage("."), false, false, true);
