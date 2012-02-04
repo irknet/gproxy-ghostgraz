@@ -1,0 +1,68 @@
+#labels Tutorial
+= GProxy - GhostGraz =
+
+If you still have problems with the instalation write me a [http://forum.ghostgraz.com/pm/i3lackmagic-11/sa.send/ pm]
+
+=== Downloading ===
+
+Download the newest version of GProxy from [http://forum.ghostgraz.com/general-discussions/gproxy-ghostgraz-2-11339.msg61122.html#msg61122 http://desmond.imageshack.us/Himg600/scaled.php?server=600&filename=2download2.jpg&res=medium]
+<br>       
+or
+<br>
+[http://code.google.com/p/gproxy-ghostgraz/downloads/list http://desmond.imageshack.us/Himg26/scaled.php?server=26&filename=1download1.jpg&res=medium]
+<br>
+and download the file
+<br>
+<br>
+=== Installation ===
+Open your Downloadfolder.
+<br>
+*Unpack GProxy v2.3.2* (if you dont have winrar you can download it [http://www.winrar.de/download.php here])
+<br>
+[http://desmond.imageshack.us/Himg713/scaled.php?server=713&filename=3ordnerentpacken.jpg&res=medium]
+<br>
+<br>
+*Open your Gproxy v2.3.2 folder.*
+<br>
+<br>
+*Rightclick on Gproxy 2.3.2.exe and Properties*
+<br>
+<br>
+*Run as Administrator*
+<br>
+<br>
+*ok*
+<br>
+<br>
+[http://desmond.imageshack.us/Himg594/scaled.php?server=594&filename=4eigenschaften.jpg&res=medium]
+<br>
+<br>
+<br>
+*Run Gproxy v2.3.2.exe*
+<br>
+[http://desmond.imageshack.us/Himg703/scaled.php?server=703&filename=7optionenerklrung.jpg&res=medium]
+<br>
+*Explanation:*
+<br>
+<br>
+*Reign of Chaos CD Key* _Your Wc3 - Reign of Chaos CD-Key_
+<br>
+*The Frozen Throne CD-Key* _Your Wc3 - The Frozen Throne CD-Key_
+<br>
+*Battle.net Server* _The server where you want to join_
+<br>
+*Username* _Your battle.net Account_
+<br>
+*Password* _Your battle.net Password_
+<br>
+*Channel* _Which Wc3-Channel you want start_
+<br>
+*War3craft 3 patch version*: _Your Wc3-Patch version_
+<br>
+*Port* _What port you want to use_
+<br>
+*Warcraft 3 Install directory* _Choose Your Warcraft 3 Install Path_
+<br>
+[http://desmond.imageshack.us/Himg543/scaled.php?server=543&filename=6chooseyourwc3directory.jpg&res=medium]
+<br>
+<br>
