@@ -36,10 +36,7 @@ MainGUI::MainGUI (CGProxy *p_gproxy)
 MainGUI::~MainGUI ()
 {
     delete statspage;
-    refreshButtonDownloadThread->stop();
-    delete refreshButtonDownloadThread;
-    downloadThread->stop();
-    delete downloadThread;
+    delete gameListDownloader;
     gproxyUpdateThread->stop();
     delete gproxyUpdateThread;
 }
@@ -69,9 +66,8 @@ void MainGUI::startUpdateThread()
 
 void MainGUI::init ()
 {
-    refreshButtonDownloadThread = new DownloadThread(gproxy);
-    downloadThread = new DownloadThread(gproxy);
-    downloadThread->start(QThread::LowestPriority);
+    gameListDownloader = new GameListDownloader("http://0.static.ghostgraz.com/currentgames.txt");
+    gameListDownloader->startDownloadInterval(5000);
     gproxyUpdateThread = new GproxyUpdateThread(gproxy);
 
     widget.channelList->setItemDelegate(new ChannellistDelegate(this));
@@ -161,10 +157,8 @@ void MainGUI::initLayout ()
 void MainGUI::initSlots ()
 {
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(onClose()));
-    connect(downloadThread, SIGNAL(signal_clearGamelist()),
-            this, SLOT(clearGamelist()), Qt::QueuedConnection);
-    connect(downloadThread, SIGNAL(signal_addGame(QString, QString, QString)),
-            this, SLOT(addGame(QString, QString, QString)), Qt::QueuedConnection);
+    connect(gameListDownloader, SIGNAL(downloadFinished(QList<GameListEntry>)), 
+            this, SLOT(onGameListDownloadFinished(QList<GameListEntry>)));
 }
 
 void MainGUI::initAdminlist ()
@@ -547,14 +541,7 @@ void MainGUI::onRefreshButtonClicked ()
 {
     widget.refreshButton->setEnabled(false);
 
-    refreshButtonDownloadThread = new DownloadThread(gproxy);
-
-    connect(refreshButtonDownloadThread, SIGNAL(signal_clearGamelist()),
-            this, SLOT(clearGamelist()));
-    connect(refreshButtonDownloadThread, SIGNAL(signal_addGame(QString, QString, QString)),
-            this, SLOT(addGame(QString, QString, QString)));
-
-    refreshButtonDownloadThread->refresh();
+    gameListDownloader->startDownload();
 
     widget.refreshButton->setText("Refresh (10)");
     QTimer::singleShot(1000, this, SLOT(updateRefreshButton()));
@@ -1226,31 +1213,6 @@ void MainGUI::addFriendInformation(Friend* f, QListWidgetItem* item)
 }
 
 /**
- * Adds a game to the gamelist.
- *
- * @param botname The name of the hosting bot.
- * @param gamename The name of the hosted game.
- * @param openSlots The remaining slots to join.
- */
-void MainGUI::addGame (QString botname, QString gamename, QString openSlots)
-{
-    QListWidgetItem* newItem = new QListWidgetItem();
-    newItem->setData(GamelistDelegate::BOTNAME, botname);
-    newItem->setData(GamelistDelegate::GAMENAME, gamename);
-    newItem->setData(GamelistDelegate::OPEN_SLOTS, openSlots);
-    widget.gameList->addItem(newItem);
-}
-
-/**
- * Removes and deletes every item from the gamelist.
- */
-void MainGUI::clearGamelist ()
-{
-
-    widget.gameList->clear();
-}
-
-/**
  * Sets the new slotlist of the game.
  *
  * @param slotList The new slotlist.
@@ -1690,6 +1652,28 @@ void MainGUI::userColorChanged(MColorDialog* colorDialog)
 
     item->setData(ChannellistDelegate::COLOR_USER, color);
     widget.outputTextArea->repaint("usercolor", color, username);
+}
+
+/**
+ * Slot: Executed when the GameListDownloser has successfully downloded 
+ * and parsed the game list.
+ * 
+ * @param gameList The list with game list entries.
+ */
+void MainGUI::onGameListDownloadFinished(QList<GameListEntry> gameList)
+{
+    widget.gameList->clear();
+    
+    foreach (GameListEntry gameListEntry, gameList)
+    {
+        QListWidgetItem* gameListItem = new QListWidgetItem();
+    
+        gameListItem->setData(GamelistDelegate::BOTNAME, gameListEntry.getHostname());
+        gameListItem->setData(GamelistDelegate::GAMENAME, gameListEntry.getGamename());
+        gameListItem->setData(GamelistDelegate::OPEN_SLOTS, gameListEntry.getOpenSlotCount());
+
+        widget.gameList->addItem(gameListItem);
+    }
 }
 
 CGProxy* MainGUI::getGproxy ()

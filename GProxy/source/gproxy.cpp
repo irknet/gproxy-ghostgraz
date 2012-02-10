@@ -2343,9 +2343,11 @@ void CGProxy::sendGamemessage (QString message, bool alliesOnly)
         return;
     }
 
-    if (message.length() > 254)
+    // Warcraft can only display a total of 127 characters.
+    // Sending more characters disconnects every player
+    if (message.length() > 127)
     {
-        message = message.left(254);
+        message = message.left(127);
     }
 
     BYTEARRAY toPIDs;

@@ -2,11 +2,11 @@ INPUT(
 ./build/Release/Qt_MinGW-Windows/GproxyUpdateThread.o
 ./build/Release/Qt_MinGW-Windows/socket.o
 ./build/Release/Qt_MinGW-Windows/Friend.o
-./build/Release/Qt_MinGW-Windows/DownloadThread.o
 ./build/Release/Qt_MinGW-Windows/GhostGrazLogininformationDialog.o
 ./build/Release/Qt_MinGW-Windows/ColorUtil.o
 ./build/Release/Qt_MinGW-Windows/ClickableListWidget.o
 ./build/Release/Qt_MinGW-Windows/ClickableLineEdit.o
+./build/Release/Qt_MinGW-Windows/GameListDownloader.o
 ./build/Release/Qt_MinGW-Windows/bnetprotocol.o
 ./build/Release/Qt_MinGW-Windows/bnet.o
 ./build/Release/Qt_MinGW-Windows/SleepThread.o
@@ -25,6 +25,7 @@ INPUT(
 ./build/Release/Qt_MinGW-Windows/MColorDialog.o
 ./build/Release/Qt_MinGW-Windows/Util.o
 ./build/Release/Qt_MinGW-Windows/Slot.o
+./build/Release/Qt_MinGW-Windows/GameListEntry.o
 ./build/Release/Qt_MinGW-Windows/gpsprotocol.o
 ./build/Release/Qt_MinGW-Windows/ColoredMessage.o
 ./build/Release/Qt_MinGW-Windows/gproxy.o
@@ -37,6 +38,7 @@ INPUT(
 ./build/Release/Qt_MinGW-Windows/moc_MColorDialog.o
 ./build/Release/Qt_MinGW-Windows/moc_MButton.o
 ./build/Release/Qt_MinGW-Windows/moc_bnet.o
+./build/Release/Qt_MinGW-Windows/moc_GameListDownloader.o
 ./build/Release/Qt_MinGW-Windows/moc_Player.o
 ./build/Release/Qt_MinGW-Windows/moc_ClickableLineEdit.o
 ./build/Release/Qt_MinGW-Windows/moc_Product.o
@@ -44,9 +46,9 @@ INPUT(
 ./build/Release/Qt_MinGW-Windows/moc_Config.o
 ./build/Release/Qt_MinGW-Windows/moc_Friend.o
 ./build/Release/Qt_MinGW-Windows/moc_Slot.o
+./build/Release/Qt_MinGW-Windows/moc_GameListEntry.o
 ./build/Release/Qt_MinGW-Windows/moc_MainGUI.o
 ./build/Release/Qt_MinGW-Windows/moc_ChannellistDelegate.o
-./build/Release/Qt_MinGW-Windows/moc_DownloadThread.o
 ./build/Release/Qt_MinGW-Windows/moc_GamelistDelegate.o
 ./build/Release/Qt_MinGW-Windows/moc_ClickableListWidget.o
 ./build/Release/Qt_MinGW-Windows/qrc_resources.o

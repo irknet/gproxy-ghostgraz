@@ -6,9 +6,9 @@ const
 {
     QString bot = "Botname: " + index.data(GamelistDelegate::BOTNAME).toString();
     QString gamename = index.data(GamelistDelegate::GAMENAME).toString();
-    QString openSlots = "Open slots: " + index.data(GamelistDelegate::OPEN_SLOTS).toString();
-
-    int openSlotsCount = index.data(37).toString().mid(1).toInt();
+    int openSlotsCount = index.data(GamelistDelegate::OPEN_SLOTS).toInt();
+    QString openSlots = "Open slots: " + QString::number(openSlotsCount);
+    
     QBrush brush = getBrush(openSlotsCount);
 
     if (gamename.startsWith("in channel") || gamename == "-")

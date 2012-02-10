@@ -7,6 +7,7 @@
       <logicalFolder name="f6" displayName="data" projectFiles="true">
         <itemPath>source/data/ColoredMessage.h</itemPath>
         <itemPath>source/data/Friend.h</itemPath>
+        <itemPath>source/data/GameListEntry.h</itemPath>
         <itemPath>source/data/Player.h</itemPath>
         <itemPath>source/data/Product.h</itemPath>
         <itemPath>source/data/Slot.h</itemPath>
@@ -16,7 +17,6 @@
         <itemPath>source/delegate/GamelistDelegate.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f3" displayName="thread" projectFiles="true">
-        <itemPath>source/thread/DownloadThread.h</itemPath>
         <itemPath>source/thread/GproxyUpdateThread.h</itemPath>
         <itemPath>source/thread/SleepThread.h</itemPath>
       </logicalFolder>
@@ -34,6 +34,7 @@
       </logicalFolder>
       <itemPath>source/Config.h</itemPath>
       <itemPath>source/ConfigGUI.h</itemPath>
+      <itemPath>source/GameListDownloader.h</itemPath>
       <itemPath>source/GhostGrazLogininformationDialog.h</itemPath>
       <itemPath>source/MainGUI.h</itemPath>
       <itemPath>source/Statspage.h</itemPath>
@@ -60,6 +61,7 @@
       <logicalFolder name="f7" displayName="data" projectFiles="true">
         <itemPath>source/data/ColoredMessage.cpp</itemPath>
         <itemPath>source/data/Friend.cpp</itemPath>
+        <itemPath>source/data/GameListEntry.cpp</itemPath>
         <itemPath>source/data/Player.cpp</itemPath>
         <itemPath>source/data/Product.cpp</itemPath>
         <itemPath>source/data/Slot.cpp</itemPath>
@@ -69,7 +71,6 @@
         <itemPath>source/delegate/GamelistDelegate.cpp</itemPath>
       </logicalFolder>
       <logicalFolder name="f3" displayName="thread" projectFiles="true">
-        <itemPath>source/thread/DownloadThread.cpp</itemPath>
         <itemPath>source/thread/GproxyUpdateThread.cpp</itemPath>
         <itemPath>source/thread/SleepThread.cpp</itemPath>
       </logicalFolder>
@@ -86,6 +87,7 @@
       </logicalFolder>
       <itemPath>source/Config.cpp</itemPath>
       <itemPath>source/ConfigGUI.cpp</itemPath>
+      <itemPath>source/GameListDownloader.cpp</itemPath>
       <itemPath>source/GhostGrazLogininformationDialog.cpp</itemPath>
       <itemPath>source/MainGUI.cpp</itemPath>
       <itemPath>source/Statspage.cpp</itemPath>

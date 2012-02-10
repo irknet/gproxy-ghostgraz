@@ -3,12 +3,13 @@
 
 #include "ui_MainGUI.h"
 #include "gproxy.h"
-#include "thread/DownloadThread.h"
 #include "thread/GproxyUpdateThread.h"
 #include "Statspage.h"
 #include "data/Player.h"
 #include "data/Slot.h"
+#include "data/GameListEntry.h"
 #include "widget/MColorDialog.h"
+#include "GameListDownloader.h"
 
 #include <QString>
 #include <QDialog>
@@ -41,8 +42,6 @@ public slots:
     void updateFriend(Friend* f);
     void addFriend(Friend* f);
     void removeFriend(unsigned char entryNumber);
-    void clearGamelist();
-    void addGame(QString botname, QString gamename, QString openSlots);
     void setGameslots(QList<Slot*> slotList);
     void showErrorMessage(QString errorMessage);
     void showConfigDialog(bool exitOnReject = false);
@@ -55,8 +54,7 @@ public slots:
 private:
     Ui::MainGUI widget;
     CGProxy* gproxy;
-    DownloadThread* refreshButtonDownloadThread;
-    DownloadThread* downloadThread;
+    GameListDownloader* gameListDownloader;
     GproxyUpdateThread* gproxyUpdateThread;
     Statspage* statspage;
     QStringList admins;
@@ -90,6 +88,7 @@ private slots:
     void receivedPlayerInformation(Player*);
     void onAdminlistReceived(QStringList);
     void userColorChanged(MColorDialog* colorDialog);
+    void onGameListDownloadFinished(QList<GameListEntry> gameList);
 };
 
 #endif	/* _MAINGUI_H */
