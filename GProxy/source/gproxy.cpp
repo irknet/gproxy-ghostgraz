@@ -1430,7 +1430,11 @@ bool CGProxy::CheckForwarding (QString message)
         {
             gproxy->sendGamemessage("!stats " + lastLeaver->getName().getMessage());
         }
-    }
+        else
+        {
+            gproxy->m_BNET->QueueChatCommand(message, false);
+        }
+    } // if (command.length() >= 1 && command.startsWith("/"))
     else if (command.length() >= 1 && command.startsWith("!"))
     {
         if (command.startsWith("!stats") || command.startsWith("!statsdota"))
@@ -1463,7 +1467,7 @@ bool CGProxy::CheckForwarding (QString message)
         {
             gproxy->sendGamemessage("!stats " + lastLeaver->getName().getMessage());
         }
-    }
+    } // if (command.length() >= 1 && command.startsWith("!"))
 
     return forward;
 }

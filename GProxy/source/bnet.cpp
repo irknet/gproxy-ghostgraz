@@ -793,16 +793,12 @@ void CBNET::ProcessChatEvent (CIncomingChatEvent * chatEvent)
     {
         m_ReplyTarget = User.toStdString();
 
+        m_GProxy->SendLocalChat(User + " whispers: " + Message);
         CONSOLE_Print(ColoredMessage("[WHISPER FROM] [" + User + "] " + Message, ColoredMessage::WHISPER));
 
         if (Message.mid(0, 30) == "Spoof check by replying to thi")
         {
             m_GProxy->spoofcheck();
-        }
-
-        if (m_GProxy->m_LocalSocket)
-        {
-            m_GProxy->SendLocalChat(User + " whispers: " + Message);
         }
 
         if (m_GProxy->m_PlaySound)
@@ -863,36 +859,37 @@ void CBNET::ProcessChatEvent (CIncomingChatEvent * chatEvent)
                 CheckForGame(Message.mid(4, Message.length() - 4).toStdString());
             }
         }
-
     }
     else if (Event == CBNETProtocol::EID_BROADCAST)
     {
+        m_GProxy->SendLocalChat("[INFO] " + Message);
         CONSOLE_Print(ColoredMessage("[BROADCAST] " + Message, ColoredMessage::DEFAULT));
     }
     else if (Event == CBNETProtocol::EID_CHANNEL)
     {
+        m_GProxy->SendLocalChat("[INFO] " + Message);
         CONSOLE_Print(ColoredMessage("[BNET] joined channel [" + Message + "]", ColoredMessage::BNET));
         currentChannel = Message;
         m_GProxy->changeChannel(currentChannel);
     }
     else if (Event == CBNETProtocol::EID_CHANNELFULL)
     {
+        m_GProxy->SendLocalChat("[INFO] " + Message);
         CONSOLE_Print(ColoredMessage("[BNET] channel is full", ColoredMessage::BNET));
     }
     else if (Event == CBNETProtocol::EID_CHANNELDOESNOTEXIST)
     {
+        m_GProxy->SendLocalChat("[INFO] " + Message);
         CONSOLE_Print(ColoredMessage("[BNET] channel does not exist", ColoredMessage::BNET));
     }
     else if (Event == CBNETProtocol::EID_CHANNELRESTRICTED)
     {
+        m_GProxy->SendLocalChat("[INFO] " + Message);
         CONSOLE_Print(ColoredMessage("[BNET] channel restricted", ColoredMessage::BNET));
     }
     else if (Event == CBNETProtocol::EID_INFO)
     {
-        if (m_GProxy->m_LocalSocket)
-        {
-            m_GProxy->SendLocalChat("[INFO] " + Message);
-        }
+        m_GProxy->SendLocalChat("[INFO] " + Message);
         CONSOLE_Print(ColoredMessage("[INFO] " + Message, ColoredMessage::INFO)); //phy autosearch
         int index = Message.indexOf(" ");
         if (Message.mid(index + 1, 48) == "is using Warcraft III The Frozen Throne in game ")
@@ -902,10 +899,12 @@ void CBNET::ProcessChatEvent (CIncomingChatEvent * chatEvent)
     }
     else if (Event == CBNETProtocol::EID_ERROR)
     {
+        m_GProxy->SendLocalChat("[ERROR] " + Message);
         CONSOLE_Print(ColoredMessage("[ERROR] " + Message, ColoredMessage::ERROR));
     }
     else if (Event == CBNETProtocol::EID_EMOTE)
     {
+        m_GProxy->SendLocalChat("[EMOTE] [" + User + "] " + Message);
         CONSOLE_Print(ColoredMessage("[EMOTE] [" + User + "] " + Message, ColoredMessage::EMOTE));
     }
 }

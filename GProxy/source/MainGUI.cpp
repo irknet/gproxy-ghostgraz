@@ -460,6 +460,7 @@ void MainGUI::onFriendsContextMenu (const QPoint& pos)
     menu.addAction(QIcon(":/images/Mail.png"), "Whisper");
     menu.addAction(QIcon(":/images/User.png"), "Whois");
     menu.addAction(QIcon(":/images/Chat Bubble.png"), "Whisper all");
+    menu.addAction(QIcon(":/images/Applications.png"), "Copy name");
     menu.addAction(QIcon(":/images/Remove.png"), "Remove friend");
 
     if (gproxy->m_BNET->GetInGame())
@@ -486,6 +487,10 @@ void MainGUI::onFriendsContextMenu (const QPoint& pos)
             widget.inputTextArea->setPlainText("/f m ");
             widget.inputTextArea->setFocus();
             widget.inputTextArea->moveCursor(QTextCursor::End);
+        }
+        else if (action->text() == "Copy name")
+        {
+            QApplication::clipboard()->setText(item->text());
         }
         else if (action->text() == "!stats" || action->text() == "!statsdota")
         {
