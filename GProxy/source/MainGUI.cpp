@@ -317,11 +317,12 @@ bool MainGUI::onInputTextAreaKeyPressed (QKeyEvent* event)
             return true;
         }
     }
-    else if (widget.inputTextArea->toPlainText().toLower() == "/r "
+    else if (event->key() == Qt::Key_Space 
+            && widget.inputTextArea->toPlainText().toLower() == "/r"
             && !gproxy->m_BNET->GetReplyTarget().empty())
     {
         widget.inputTextArea->setPlainText("/w "
-                + QString::fromStdString(gproxy->m_BNET->GetReplyTarget()) + " ");
+                + QString::fromStdString(gproxy->m_BNET->GetReplyTarget()));
         widget.inputTextArea->moveCursor(QTextCursor::End);
     }
     
