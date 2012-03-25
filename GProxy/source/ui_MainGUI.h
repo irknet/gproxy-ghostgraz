@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainGUI.ui'
 **
-** Created: Fri 10. Feb 17:51:02 2012
+** Created: Fri 23. Mar 17:14:23 2012
 **      by: Qt User Interface Compiler version 4.7.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -171,7 +171,6 @@ public:
         retranslateUi(MainGUI);
         QObject::connect(exitAction, SIGNAL(triggered()), MainGUI, SLOT(close()));
         QObject::connect(gameList, SIGNAL(clicked(QMouseEvent*)), MainGUI, SLOT(onGameListItemClicked(QMouseEvent*)));
-        QObject::connect(inputTextArea, SIGNAL(textChanged()), MainGUI, SLOT(onInputTextAreaTextChanged()));
         QObject::connect(titleLabel, SIGNAL(textChanged(QString)), MainGUI, SLOT(onTitleLabelTextChanged()));
         QObject::connect(channelList, SIGNAL(customContextMenuRequested(QPoint)), MainGUI, SLOT(onChannelContextMenu(QPoint)));
         QObject::connect(friendList, SIGNAL(customContextMenuRequested(QPoint)), MainGUI, SLOT(onFriendsContextMenu(QPoint)));

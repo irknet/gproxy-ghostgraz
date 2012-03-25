@@ -402,22 +402,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>inputTextArea</sender>
-   <signal>textChanged()</signal>
-   <receiver>MainGUI</receiver>
-   <slot>onInputTextAreaTextChanged()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>330</x>
-     <y>557</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>542</x>
-     <y>277</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>titleLabel</sender>
    <signal>textChanged(QString)</signal>
    <receiver>MainGUI</receiver>

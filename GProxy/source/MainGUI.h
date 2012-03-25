@@ -18,6 +18,7 @@
 #include <QList>
 #include <QStringList>
 #include <QPalette>
+#include <QKeyEvent>
 
 class MainGUI : public QMainWindow
 {
@@ -51,6 +52,9 @@ public slots:
     void setColor(const QString& area, const QColor& color);
     void setFont(const QString& area, const QFont& font);
 
+protected:
+    bool eventFilter(QObject* watchedObject, QEvent* event);
+    
 private:
     Ui::MainGUI widget;
     CGProxy* gproxy;
@@ -70,11 +74,11 @@ private:
     void addColor(QListWidgetItem* item);
     void addTooltip(QListWidgetItem* item);
     void addFriendInformation(Friend* f, QListWidgetItem* item);
+    bool onInputTextAreaKeyPressed(QKeyEvent* event);
 
 private slots:
     void onClose();
     void onRestart();
-    void onInputTextAreaTextChanged();
     void onTitleLabelTextChanged();
     void onChannelContextMenu(const QPoint&);
     void onFriendsContextMenu(const QPoint&);

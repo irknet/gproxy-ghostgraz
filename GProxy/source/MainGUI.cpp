@@ -74,6 +74,9 @@ void MainGUI::init ()
     widget.gameList->setItemDelegate(new GamelistDelegate());
 
     widget.outputTextArea->setConfig(gproxy->getConfig());
+    
+    // Install the event filter to filter key press events.
+    widget.inputTextArea->installEventFilter(this);
 
     QAction *startWarcraftAction = widget.menuBar->addAction("Start Warcraft");
     connect(startWarcraftAction, SIGNAL(activated()),
@@ -115,42 +118,45 @@ void MainGUI::initStatspage ()
 
 void MainGUI::initLayout ()
 {
-    int inputFieldHeight = 60;
+    int width = this->width();
+    int height = this->height() - widget.menuBar->height();
+    
+    int inputFieldHeight = 40;
     int channelfieldWidth = 200;
     int channelfieldHeight = 25;
     int gamelistWidth = 220;
 
     widget.refreshButton->setMinimumSize(gamelistWidth, channelfieldHeight);
     widget.refreshButton->setMaximumSize(gamelistWidth, channelfieldHeight);
-    widget.refreshButton->move(width() - channelfieldWidth - gamelistWidth, 0);
+    widget.refreshButton->move(width - channelfieldWidth - gamelistWidth, 0);
 
     widget.titleLabel->setMinimumSize(channelfieldWidth, channelfieldHeight);
     widget.titleLabel->setMaximumSize(channelfieldWidth, channelfieldHeight);
-    widget.titleLabel->move(width() - channelfieldWidth, 0);
+    widget.titleLabel->move(width - channelfieldWidth, 0);
 
     widget.channelList->setMinimumSize(channelfieldWidth,
-            (height() - inputFieldHeight - channelfieldHeight) / 2);
+            (height - inputFieldHeight - channelfieldHeight) / 2);
     widget.channelList->setMaximumSize(channelfieldWidth,
-            (height() - inputFieldHeight - channelfieldHeight) / 2);
-    widget.channelList->move(width() - channelfieldWidth, channelfieldHeight);
+            (height - inputFieldHeight - channelfieldHeight) / 2);
+    widget.channelList->move(width - channelfieldWidth, channelfieldHeight);
 
     widget.friendList->setMinimumSize(channelfieldWidth,
-            (height() - inputFieldHeight - channelfieldHeight) / 2);
+            (height - inputFieldHeight - channelfieldHeight) / 2);
     widget.friendList->setMaximumSize(channelfieldWidth,
-            (height() - inputFieldHeight - channelfieldHeight) / 2);
-    widget.friendList->move(width() - channelfieldWidth, channelfieldHeight +
-            (height() - inputFieldHeight - channelfieldHeight) / 2);
+            (height - inputFieldHeight - channelfieldHeight) / 2);
+    widget.friendList->move(width - channelfieldWidth, channelfieldHeight +
+            (height - inputFieldHeight - channelfieldHeight) / 2);
 
-    widget.gameList->setMinimumSize(gamelistWidth, height() - inputFieldHeight - channelfieldHeight);
-    widget.gameList->setMaximumSize(gamelistWidth, height() - inputFieldHeight - channelfieldHeight);
-    widget.gameList->move(width() - channelfieldWidth - gamelistWidth, channelfieldHeight);
+    widget.gameList->setMinimumSize(gamelistWidth, height - inputFieldHeight - channelfieldHeight);
+    widget.gameList->setMaximumSize(gamelistWidth, height - inputFieldHeight - channelfieldHeight);
+    widget.gameList->move(width - channelfieldWidth - gamelistWidth, channelfieldHeight);
 
-    widget.inputTextArea->setMinimumSize(width(), inputFieldHeight);
-    widget.inputTextArea->setMaximumSize(width(), inputFieldHeight);
-    widget.inputTextArea->move(0, height() - inputFieldHeight);
+    widget.inputTextArea->setMinimumSize(width, inputFieldHeight);
+    widget.inputTextArea->setMaximumSize(width, inputFieldHeight);
+    widget.inputTextArea->move(0, height - inputFieldHeight);
 
-    widget.outputTextArea->setMinimumSize(width() - channelfieldWidth - gamelistWidth, height() - inputFieldHeight);
-    widget.outputTextArea->setMaximumSize(width() - channelfieldWidth - gamelistWidth, height() - inputFieldHeight);
+    widget.outputTextArea->setMinimumSize(width - channelfieldWidth - gamelistWidth, height - inputFieldHeight);
+    widget.outputTextArea->setMaximumSize(width - channelfieldWidth - gamelistWidth, height - inputFieldHeight);
     widget.outputTextArea->move(0, 0);
 }
 
@@ -261,31 +267,54 @@ void MainGUI::resizeEvent (QResizeEvent* event)
     initLayout();
 }
 
-/**
- * The slot which is emitted after the text of the inputTextArea has changed.
- * Used to execute commands or send text.
- */
-void MainGUI::onInputTextAreaTextChanged ()
+bool MainGUI::eventFilter(QObject* watchedObject, QEvent* event)
 {
-    if (widget.inputTextArea->toPlainText().contains('\n'))
+    if (watchedObject == widget.inputTextArea)
     {
-        if (widget.inputTextArea->toPlainText().length() == 1)
+        if (event->type() == QEvent::KeyPress)
         {
+            QKeyEvent* keyEvent = (QKeyEvent*) event;
+            return onInputTextAreaKeyPressed(keyEvent);
+        }
+    }
+    
+    // Delegate events
+    return false;
+}
+
+/**
+ * A key on the input text area was pressed.
+ * 
+ * @param event The occurred key event.
+ * @return Wheter this event should be delegated to the text area.
+ */
+bool MainGUI::onInputTextAreaKeyPressed (QKeyEvent* event)
+{
+    if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return)
+    {
+        if (widget.inputTextArea->toPlainText().length() == 0)
+        {
+            // Do not delegate this event (add text) to the text area.
+            return true;
+        }
+        
+        if (event->modifiers() != Qt::ShiftModifier)
+        {
+            QString input = widget.inputTextArea->toPlainText();
             widget.inputTextArea->clear();
-            return;
-        }
 
-        QString input = widget.inputTextArea->toPlainText();
-        widget.inputTextArea->clear();
+            QStringList lines = input.split('\n');
 
-        if (input.endsWith('\n')) {
-            input.chop(1);
-        }
-
-        QStringList lines = input.split('\n');
-        foreach (QString line, lines)
-        {
-            processInput(line);
+            foreach(QString line, lines)
+            {
+                if (!line.isEmpty())
+                {
+                    processInput(line);
+                }
+            }
+            
+            // Do not delegate this event (add text) to the text area.
+            return true;
         }
     }
     else if (widget.inputTextArea->toPlainText().toLower() == "/r "
@@ -295,6 +324,8 @@ void MainGUI::onInputTextAreaTextChanged ()
                 + QString::fromStdString(gproxy->m_BNET->GetReplyTarget()) + " ");
         widget.inputTextArea->moveCursor(QTextCursor::End);
     }
+    
+    return false;
 }
 
 /**
