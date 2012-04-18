@@ -279,12 +279,7 @@ bool MainGUI::onInputTextAreaKeyPressed(QKeyEvent* event) {
 
             QStringList lines = input.split('\n');
 
-            foreach(QString line, lines) {
-                if (!line.isEmpty()) {
-                    processInput(line);
-                }
-            }
-
+            processInput(lines);
             // Do not delegate this event (add text) to the text area.
             return true;
         }
@@ -518,263 +513,272 @@ void MainGUI::updateRefreshButton() {
  *
  * @param input The user input text.
  */
-void MainGUI::processInput(const QString& input) {
+void MainGUI::processInput(const QStringList& list) {
     // Variable holding the input text in lower case for command comparison.
-    QString command = input.toLower();
 
-    if (command == "/commands") {
-        addMessage(ColoredMessage(">>> /commands"), false);
-        addMessage(ColoredMessage(""), false);
-        addMessage(ColoredMessage("  In the GProxy++ console:"), false);
-        addMessage(ColoredMessage("   /commands           : show command list"), false);
-        addMessage(ColoredMessage("   /exit or /quit      : close GProxy++"), false);
-        addMessage(ColoredMessage("   /filter <f>         : start filtering public game names for <f>"), false);
-        addMessage(ColoredMessage("   /filteroff          : stop filtering public game names"), false);
-        addMessage(ColoredMessage("   /game <gamename>    : look for a specific game named <gamename>"), false);
-        addMessage(ColoredMessage("   /help               : show help text"), false);
-        addMessage(ColoredMessage("   /public             : enable listing of public games"), false);
-        addMessage(ColoredMessage("   /publicoff          : disable listing of public games"), false);
-        addMessage(ColoredMessage("   /r <message>        : reply to the last received whisper"), false);
-        addMessage(ColoredMessage("   /pgn <privgamename> : sets privategamename temporary to <privgamename> (Alias: /privategamename)"), false);
-        addMessage(ColoredMessage("   /waitgame <option>  : waits for a bot joining channel with the name-prefix set in gproxy.cfg and hosts"), false);
-        addMessage(ColoredMessage("                         a private game named <value of privategamename> (Alias: /wg <option>"), false);
-        addMessage(ColoredMessage("   Optons:   quiet     : doesn't display the message to other users in the channel (Alias: q)"), false);
-        addMessage(ColoredMessage("             off       : stops waiting for a bot to host a game"), false);
-        addMessage(ColoredMessage(""), false);
-        addMessage(ColoredMessage("   /botprefix <prefix> : sets <value of botprefix> temporary to <prefix>"), false);
-        addMessage(ColoredMessage("   /parrot <plname>    : repeats anything that Player <plname> sais in Chat with [PARROT] <Player's message>"), false);
-        addMessage(ColoredMessage("   /parrotall          : repeats anything that Players say in Chat with [PARROT] <Player's message>"), false);
-        addMessage(ColoredMessage("   /parrotoff          : stops /parrot and /parrotall"), false);
-        addMessage(ColoredMessage("   /start              : start warcraft 3"), false);
-        addMessage(ColoredMessage("   /version            : show version text"), false);
-        addMessage(ColoredMessage(""), false);
-        addMessage(ColoredMessage("  In game:"), false);
-        addMessage(ColoredMessage("   /re <message>       : reply to the last received whisper"), false);
-        addMessage(ColoredMessage("   /sc                 : whispers \"spoofcheck\" to the game host"), false);
-        addMessage(ColoredMessage("   /status             : show status information"), false);
-        addMessage(ColoredMessage("   /w <user> <message> : whispers <message> to <user>"), false);
-        addMessage(ColoredMessage(""), false);
-    } else if (command == "/exit" || command == "/quit") {
-        close();
-        return;
-    } else if (command == "/filteroff" || command == "/filter off") {
-        gproxy->m_BNET->SetPublicGameFilter(string());
-        addMessage(ColoredMessage("[BNET] stopped filtering public game names", ColoredMessage::BNET));
-    } else if (command.length() >= 9 && command.startsWith("/filter ")) {
-        QString filter = input.mid(8);
+    foreach(QString input, list) {
+        //for(int count = 0; count < list.size(); ++count){
+        if (!input.isEmpty()) {
+            QString command = input.toLower();
 
-        if (!filter.isEmpty()) {
-            filter = filter.left(31);
-            gproxy->m_BNET->SetPublicGameFilter(filter.toStdString());
-            addMessage(ColoredMessage("[BNET] started filtering public game names for \"" + filter + "\""), ColoredMessage::BNET);
-        }
-    } else if (command.startsWith("/priv ") && command.length() >= 7
-            && !gproxy->getPrivategamename().isEmpty()) {
-        QString botname = input.mid(6);
-        if (!botname.isEmpty() && botname.length() <= 15) {
-            QString pgn = gproxy->getPrivategamename();
-            if (botname.length() > 2) {
-                gproxy->m_BNET->QueueChatCommand("/w " + botname + " !priv " + pgn);
-            } else {
-                gproxy->m_BNET->QueueChatCommand("/w " + gproxy->getBotprefix()
-                        + botname + " !priv " + pgn);
-            }
-            gproxy->m_BNET->SetSearchGameName(pgn.toStdString());
-            autosearch(true);
-            addMessage(ColoredMessage("[BNET] try to create a private game named ["
-                    + pgn + "] at Bot ["
-                    + botname + "]."), ColoredMessage::BNET);
-        }
-    } else if (command.startsWith("/autosearch") || command.startsWith("/as")) {
-        if (command == "/autosearch" || command == "/as") {
-            if (gproxy->autosearch) {
-                addMessage(ColoredMessage("[GPROXY] 'autosearch' is on.", ColoredMessage::GPROXY));
-            } else {
-                addMessage(ColoredMessage("[GPROXY] 'autosearch' is off.", ColoredMessage::GPROXY));
-            }
-        } else if (command == "/autosearch on" || command == "/as on") {
-            autosearch(true);
-            addMessage(ColoredMessage("[GPROXY] Autosearch enabled.", ColoredMessage::GPROXY));
-        } else if (command == "/autosearch off" || command == "/as off") {
-            autosearch(false);
-            addMessage(ColoredMessage("[GPROXY] Autosearch disabled.", ColoredMessage::GPROXY));
-        } else {
-            addMessage(ColoredMessage("[ERROR] Invalid parameter! Use \"/as\", \"/as on\" or \"/as off\"", ColoredMessage::ERROR));
-        }
-    } else if (command == "/privategamename" || command == "/pgn") {
-        addMessage(ColoredMessage("[GPROXY] The value of 'privategamename' is: ["
-                + gproxy->getPrivategamename() + "]. Change it with the input "
-                + "'/privategamename <value>' alias '/pgn <value>'.", ColoredMessage::GPROXY));
-    } else if (command.startsWith("/privategamename ") || command.startsWith("/pgn ")) {
-        if (command.startsWith("/privategamename ")) {
-            gproxy->setPrivategamename(input.mid(17, (input.length() - 17)));
-        } else {
-            gproxy->setPrivategamename(input.mid(5, (input.size() - 5)));
-        }
+            if (command == "/commands") {
+                addMessage(ColoredMessage(">>> /commands"), false);
+                addMessage(ColoredMessage(""), false);
+                addMessage(ColoredMessage("  In the GProxy++ console:"), false);
+                addMessage(ColoredMessage("   /commands           : show command list"), false);
+                addMessage(ColoredMessage("   /exit or /quit      : close GProxy++"), false);
+                addMessage(ColoredMessage("   /filter <f>         : start filtering public game names for <f>"), false);
+                addMessage(ColoredMessage("   /filteroff          : stop filtering public game names"), false);
+                addMessage(ColoredMessage("   /game <gamename>    : look for a specific game named <gamename>"), false);
+                addMessage(ColoredMessage("   /help               : show help text"), false);
+                addMessage(ColoredMessage("   /public             : enable listing of public games"), false);
+                addMessage(ColoredMessage("   /publicoff          : disable listing of public games"), false);
+                addMessage(ColoredMessage("   /r <message>        : reply to the last received whisper"), false);
+                addMessage(ColoredMessage("   /pgn <privgamename> : sets privategamename temporary to <privgamename> (Alias: /privategamename)"), false);
+                addMessage(ColoredMessage("   /waitgame <option>  : waits for a bot joining channel with the name-prefix set in gproxy.cfg and hosts"), false);
+                addMessage(ColoredMessage("                         a private game named <value of privategamename> (Alias: /wg <option>"), false);
+                addMessage(ColoredMessage("   Optons:   quiet     : doesn't display the message to other users in the channel (Alias: q)"), false);
+                addMessage(ColoredMessage("             off       : stops waiting for a bot to host a game"), false);
+                addMessage(ColoredMessage(""), false);
+                addMessage(ColoredMessage("   /botprefix <prefix> : sets <value of botprefix> temporary to <prefix>"), false);
+                addMessage(ColoredMessage("   /parrot <plname>    : repeats anything that Player <plname> sais in Chat with [PARROT] <Player's message>"), false);
+                addMessage(ColoredMessage("   /parrotall          : repeats anything that Players say in Chat with [PARROT] <Player's message>"), false);
+                addMessage(ColoredMessage("   /parrotoff          : stops /parrot and /parrotall"), false);
+                addMessage(ColoredMessage("   /start              : start warcraft 3"), false);
+                addMessage(ColoredMessage("   /version            : show version text"), false);
+                addMessage(ColoredMessage(""), false);
+                addMessage(ColoredMessage("  In game:"), false);
+                addMessage(ColoredMessage("   /re <message>       : reply to the last received whisper"), false);
+                addMessage(ColoredMessage("   /sc                 : whispers \"spoofcheck\" to the game host"), false);
+                addMessage(ColoredMessage("   /status             : show status information"), false);
+                addMessage(ColoredMessage("   /w <user> <message> : whispers <message> to <user>"), false);
+                addMessage(ColoredMessage(""), false);
+            } else if (command == "/exit" || command == "/quit") {
+                close();
+                return;
+            } else if (command == "/filteroff" || command == "/filter off") {
+                gproxy->m_BNET->SetPublicGameFilter(string());
+                addMessage(ColoredMessage("[BNET] stopped filtering public game names", ColoredMessage::BNET));
+            } else if (command.length() >= 9 && command.startsWith("/filter ")) {
+                QString filter = input.mid(8);
 
-        addMessage(ColoredMessage("[GPROXY] Change value of 'privategamename' to ["
-                + gproxy->getPrivategamename() + "].", ColoredMessage::GPROXY));
-
-    } else if (command == "/botprefix") {
-        addMessage(ColoredMessage("[GPROXY] Value of 'botprefix' is ["
-                + gproxy->getBotprefix()
-                + "]. You can change it with '/botprefix <value>'.", ColoredMessage::GPROXY));
-    } else if (command.startsWith("/botprefix ")) {
-        gproxy->setBotprefix(input.mid(11, input.size() - 11));
-        addMessage(ColoredMessage("[GPROXY] Change value of 'botprefix' to ["
-                + gproxy->getBotprefix() + "].", ColoredMessage::GPROXY));
-    } else if (command.startsWith("/wg")) {
-        if (command == "/wg") {
-            gproxy->setVShallCreateQuiet(false);
-            gproxy->setVShallCreate(true);
-            addMessage(ColoredMessage("[GPROXY] Waiting for a bot and then trying to create a game "
-                    "and say [gn: " + gproxy->getPrivategamename() + "].", ColoredMessage::GPROXY));
-            gproxy->m_BNET->QueueChatCommand("[GProxy++] Waiting for a bot "
-                    "and create a game with the name ["
-                    + gproxy->getPrivategamename() + "].");
-        } else if (command == "/wg off") {
-            addMessage(ColoredMessage("[GPROXY] stopped waiting for a bot to create a game.", ColoredMessage::GPROXY));
-            gproxy->setVShallCreate(false);
-        } else if (command == "/wg quiet" || command == "/wg q") {
-            gproxy->setVShallCreate(true);
-            gproxy->setVShallCreateQuiet(true);
-            addMessage(ColoredMessage("[GPROXY] waiting for a bot and then trying to create a game [quiet].", ColoredMessage::GPROXY));
-        }
-    } else if (command.startsWith("/waitgame") && gproxy->getBotprefix() != "") {
-        if (command == "/waitgame") {
-            gproxy->setVShallCreateQuiet(false);
-            gproxy->setVShallCreate(true);
-            addMessage(ColoredMessage("[GPROXY] waiting for a bot and then trying to create a game "
-                    "and say [gn: " + gproxy->getPrivategamename() + "].", ColoredMessage::GPROXY));
-            gproxy->m_BNET->QueueChatCommand("[GProxy++][Phyton] Waiting for a bot "
-                    "and create a game with the name ["
-                    + gproxy->getPrivategamename() + "].");
-        } else if (command == "/waitgame off") {
-            addMessage(ColoredMessage("[GPROXY] stopped waiting for a bot to create a game.", ColoredMessage::GPROXY));
-            gproxy->setVShallCreate(false);
-        } else if (command == "/waitgame quiet") {
-            gproxy->setVShallCreate(true);
-            gproxy->setVShallCreateQuiet(true);
-            addMessage(ColoredMessage("[GPROXY] waiting for a bot and then trying to create a game [quiet].", ColoredMessage::GPROXY));
-        }
-    } else if (command.startsWith("/parrot ")) {
-        gproxy->setParrot(input.mid(8, input.length() - 8));
-        addMessage(ColoredMessage("[GPROXY] Parrot [" + gproxy->getParrot() + "]!!!111", ColoredMessage::GPROXY));
-    } else if (command == "/parrotoff") {
-        gproxy->setParrot("");
-        addMessage(ColoredMessage("[GPROXY] Parrot off", ColoredMessage::GPROXY));
-    } else if (input == "/parrotall") {
-        gproxy->setParrot("Parrot parrot");
-    } else if (input == "/parrotignore") {
-        gproxy->setParrot("Ignore ignore");
-    } else if (command.length() >= 7 && command.startsWith("/game ")) {
-        string GameName = input.mid(6).toStdString();
-
-        if (!GameName.empty() && GameName.size() <= 31) {
-            gproxy->m_BNET->SetSearchGameName(GameName);
-            autosearch(false);
-            addMessage(ColoredMessage("[BNET] looking for a game named \"" + QString::fromStdString(GameName)
-                    + "\" for up to two minutes", ColoredMessage::BNET));
-        }
-    } else if (command == "/help") {
-        addMessage(ColoredMessage(">>> /help"), false);
-        addMessage(ColoredMessage(""), false);
-        addMessage(ColoredMessage("  GProxy++ connects to battle.net and looks for games for you to join."), false);
-        addMessage(ColoredMessage("  If GProxy++ finds any they will be listed on the Warcraft III LAN screen."), false);
-        addMessage(ColoredMessage("  To join a game, simply open Warcraft III and wait at the LAN screen."), false);
-        addMessage(ColoredMessage("  Standard games will be white and GProxy++ enabled games will be blue."), false);
-        addMessage(ColoredMessage("  Note: You must type \"/public\" to enable listing of public games."), false);
-        addMessage(ColoredMessage(""), false);
-        addMessage(ColoredMessage("  If you want to join a specific game, type \"/game <gamename>\"."), false);
-        addMessage(ColoredMessage("  GProxy++ will look for that game for up to two minutes before giving up."), false);
-        addMessage(ColoredMessage("  This is useful for private games."), false);
-        addMessage(ColoredMessage(""), false);
-        addMessage(ColoredMessage("  Please note:"), false);
-        addMessage(ColoredMessage("  GProxy++ will join the game using your battle.net name, not your LAN name."), false);
-        addMessage(ColoredMessage("  Other players will see your battle.net name even if you choose another name."), false);
-        addMessage(ColoredMessage("  This is done so that you can be automatically spoof checked."), false);
-        addMessage(ColoredMessage(""), false);
-        addMessage(ColoredMessage("  Type \"/commands\" for a full command list."), false);
-        addMessage(ColoredMessage(""), false);
-    } else if (command == "/public" || command == "/publicon" || command == "/public on"
-            || command == "/list" || command == "/liston" || command == "/list on") {
-        gproxy->m_BNET->SetListPublicGames(true);
-        addMessage(ColoredMessage("[BNET] listing of public games enabled", ColoredMessage::BNET));
-    } else if (command == "/publicoff" || command == "/public off"
-            || command == "/listoff" || command == "/list off") {
-        gproxy->m_BNET->SetListPublicGames(false);
-        addMessage(ColoredMessage("[BNET] listing of public games disabled", ColoredMessage::BNET));
-    } else if (command.length() >= 4 && command.startsWith("/r ")) {
-        if (!gproxy->m_BNET->GetReplyTarget().empty()) {
-            gproxy->m_BNET->QueueChatCommand(input.mid(3),
-                    gproxy->m_BNET->GetReplyTarget(), true);
-        } else
-            addMessage(ColoredMessage("[BNET] nobody has whispered you yet", ColoredMessage::BNET));
-    } else if (command == "/start") {
-        startWarcraft();
-    } else if (command == "/version") {
-        addMessage(ColoredMessage("[GPROXY] Customized "
-                "GProxy++ Version " + QString::fromStdString(gproxy->m_Version), ColoredMessage::GPROXY), false);
-        addMessage(ColoredMessage("[GPROXY] ", ColoredMessage::GPROXY), false, true, false);
-        addMessage(ColoredMessage("This mod is by "), false, false, false);
-        addMessage(ColoredMessage("Phyton", ColoredMessage::WHISPER), false, false, false);
-        addMessage(ColoredMessage(", "), false, false, false);
-        addMessage(ColoredMessage("Pr0gm4n", ColoredMessage::INFO), false, false, false);
-        addMessage(ColoredMessage(", "), false, false, false);
-        addMessage(ColoredMessage("Noman(1)", ColoredMessage::ERROR), false, false, false);
-        addMessage(ColoredMessage(" and "), false, false, false);
-        addMessage(ColoredMessage("Manufactoring", ColoredMessage::GAMEINFO), false, false, false);
-        addMessage(ColoredMessage("."), false, false, true);
-    } else if (command.startsWith("/test")) {
-        // Isn't it obvious?
-    } else if (command.startsWith("/p ") || command.startsWith("/phrase ")) {
-        QString filePath = "phrase/";
-
-        if (command.startsWith("/p ")) {
-            filePath.append(command.mid(3));
-        } else if (command.startsWith("/phrase ")) {
-            filePath.append(command.mid(8));
-        }
-
-        if (!filePath.endsWith(".txt")) {
-            filePath.append(".txt");
-        }
-
-        QFile* phraseFile = new QFile(filePath);
-
-        if (phraseFile->open(QFile::ReadOnly)) {
-            QStringList lines = QString(phraseFile->readAll()).split('\n');
-
-            foreach(QString line, lines) {
-                if (gproxy->m_BNET->GetInGame() && !line.startsWith('#')) {
-                    if (!line.startsWith('%')) {
-                        if (!line.startsWith('~')) {
-                            gproxy->sendGamemessage(line);
-                        } else {
-                            // Sleep
-                        }
-                    } else {
-                        gproxy->m_BNET->QueueChatCommand(line.mid(1));
-                    }
-                } else if (!line.startsWith('#')) {
-                    gproxy->m_BNET->QueueChatCommand(line);
+                if (!filter.isEmpty()) {
+                    filter = filter.left(31);
+                    gproxy->m_BNET->SetPublicGameFilter(filter.toStdString());
+                    addMessage(ColoredMessage("[BNET] started filtering public game names for \"" + filter + "\""), ColoredMessage::BNET);
                 }
+            } else if (command.startsWith("/priv ") && command.length() >= 7
+                    && !gproxy->getPrivategamename().isEmpty()) {
+                QString botname = input.mid(6);
+                if (!botname.isEmpty() && botname.length() <= 15) {
+                    QString pgn = gproxy->getPrivategamename();
+                    if (botname.length() > 2) {
+                        gproxy->m_BNET->QueueChatCommand("/w " + botname + " !priv " + pgn);
+                    } else {
+                        gproxy->m_BNET->QueueChatCommand("/w " + gproxy->getBotprefix()
+                                + botname + " !priv " + pgn);
+                    }
+                    gproxy->m_BNET->SetSearchGameName(pgn.toStdString());
+                    autosearch(true);
+                    addMessage(ColoredMessage("[BNET] try to create a private game named ["
+                            + pgn + "] at Bot ["
+                            + botname + "]."), ColoredMessage::BNET);
+                }
+            } else if (command.startsWith("/autosearch") || command.startsWith("/as")) {
+                if (command == "/autosearch" || command == "/as") {
+                    if (gproxy->autosearch) {
+                        addMessage(ColoredMessage("[GPROXY] 'autosearch' is on.", ColoredMessage::GPROXY));
+                    } else {
+                        addMessage(ColoredMessage("[GPROXY] 'autosearch' is off.", ColoredMessage::GPROXY));
+                    }
+                } else if (command == "/autosearch on" || command == "/as on") {
+                    autosearch(true);
+                    addMessage(ColoredMessage("[GPROXY] Autosearch enabled.", ColoredMessage::GPROXY));
+                } else if (command == "/autosearch off" || command == "/as off") {
+                    autosearch(false);
+                    addMessage(ColoredMessage("[GPROXY] Autosearch disabled.", ColoredMessage::GPROXY));
+                } else {
+                    addMessage(ColoredMessage("[ERROR] Invalid parameter! Use \"/as\", \"/as on\" or \"/as off\"", ColoredMessage::ERROR));
+                }
+            } else if (command == "/privategamename" || command == "/pgn") {
+                addMessage(ColoredMessage("[GPROXY] The value of 'privategamename' is: ["
+                        + gproxy->getPrivategamename() + "]. Change it with the input "
+                        + "'/privategamename <value>' alias '/pgn <value>'.", ColoredMessage::GPROXY));
+            } else if (command.startsWith("/privategamename ") || command.startsWith("/pgn ")) {
+                if (command.startsWith("/privategamename ")) {
+                    gproxy->setPrivategamename(input.mid(17, (input.length() - 17)));
+                } else {
+                    gproxy->setPrivategamename(input.mid(5, (input.size() - 5)));
+                }
+
+                addMessage(ColoredMessage("[GPROXY] Change value of 'privategamename' to ["
+                        + gproxy->getPrivategamename() + "].", ColoredMessage::GPROXY));
+
+            } else if (command == "/botprefix") {
+                addMessage(ColoredMessage("[GPROXY] Value of 'botprefix' is ["
+                        + gproxy->getBotprefix()
+                        + "]. You can change it with '/botprefix <value>'.", ColoredMessage::GPROXY));
+            } else if (command.startsWith("/botprefix ")) {
+                gproxy->setBotprefix(input.mid(11, input.size() - 11));
+                addMessage(ColoredMessage("[GPROXY] Change value of 'botprefix' to ["
+                        + gproxy->getBotprefix() + "].", ColoredMessage::GPROXY));
+            } else if (command.startsWith("/wg")) {
+                if (command == "/wg") {
+                    gproxy->setVShallCreateQuiet(false);
+                    gproxy->setVShallCreate(true);
+                    addMessage(ColoredMessage("[GPROXY] Waiting for a bot and then trying to create a game "
+                            "and say [gn: " + gproxy->getPrivategamename() + "].", ColoredMessage::GPROXY));
+                    gproxy->m_BNET->QueueChatCommand("[GProxy++] Waiting for a bot "
+                            "and create a game with the name ["
+                            + gproxy->getPrivategamename() + "].");
+                } else if (command == "/wg off") {
+                    addMessage(ColoredMessage("[GPROXY] stopped waiting for a bot to create a game.", ColoredMessage::GPROXY));
+                    gproxy->setVShallCreate(false);
+                } else if (command == "/wg quiet" || command == "/wg q") {
+                    gproxy->setVShallCreate(true);
+                    gproxy->setVShallCreateQuiet(true);
+                    addMessage(ColoredMessage("[GPROXY] waiting for a bot and then trying to create a game [quiet].", ColoredMessage::GPROXY));
+                }
+            } else if (command.startsWith("/waitgame") && gproxy->getBotprefix() != "") {
+                if (command == "/waitgame") {
+                    gproxy->setVShallCreateQuiet(false);
+                    gproxy->setVShallCreate(true);
+                    addMessage(ColoredMessage("[GPROXY] waiting for a bot and then trying to create a game "
+                            "and say [gn: " + gproxy->getPrivategamename() + "].", ColoredMessage::GPROXY));
+                    gproxy->m_BNET->QueueChatCommand("[GProxy++][Phyton] Waiting for a bot "
+                            "and create a game with the name ["
+                            + gproxy->getPrivategamename() + "].");
+                } else if (command == "/waitgame off") {
+                    addMessage(ColoredMessage("[GPROXY] stopped waiting for a bot to create a game.", ColoredMessage::GPROXY));
+                    gproxy->setVShallCreate(false);
+                } else if (command == "/waitgame quiet") {
+                    gproxy->setVShallCreate(true);
+                    gproxy->setVShallCreateQuiet(true);
+                    addMessage(ColoredMessage("[GPROXY] waiting for a bot and then trying to create a game [quiet].", ColoredMessage::GPROXY));
+                }
+            } else if (command.startsWith("/parrot ")) {
+                gproxy->setParrot(input.mid(8, input.length() - 8));
+                addMessage(ColoredMessage("[GPROXY] Parrot [" + gproxy->getParrot() + "]!!!111", ColoredMessage::GPROXY));
+            } else if (command == "/parrotoff") {
+                gproxy->setParrot("");
+                addMessage(ColoredMessage("[GPROXY] Parrot off", ColoredMessage::GPROXY));
+            } else if (input == "/parrotall") {
+                gproxy->setParrot("Parrot parrot");
+            } else if (input == "/parrotignore") {
+                gproxy->setParrot("Ignore ignore");
+            } else if (command.length() >= 7 && command.startsWith("/game ")) {
+                string GameName = input.mid(6).toStdString();
+
+                if (!GameName.empty() && GameName.size() <= 31) {
+                    gproxy->m_BNET->SetSearchGameName(GameName);
+                    autosearch(false);
+                    addMessage(ColoredMessage("[BNET] looking for a game named \"" + QString::fromStdString(GameName)
+                            + "\" for up to two minutes", ColoredMessage::BNET));
+                }
+            } else if (command == "/help") {
+                addMessage(ColoredMessage(">>> /help"), false);
+                addMessage(ColoredMessage(""), false);
+                addMessage(ColoredMessage("  GProxy++ connects to battle.net and looks for games for you to join."), false);
+                addMessage(ColoredMessage("  If GProxy++ finds any they will be listed on the Warcraft III LAN screen."), false);
+                addMessage(ColoredMessage("  To join a game, simply open Warcraft III and wait at the LAN screen."), false);
+                addMessage(ColoredMessage("  Standard games will be white and GProxy++ enabled games will be blue."), false);
+                addMessage(ColoredMessage("  Note: You must type \"/public\" to enable listing of public games."), false);
+                addMessage(ColoredMessage(""), false);
+                addMessage(ColoredMessage("  If you want to join a specific game, type \"/game <gamename>\"."), false);
+                addMessage(ColoredMessage("  GProxy++ will look for that game for up to two minutes before giving up."), false);
+                addMessage(ColoredMessage("  This is useful for private games."), false);
+                addMessage(ColoredMessage(""), false);
+                addMessage(ColoredMessage("  Please note:"), false);
+                addMessage(ColoredMessage("  GProxy++ will join the game using your battle.net name, not your LAN name."), false);
+                addMessage(ColoredMessage("  Other players will see your battle.net name even if you choose another name."), false);
+                addMessage(ColoredMessage("  This is done so that you can be automatically spoof checked."), false);
+                addMessage(ColoredMessage(""), false);
+                addMessage(ColoredMessage("  Type \"/commands\" for a full command list."), false);
+                addMessage(ColoredMessage(""), false);
+            } else if (command == "/public" || command == "/publicon" || command == "/public on"
+                    || command == "/list" || command == "/liston" || command == "/list on") {
+                gproxy->m_BNET->SetListPublicGames(true);
+                addMessage(ColoredMessage("[BNET] listing of public games enabled", ColoredMessage::BNET));
+            } else if (command == "/publicoff" || command == "/public off"
+                    || command == "/listoff" || command == "/list off") {
+                gproxy->m_BNET->SetListPublicGames(false);
+                addMessage(ColoredMessage("[BNET] listing of public games disabled", ColoredMessage::BNET));
+            } else if (command.length() >= 4 && command.startsWith("/r ")) {
+                if (!gproxy->m_BNET->GetReplyTarget().empty()) {
+                    gproxy->m_BNET->QueueChatCommand(input.mid(3),
+                            gproxy->m_BNET->GetReplyTarget(), true);
+                } else
+                    addMessage(ColoredMessage("[BNET] nobody has whispered you yet", ColoredMessage::BNET));
+            } else if (command == "/start") {
+                startWarcraft();
+            } else if (command == "/version") {
+                addMessage(ColoredMessage("[GPROXY] Customized "
+                        "GProxy++ Version " + QString::fromStdString(gproxy->m_Version), ColoredMessage::GPROXY), false);
+                addMessage(ColoredMessage("[GPROXY] ", ColoredMessage::GPROXY), false, true, false);
+                addMessage(ColoredMessage("This mod is by "), false, false, false);
+                addMessage(ColoredMessage("Phyton", ColoredMessage::WHISPER), false, false, false);
+                addMessage(ColoredMessage(", "), false, false, false);
+                addMessage(ColoredMessage("Pr0gm4n", ColoredMessage::INFO), false, false, false);
+                addMessage(ColoredMessage(", "), false, false, false);
+                addMessage(ColoredMessage("Noman(1)", ColoredMessage::ERROR), false, false, false);
+                addMessage(ColoredMessage(" and "), false, false, false);
+                addMessage(ColoredMessage("Manufactoring", ColoredMessage::GAMEINFO), false, false, false);
+                addMessage(ColoredMessage("."), false, false, true);
+            } else if (command.startsWith("/test")) {
+                // Isn't it obvious?
+            } else if (command.startsWith("/p ") || command.startsWith("/phrase ")) {
+                QString filePath = "phrase/";
+
+                if (command.startsWith("/p ")) {
+                    filePath.append(command.mid(3));
+                } else if (command.startsWith("/phrase ")) {
+                    filePath.append(command.mid(8));
+                }
+
+                if (!filePath.endsWith(".txt")) {
+                    filePath.append(".txt");
+                }
+
+                QFile* phraseFile = new QFile(filePath);
+
+                if (phraseFile->open(QFile::ReadOnly)) {
+                    QStringList lines = QString(phraseFile->readAll()).split('\n');
+
+                    foreach(QString line, lines) {
+                        if (gproxy->m_BNET->GetInGame() && !line.startsWith('#')) {
+                            if (!line.startsWith('%')) {
+                                if (!line.startsWith('~')) {
+                                    gproxy->sendGamemessage(line);
+                                } else {
+                                    // Sleep
+                                }
+                            } else {
+                                gproxy->m_BNET->QueueChatCommand(line.mid(1));
+                            }
+                        } else if (!line.startsWith('#')) {
+                            gproxy->m_BNET->QueueChatCommand(line);
+                        }
+                    }
+                } else {
+                    addMessage(ColoredMessage("[ERROR] File \"" + filePath + "\" does not exist!", ColoredMessage::ERROR));
+                    gproxy->SendLocalChat("File \"" + filePath + "\" does not exist!");
+                }
+            } else if (gproxy->m_BNET->GetInGame()) {
+                if (command == "/statslast" || command == "/sl"
+                        || command == "!statslast" || command == "!sl") {
+                    gproxy->sendGamemessage("!stats " + gproxy->getLastLeaver()->getName().getMessage());
+                } else if (command.startsWith("/allies ")) {
+                    gproxy->sendGamemessage(input.mid(8), true);
+                } else {
+                    gproxy->sendGamemessage(input);
+                }
+            } else {
+                if (list.first().startsWith("/w ") && !command.startsWith("/w ") && list.first().length() > 3)
+                    input = list.first().mid(0, list.first().indexOf(' ', 3)) + " " + input;
+
+                gproxy->m_BNET->QueueChatCommand(input);
             }
-        } else {
-            addMessage(ColoredMessage("[ERROR] File \"" + filePath + "\" does not exist!", ColoredMessage::ERROR));
-            gproxy->SendLocalChat("File \"" + filePath + "\" does not exist!");
         }
-    } else if (gproxy->m_BNET->GetInGame()) {
-        if (command == "/statslast" || command == "/sl"
-                || command == "!statslast" || command == "!sl") {
-            gproxy->sendGamemessage("!stats " + gproxy->getLastLeaver()->getName().getMessage());
-        } else if (command.startsWith("/allies ")) {
-            gproxy->sendGamemessage(input.mid(8), true);
-        } else {
-            gproxy->sendGamemessage(input);
-        }
-    } else {
-        gproxy->m_BNET->QueueChatCommand(input);
     }
 }
 
