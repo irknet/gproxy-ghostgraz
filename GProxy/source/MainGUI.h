@@ -70,7 +70,7 @@ private:
     void initAdminlist();
 
     void resizeEvent(QResizeEvent* event);
-    void processInput(const QString& input);
+    void processInput(const QStringList& input);
     void addColor(QListWidgetItem* item);
     void addTooltip(QListWidgetItem* item);
     void addFriendInformation(Friend* f, QListWidgetItem* item);
