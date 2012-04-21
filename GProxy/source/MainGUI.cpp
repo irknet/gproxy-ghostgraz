@@ -304,7 +304,15 @@ bool MainGUI::onInputTextAreaKeyPressed (QKeyEvent* event)
             widget.inputTextArea->clear();
 
             QStringList lines = input.split('\n');
-
+            
+            // Fix of not sending whispers correctly when you have \n on the input text
+            // Detect Whisper
+            if(lines.first().toLower().startsWith("/w ") and lines.first().size() > 3 ){
+                // Add /w [NAME] command on each line
+                for(int count = 1; count < lines.size(); ++count)           
+                lines[count] = lines.first().mid(0,lines.first().indexOf(' ',lines.first().indexOf(' ',0) + 1) ) + lines[count];
+            }
+            
             foreach(QString line, lines)
             {
                 if (!line.isEmpty())
