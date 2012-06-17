@@ -20,8 +20,8 @@ void Statspage::getPlayerInformation (const QString& playerName)
     if (loggedIn)
     {
         QNetworkRequest statsRequest(QUrl("http://forum.ghostgraz.com/stats/?u="
-                + playerName + "&s=datetime&o=desc&p=user&n=0"));
-
+                + playerName + "&s=datetime&o=desc&p=user")); // On further updates to add player stats i deleted &n=0 "&s=datetime&o=desc&p=user&n=0" 
+                                                                  // to know if i checked for a player stats for stay or for game listing
         manager->get(statsRequest);
     }
 }
@@ -141,19 +141,34 @@ void Statspage::onPlayerReplyFinished (QNetworkReply *reply)
     player->setRaxKills(getInfo(content, "Rax Kills:").toInt());
     player->setCourierKills(getInfo(content, "Courier Kills:").toInt());
 
+    if(url.endsWith("&n=0")){ // then check full games stats
+//        setGamesStats(content, player);
+    }
+    
     reply->deleteLater();
 
     emit playerInformationReplyFinished(player);
 }
+//
+//void Statspage::setGamesStats(const QString &content, Player *player){
+//
+//}
+//
+//QString Statspage::getGameInfo(const QString &content, const QString &infoText){
+//
+//}
 
-QString Statspage::getInfo (const QString &content, const QString &infoText)
+
+
+QString Statspage::getInfo (const QString &content, const QString &infoText) // Find Where (content) what (infotext)
 {
-    int infoTextLabel = content.indexOf(infoText);
+    int infoTextLabel = content.indexOf(infoText); // First sight, we need the next col
     int infoTdIndex = content.indexOf("<td>", infoTextLabel);
     int infoTdEndIndex = content.indexOf("</td>", infoTdIndex);
 
     return content.mid(infoTdIndex + 4, infoTdEndIndex - infoTdIndex - 4);
 }
+
 
 void Statspage::onAdminlistReplyFinished(QNetworkReply* reply)
 {

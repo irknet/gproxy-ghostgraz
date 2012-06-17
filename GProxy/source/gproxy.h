@@ -169,6 +169,7 @@ public:
     string m_GameName;
     int m_ChannelWidth;
     bool m_PlaySound;
+    bool m_joinStats;
 
     string cfgpublic;//phy public
     string cfgfilter;//phy filter

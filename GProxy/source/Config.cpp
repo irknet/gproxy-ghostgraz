@@ -71,6 +71,7 @@ void Config::addKeys ()
     keys.append("ghostgrazUsername");
     keys.append("ghostgrazPassword");
     keys.append("sound");
+    keys.append("joinstats");
     keys.append("privategamename");
     keys.append("botprefix");
     keys.append("log");
@@ -164,6 +165,10 @@ void Config::addDefaultValue (const QString &key)
         values.append("GProxy");
     }
     else if (key == "sound")
+    {
+        values.append("Enabled");
+    }
+    else if (key == "joinstats")
     {
         values.append("Enabled");
     }

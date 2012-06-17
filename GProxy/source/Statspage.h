@@ -34,7 +34,7 @@ private:
     QString getInfo(const QString &content, const QString &infoText);
     void onPlayerReplyFinished(QNetworkReply *);
     void onAdminlistReplyFinished(QNetworkReply *);
-
+    
 private slots:
     void forumReplyFinished(QNetworkReply *);
     void loginReplyFinished(QNetworkReply *);

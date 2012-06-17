@@ -310,7 +310,7 @@ bool MainGUI::onInputTextAreaKeyPressed (QKeyEvent* event)
             if(lines.first().toLower().startsWith("/w ") and lines.first().size() > 3 ){
                 // Add /w [NAME] command on each line
                 for(int count = 1; count < lines.size(); ++count)           
-                lines[count] = lines.first().mid(0,lines.first().indexOf(' ',lines.first().indexOf(' ',0) + 1) ) + lines[count];
+                lines[count] = lines.first().mid(0,lines.first().indexOf(' ',lines.first().indexOf(' ',0) + 1) ) + ' ' +  lines[count];
             }
             
             foreach(QString line, lines)
@@ -1633,7 +1633,12 @@ void MainGUI::receivedPlayerInformation (Player *player)
                         + " has a stay ratio below 80%. ("
                         + QString::number(players[i]->getStayPercent(), 'f', 2) + "%)");
             }
-
+            if(gproxy->getConfig()->getBoolean("joinstats")){
+                addMessage(ColoredMessage("[Statspage] ", ColoredMessage::GPROXY),true, true, false);
+                addMessage(players[i]->getName(), true, false, false);
+                addMessage(ColoredMessage(" has stats of: " +  QString::number(players[i]->getGamesPlayed()) + " g with " +  QString::number(players[i]->getWinPercent(),'f',2) + "% of win. Stay of: " +  QString::number(players[i]->getStayPercent(),'f',2) + "% "),true, false, true);
+                gproxy->SendLocalChat("[Statspage]: " + players[i]->getName().getMessage() + " has stats of: " + QString::number(players[i]->getGamesPlayed()) + " g with " + QString::number(players[i]->getWinPercent(),'f',2) + "% of win. Stay of: " + QString::number(players[i]->getStayPercent(),'f',2) + "%");
+            }
             break;
         }
     }

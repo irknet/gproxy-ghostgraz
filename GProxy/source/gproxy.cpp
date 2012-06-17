@@ -413,6 +413,7 @@ void CGProxy::initVariables (string cpublic, string cfilter, bool temp_displayau
     m_listing_current_games = listing_current_games;
     testvar = false;
     m_PlaySound = true; // manu
+    m_joinStats = true;
     vShallCreate = false;
     vShallCreateQuiet = false;
     parrot = "";
@@ -478,6 +479,7 @@ void CGProxy::applyConfig ()
     gproxy->setBotprefix(config->getString("botprefix"));
     cautosearch = config->getBoolean("autosearch");
     gproxy->m_PlaySound = config->getBoolean("sound");
+    gproxy->m_joinStats = config->getBoolean("joinstats");
     gproxy->setUsername(config->getString("username"));
     gproxy->setPassword(config->getString("password"));
     gproxy->setChannel(config->getString("channel"));

@@ -798,6 +798,7 @@ void CBNET::ProcessChatEvent (CIncomingChatEvent * chatEvent)
 
         if (Message.mid(0, 30) == "Spoof check by replying to thi")
         {
+            CONSOLE_Print(ColoredMessage("[INFO] Trying to autospoofcheck...", ColoredMessage::GAMEINFO));
             m_GProxy->spoofcheck();
         }
 
