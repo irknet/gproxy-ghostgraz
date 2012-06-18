@@ -1,8 +1,8 @@
 /********************************************************************************
 ** Form generated from reading UI file 'ConfigGUI.ui'
 **
-** Created: Fri 10. Feb 17:51:02 2012
-**      by: Qt User Interface Compiler version 4.7.4
+** Created: Mon 18. Jun 16:01:45 2012
+**      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -55,6 +55,8 @@ public:
     QComboBox *serverCombobox;
     QPushButton *war3pathButton;
     ClickableLineEdit *war3pathTextfield;
+    QLabel *cdkeysownerLabel;
+    QLineEdit *cdkeysownerTextfield;
     QWidget *pvpgnTab;
     QLabel *pvpgnHeaderLabel;
     QLabel *exeversionhashLabel;
@@ -107,6 +109,8 @@ public:
     QLabel *ghostgrazUsernameLabel;
     QLineEdit *ghostgrazUsernameTextfield;
     QLineEdit *ghostgrazPasswordTextfield;
+    QLabel *joinstatsLabel;
+    QComboBox *joinstatsCombobox;
 
     void setupUi(QDialog *ConfigGUI)
     {
@@ -231,6 +235,14 @@ public:
         war3pathTextfield->setObjectName(QString::fromUtf8("war3pathTextfield"));
         war3pathTextfield->setGeometry(QRect(180, 60, 210, 20));
         war3pathTextfield->setFont(font2);
+        cdkeysownerLabel = new QLabel(connectionTab);
+        cdkeysownerLabel->setObjectName(QString::fromUtf8("cdkeysownerLabel"));
+        cdkeysownerLabel->setGeometry(QRect(10, 420, 160, 20));
+        cdkeysownerLabel->setFont(font);
+        cdkeysownerTextfield = new QLineEdit(connectionTab);
+        cdkeysownerTextfield->setObjectName(QString::fromUtf8("cdkeysownerTextfield"));
+        cdkeysownerTextfield->setGeometry(QRect(180, 420, 240, 20));
+        cdkeysownerTextfield->setFont(font2);
         optionsTabWidget->addTab(connectionTab, QString());
         pvpgnTab = new QWidget();
         pvpgnTab->setObjectName(QString::fromUtf8("pvpgnTab"));
@@ -464,6 +476,15 @@ public:
         ghostgrazPasswordTextfield->setGeometry(QRect(180, 100, 240, 20));
         ghostgrazPasswordTextfield->setFont(font4);
         ghostgrazPasswordTextfield->setEchoMode(QLineEdit::Password);
+        joinstatsLabel = new QLabel(miscellaneousTab);
+        joinstatsLabel->setObjectName(QString::fromUtf8("joinstatsLabel"));
+        joinstatsLabel->setGeometry(QRect(10, 300, 160, 20));
+        joinstatsLabel->setFont(font);
+        joinstatsCombobox = new QComboBox(miscellaneousTab);
+        joinstatsCombobox->setObjectName(QString::fromUtf8("joinstatsCombobox"));
+        joinstatsCombobox->setGeometry(QRect(180, 300, 240, 20));
+        joinstatsCombobox->setFont(font6);
+        joinstatsCombobox->setMaxCount(10);
         optionsTabWidget->addTab(miscellaneousTab, QString());
 
         retranslateUi(ConfigGUI);
@@ -483,7 +504,7 @@ public:
         QObject::connect(generalWarningColorButton, SIGNAL(clicked(MButton*)), ConfigGUI, SLOT(onForegroundcolorButtonClicked(MButton*)));
         QObject::connect(generalWhisperColorButton, SIGNAL(clicked(MButton*)), ConfigGUI, SLOT(onForegroundcolorButtonClicked(MButton*)));
 
-        optionsTabWidget->setCurrentIndex(0);
+        optionsTabWidget->setCurrentIndex(3);
         appearanceTabWidget->setCurrentIndex(0);
 
 
@@ -586,6 +607,15 @@ public:
 #endif // QT_NO_WHATSTHIS
         war3pathTextfield->setText(QString());
         war3pathTextfield->setPlaceholderText(QApplication::translate("ConfigGUI", "Warcraft 3 Install directory", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        cdkeysownerLabel->setWhatsThis(QApplication::translate("ConfigGUI", "This is the name shown on the message: Your cd keys are already in use by @param", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
+        cdkeysownerLabel->setText(QApplication::translate("ConfigGUI", "CD key owner", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        cdkeysownerTextfield->setWhatsThis(QApplication::translate("ConfigGUI", "This is the port which GProxy will use.\n"
+"If you don't know what a port is I recommend you to not change this number.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
+        cdkeysownerTextfield->setPlaceholderText(QApplication::translate("ConfigGUI", "GProxy", 0, QApplication::UnicodeUTF8));
         optionsTabWidget->setTabText(optionsTabWidget->indexOf(connectionTab), QApplication::translate("ConfigGUI", "Connection", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_WHATSTHIS
         pvpgnHeaderLabel->setWhatsThis(QApplication::translate("ConfigGUI", "PvPGN (Player vs Player Gaming Network) is a bnetd based gaming network server emulation project. More information can be found at www.google.com ;P", 0, QApplication::UnicodeUTF8));
@@ -705,6 +735,18 @@ public:
 #endif // QT_NO_WHATSTHIS
         ghostgrazPasswordTextfield->setText(QString());
         ghostgrazPasswordTextfield->setPlaceholderText(QApplication::translate("ConfigGUI", "GhostGraz password", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_WHATSTHIS
+        joinstatsLabel->setWhatsThis(QApplication::translate("ConfigGUI", "If stats are enabled, gproxy will show the stats of each player on join or when he joins", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
+        joinstatsLabel->setText(QApplication::translate("ConfigGUI", "Stats on join:", 0, QApplication::UnicodeUTF8));
+        joinstatsCombobox->clear();
+        joinstatsCombobox->insertItems(0, QStringList()
+         << QApplication::translate("ConfigGUI", "Enabled", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ConfigGUI", "Disabled", 0, QApplication::UnicodeUTF8)
+        );
+#ifndef QT_NO_WHATSTHIS
+        joinstatsCombobox->setWhatsThis(QApplication::translate("ConfigGUI", "If stats are enabled, gproxy will show the stats of each player on join or when he joins", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_WHATSTHIS
         optionsTabWidget->setTabText(optionsTabWidget->indexOf(miscellaneousTab), QApplication::translate("ConfigGUI", "Miscellaneous", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 

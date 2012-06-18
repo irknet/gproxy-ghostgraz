@@ -73,7 +73,7 @@
     </sizepolicy>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>3</number>
    </property>
    <widget class="QWidget" name="connectionTab">
     <property name="font">
@@ -580,6 +580,53 @@ It is also needed to start Warcraft 3 with GProxy.</string>
      </property>
      <property name="placeholderText">
       <string>Warcraft 3 Install directory</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="cdkeysownerLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>420</y>
+       <width>160</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>9</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="whatsThis">
+      <string>This is the name shown on the message: Your cd keys are already in use by @param</string>
+     </property>
+     <property name="text">
+      <string>CD key owner</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="cdkeysownerTextfield">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>420</y>
+       <width>240</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="whatsThis">
+      <string>This is the port which GProxy will use.
+If you don't know what a port is I recommend you to not change this number.</string>
+     </property>
+     <property name="placeholderText">
+      <string>GProxy</string>
      </property>
     </widget>
    </widget>
@@ -1634,6 +1681,64 @@ The log file is located in the folder where the .exe is and is named gproxy_log.
      <property name="placeholderText">
       <string>GhostGraz password</string>
      </property>
+    </widget>
+    <widget class="QLabel" name="joinstatsLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>300</y>
+       <width>160</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>9</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="whatsThis">
+      <string>If stats are enabled, gproxy will show the stats of each player on join or when he joins</string>
+     </property>
+     <property name="text">
+      <string>Stats on join:</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="joinstatsCombobox">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>300</y>
+       <width>240</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>9</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="whatsThis">
+      <string>If stats are enabled, gproxy will show the stats of each player on join or when he joins</string>
+     </property>
+     <property name="maxCount">
+      <number>10</number>
+     </property>
+     <item>
+      <property name="text">
+       <string>Enabled</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Disabled</string>
+      </property>
+     </item>
     </widget>
    </widget>
   </widget>

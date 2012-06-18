@@ -1,8 +1,8 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainGUI.ui'
 **
-** Created: Fri 23. Mar 17:14:23 2012
-**      by: Qt User Interface Compiler version 4.7.4
+** Created: Mon 18. Jun 16:01:45 2012
+**      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -185,7 +185,7 @@ public:
 
     void retranslateUi(QMainWindow *MainGUI)
     {
-        MainGUI->setWindowTitle(QApplication::translate("MainGUI", "GProxy GhostGraz v2.3.2", 0, QApplication::UnicodeUTF8));
+        MainGUI->setWindowTitle(QApplication::translate("MainGUI", "GProxy GhostGraz v2.3.3", 0, QApplication::UnicodeUTF8));
         optionsAction->setText(QApplication::translate("MainGUI", "Options", 0, QApplication::UnicodeUTF8));
         exitAction->setText(QApplication::translate("MainGUI", "Exit", 0, QApplication::UnicodeUTF8));
         restartAction->setText(QApplication::translate("MainGUI", "Restart", 0, QApplication::UnicodeUTF8));
