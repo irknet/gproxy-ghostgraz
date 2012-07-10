@@ -2438,6 +2438,19 @@ void CGProxy::changeTeam (unsigned char team)
     m_TotalPacketsReceivedFromLocal++;
 }
 
+void CGProxy::leaveLobby ()
+{
+    m_LeaveGameSent = true;
+    BYTEARRAY packet = m_GameProtocol->SEND_W3GS_LEAVEGAME(PLAYERLEAVE_LOBBY);
+    m_RemoteSocket->PutBytes(packet);
+    
+    m_BNET->QueueEnterChat();
+
+    m_LocalSocket->Disconnect();
+    delete m_LocalSocket;
+    m_LocalSocket = NULL;
+}
+
 void CGProxy::SendLocalChat (QString message)
 {
     if (m_LocalSocket)

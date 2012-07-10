@@ -963,6 +963,25 @@ void MainGUI::processInput (const QString& input)
             gproxy->SendLocalChat("File \"" + filePath + "\" does not exist!");
         }
     }
+    else if (command == "/leave")
+    {
+        if (gproxy->m_BNET->GetInGame())
+        {
+            if (gproxy->m_GameStarted)
+            {
+                addMessage(ColoredMessage("[ERROR] Leaving a running game is disabled on purpose.", 
+                        ColoredMessage::ERROR));
+            }
+            else
+            {
+                gproxy->leaveLobby();
+            }
+        }
+        else
+        {
+            addMessage(ColoredMessage("[ERROR] No game to leave found.", ColoredMessage::ERROR));
+        }
+    }
     else if (gproxy->m_BNET->GetInGame())
     {
         if (command == "/statslast" || command == "/sl"

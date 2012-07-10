@@ -110,6 +110,7 @@ public:
 	BYTEARRAY SEND_W3GS_CREATEGAME( bool TFT, unsigned char war3Version );
 	BYTEARRAY SEND_W3GS_REFRESHGAME( uint32_t players, uint32_t playerSlots );
 	BYTEARRAY SEND_W3GS_DECREATEGAME( uint32_t hostCounter );
+        BYTEARRAY SEND_W3GS_LEAVEGAME( uint32_t reason );
 //        BYTEARRAY SEND_W3GS_REQJOIN(uint32_t hostCounter, uint32_t entryKey,
 //            unsigned char unknownByte, uint16_t listenPort, uint32_t peerKey, string playerName,
 //            uint32_t unknownDWORD, uint16_t internalPort, uint32_t internalIP );

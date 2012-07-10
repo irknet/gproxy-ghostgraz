@@ -206,6 +206,7 @@ public:
     void SendEmptyAction( );
     void showWelcomeMessages();
     void spoofcheck();
+    void leaveLobby();
 
     // <editor-fold defaultstate="collapsed" desc="Getters and setters">
     void setServer(const QString& server);

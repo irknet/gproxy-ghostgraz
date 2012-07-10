@@ -277,6 +277,31 @@ BYTEARRAY CGameProtocol :: SEND_W3GS_DECREATEGAME( uint32_t hostCounter )
 	return packet;
 }
 
+BYTEARRAY CGameProtocol :: SEND_W3GS_LEAVEGAME( uint32_t reason )
+{
+        /*
+         * Reasons:
+         * 0x01 PLAYERLEAVE_DISCONNECT
+         * 0x07 PLAYERLEAVE_LOST
+         * 0x08 PLAYERLEAVE_LOSTBUILDINGS
+         * 0x09 PLAYERLEAVE_WON
+         * 0x0A PLAYERLEAVE_DRAW
+         * 0x0B PLAYERLEAVE_OBSERVER
+         * 0x0D PLAYERLEAVE_LOBBY
+         */
+
+	BYTEARRAY packet;
+	packet.push_back( W3GS_HEADER_CONSTANT );			// W3GS header constant
+	packet.push_back( W3GS_LEAVEGAME );				// W3GS_LEAVEGAME
+	packet.push_back( 0 );						// packet length will be assigned later
+	packet.push_back( 0 );						// packet length will be assigned later
+	Util::appendByteArray( packet, reason, false );                 // Reason
+	AssignLength( packet );
+	// DEBUG_Print( "SENT W3GS_LEAVEGAME" );
+	// DEBUG_Print( packet );
+	return packet;
+}
+
 //BYTEARRAY CGameProtocol :: SEND_W3GS_REQJOIN(uint32_t hostCounter,
 //        uint32_t entryKey, unsigned char unknownByte, uint16_t listenPort,
 //        uint32_t peerKey, string playerName, uint32_t unknownDWORD,
